@@ -5,7 +5,7 @@ from PIL import Image, ImageOps
 
 # 設定路徑
 SOURCE_DIR = Path("../Portrait")
-TARGET_DIR = Path("src/assets/images")
+TARGET_DIR = Path("public/images")
 DATA_FILE = Path("src/data/images.json")
 
 def process_images():
@@ -50,7 +50,7 @@ def process_images():
                     img.save(output_path, "WEBP", quality=85, method=6)
 
                     images_data.append({
-                        "src": f"/src/assets/images/{output_filename}",
+                        "src": f"/images/{output_filename}",
                         "alt": "Portrait Work"
                     })
             except Exception as e:
