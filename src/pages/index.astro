@@ -1,0 +1,70 @@
+---
+import Layout from '../layouts/Layout.astro';
+import images from '../data/images.json';
+---
+
+<Layout title="Gallery | Photography Portfolio">
+	<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pb-20">
+		{images.length > 0 ? (
+			images.map((img) => (
+				<div class="overflow-hidden bg-zinc-900 aspect-[4/5] cursor-zoom-in group relative">
+					<img
+						src={img.src}
+						alt={img.alt}
+						loading="lazy"
+						class="w-full h-full object-cover opacity-60 group-hover:opacity-100 group-hover:scale-[1.05] transition-all duration-700 ease-out lightbox-trigger"
+					/>
+				</div>
+			))
+		) : (
+			<div class="col-span-full py-20 text-center text-zinc-500 italic">
+				尚未處理照片，請先執行圖片處理腳本。
+			</div>
+		)}
+	</div>
+
+	<!-- Lightbox Modal -->
+	<div id="lightbox" class="fixed inset-0 bg-black/98 z-50 hidden flex items-center justify-center cursor-zoom-out p-4 md:p-12 transition-opacity duration-300">
+		<img id="lightbox-img" src="" class="max-w-full max-h-full object-contain shadow-2xl scale-95 transition-transform duration-300" />
+		<button id="lightbox-close" class="absolute top-6 right-8 text-white text-5xl font-light hover:scale-110 transition-transform">&times;</button>
+	</div>
+
+	<script>
+		const triggers = document.querySelectorAll('.lightbox-trigger');
+		const lightbox = document.getElementById('lightbox');
+		const lightboxImg = document.getElementById('lightbox-img') as HTMLImageElement;
+		const closeBtn = document.getElementById('lightbox-close');
+
+		triggers.forEach(trigger => {
+			trigger.addEventListener('click', (e) => {
+				const target = e.target as HTMLImageElement;
+				if (lightbox && lightboxImg) {
+					lightboxImg.src = target.src;
+					lightbox.classList.remove('hidden');
+					document.body.style.overflow = 'hidden';
+					setTimeout(() => lightboxImg.style.transform = 'scale(1)', 10);
+				}
+			});
+		});
+
+		const closeLightbox = () => {
+			if (lightbox && lightboxImg) {
+				lightboxImg.style.transform = 'scale(0.95)';
+				setTimeout(() => {
+					lightbox.classList.add('hidden');
+					document.body.style.overflow = '';
+				}, 200);
+			}
+		};
+
+		lightbox?.addEventListener('click', (e) => {
+			if (e.target !== lightboxImg) closeLightbox();
+		});
+		closeBtn?.addEventListener('click', closeLightbox);
+		
+		// ESC key to close
+		window.addEventListener('keydown', (e) => {
+			if (e.key === 'Escape') closeLightbox();
+		});
+	</script>
+</Layout>

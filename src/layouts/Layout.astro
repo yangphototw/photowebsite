@@ -1,0 +1,40 @@
+---
+interface Props {
+	title?: string;
+}
+
+const { title = "Astro Photography" } = Astro.props;
+---
+
+<!doctype html>
+<html lang="zh-TW">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="description" content="Photography Portfolio" />
+		<meta name="viewport" content="width=device-width" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<title>{title}</title>
+		<style>
+			@import "tailwindcss";
+		</style>
+	</head>
+	<body class="text-gray-300 font-sans min-h-screen flex flex-col bg-fixed" style="background: radial-gradient(circle at 50% 30%, #0f0f0f 0%, #000000 100%);">
+		<nav class="flex justify-between items-center px-8 py-10 max-w-7xl mx-auto w-full">
+			<a href="/" class="text-2xl font-black tracking-tighter text-white hover:opacity-80 transition-opacity">
+				PORTFOLIO
+			</a>
+			<div class="flex gap-8 text-sm font-medium tracking-widest uppercase">
+				<a href="/" class="hover:text-white transition-colors duration-300">作品集</a>
+				<a href="/about" class="hover:text-white transition-colors duration-300">關於我</a>
+			</div>
+		</nav>
+
+		<main class="flex-grow max-w-7xl mx-auto w-full px-8">
+			<slot />
+		</main>
+
+		<footer class="px-8 py-16 text-center text-zinc-600 text-xs tracking-widest uppercase">
+			<p>&copy; 2026 Photography Portfolio. Built with Astro & Tailwind.</p>
+		</footer>
+	</body>
+</html>

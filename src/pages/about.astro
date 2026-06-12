@@ -1,0 +1,53 @@
+---
+import Layout from '../layouts/Layout.astro';
+import fs from 'node:fs';
+import path from 'node:path';
+
+// 讀取 About.txt 內容
+const aboutPath = path.resolve('src/assets/About.txt');
+let content = "";
+try {
+	content = fs.readFileSync(aboutPath, 'utf-8');
+} catch (e) {
+	content = "關於我內容準備中...";
+}
+
+// 處理文字換行
+const htmlContent = content.replace(/\n/g, '<br />');
+
+// 提取聯絡資訊 (假設 About.txt 內包含 Email 或 IG 關鍵字)
+const emailMatch = content.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
+const email = emailMatch ? emailMatch[0] : "";
+---
+
+<Layout title="About | Photography Portfolio">
+	<div class="flex flex-col lg:flex-row gap-16 py-12 lg:py-24">
+		<!-- 左側：個人照預留區 -->
+		<div class="lg:w-5/12">
+			<div class="aspect-[3/4] bg-zinc-900 rounded-sm border border-zinc-800 flex items-center justify-center overflow-hidden group">
+				<span class="text-zinc-700 italic group-hover:text-zinc-500 transition-colors">Portrait Placeholder</span>
+			</div>
+		</div>
+
+		<!-- 右側：內容區 -->
+		<div class="lg:w-7/12 flex flex-col justify-center">
+			<h1 class="text-5xl font-black text-white tracking-tighter mb-8 uppercase">About Me</h1>
+			
+			<div class="prose prose-invert prose-lg max-w-none">
+				<p class="leading-relaxed text-zinc-400 font-light tracking-wide text-lg" set:html={htmlContent}></p>
+			</div>
+
+			<div class="mt-12 flex flex-wrap gap-6">
+				{email && (
+					<a href={`mailto:${email}`} class="group relative px-8 py-4 bg-white text-black font-bold text-sm tracking-widest uppercase overflow-hidden">
+						<span class="relative z-10">Send Email</span>
+						<div class="absolute inset-0 bg-zinc-200 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
+					</a>
+				)}
+				<a href="#" class="px-8 py-4 border border-zinc-700 text-zinc-300 font-bold text-sm tracking-widest uppercase hover:bg-zinc-900 hover:border-white transition-all duration-300">
+					Follow IG
+				</a>
+			</div>
+		</div>
+	</div>
+</Layout>
