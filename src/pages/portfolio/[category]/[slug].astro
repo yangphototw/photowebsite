@@ -1,0 +1,111 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import fs from 'node:fs';
+import path from 'node:path';
+
+// 改用 fs 讀取
+const albumsPath = path.resolve('src/data/albums.json');
+const albums = JSON.parse(fs.readFileSync(albumsPath, 'utf-8'));
+
+export async function getStaticPaths() {
+	// 在 getStaticPaths 中我們可以直接使用讀取的 albums
+	const albumsPath = path.resolve('src/data/albums.json');
+	const allAlbums = JSON.parse(fs.readFileSync(albumsPath, 'utf-8'));
+	
+	return allAlbums.map((album) => ({
+		params: { 
+			category: album.categorySlug, 
+			slug: album.projectSlug 
+		},
+		props: { album },
+	}));
+}
+
+const { album } = Astro.props;
+---
+
+<Layout title={`${album.project} | ${album.category}`}>
+	<!-- Project Header -->
+	<header class="py-12 md:py-20 animate-fade-in">
+		<a href="/" class="text-zinc-500 text-xs tracking-[0.3em] uppercase hover:text-white transition-colors mb-6 inline-block">
+			← Back to Showcase
+		</a>
+		<h1 class="text-5xl md:text-7xl font-bold text-white tracking-tight mb-4">{album.project}</h1>
+		<div class="flex items-center gap-4">
+			<span class="px-3 py-1 bg-zinc-800 text-zinc-400 text-[10px] font-bold tracking-widest uppercase rounded-full">
+				{album.category}
+			</span>
+			<div class="h-px w-12 bg-zinc-800"></div>
+			<span class="text-zinc-600 text-xs italic">{album.images.length} Photos</span>
+		</div>
+	</header>
+
+	<!-- Masonry Gallery -->
+	<div class="columns-1 md:columns-2 lg:columns-3 gap-6 space-y-6 pb-32">
+		{album.images.map((src) => (
+			<div class="break-inside-avoid overflow-hidden bg-zinc-900 cursor-zoom-in group relative animate-fade-in">
+				<img
+					src={src}
+					alt={album.project}
+					loading="lazy"
+					class="w-full h-auto object-cover opacity-80 group-hover:opacity-100 group-hover:scale-[1.02] transition-all duration-700 ease-out lightbox-trigger"
+				/>
+			</div>
+		))}
+	</div>
+
+	<!-- Lightbox -->
+	<div id="lightbox" class="fixed inset-0 bg-black/98 z-50 hidden flex items-center justify-center cursor-zoom-out p-4 md:p-12 transition-opacity duration-300">
+		<img id="lightbox-img" src="" class="max-w-full max-h-full object-contain shadow-2xl scale-95 transition-transform duration-300" />
+		<button id="lightbox-close" class="absolute top-6 right-8 text-white text-5xl font-light hover:scale-110 transition-transform">&times;</button>
+	</div>
+
+	<style>
+		@keyframes fadeIn {
+			from { opacity: 0; transform: translateY(10px); }
+			to { opacity: 1; transform: translateY(0); }
+		}
+		.animate-fade-in {
+			animation: fadeIn 1s ease-out forwards;
+		}
+	</style>
+
+	<script>
+		const setupLightbox = () => {
+			const triggers = document.querySelectorAll('.lightbox-trigger');
+			const lightbox = document.getElementById('lightbox');
+			const lightboxImg = document.getElementById('lightbox-img') as HTMLImageElement;
+			const closeBtn = document.getElementById('lightbox-close');
+
+			if (!lightbox || !lightboxImg) return;
+
+			triggers.forEach(trigger => {
+				trigger.addEventListener('click', (e) => {
+					const target = e.target as HTMLImageElement;
+					lightboxImg.src = target.src;
+					lightbox.classList.remove('hidden');
+					document.body.style.overflow = 'hidden';
+					setTimeout(() => lightboxImg.style.transform = 'scale(1)', 10);
+				});
+			});
+
+			const closeLightbox = () => {
+				lightboxImg.style.transform = 'scale(0.95)';
+				setTimeout(() => {
+					lightbox.classList.add('hidden');
+					document.body.style.overflow = '';
+				}, 200);
+			};
+
+			lightbox.addEventListener('click', (e) => {
+				if (e.target !== lightboxImg) closeLightbox();
+			});
+			closeBtn?.addEventListener('click', closeLightbox);
+			window.addEventListener('keydown', (e) => {
+				if (e.key === 'Escape') closeLightbox();
+			});
+		};
+
+		document.addEventListener('astro:page-load', setupLightbox);
+	</script>
+</Layout>
