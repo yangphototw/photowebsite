@@ -1,4 +1,6 @@
 ---
+import { ClientRouter } from 'astro:transitions';
+
 interface Props {
 	title?: string;
 }
@@ -7,13 +9,14 @@ const { title = "Astro Photography" } = Astro.props;
 ---
 
 <!doctype html>
-<html lang="zh-TW">
+<html lang="zh-TW" class="scroll-smooth">
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="description" content="Photography Portfolio" />
 		<meta name="viewport" content="width=device-width" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<title>{title}</title>
+		<ClientRouter />
 		<style>
 			@import "tailwindcss";
 		</style>
