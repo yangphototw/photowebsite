@@ -3,9 +3,10 @@ import { ClientRouter } from 'astro:transitions';
 
 interface Props {
 	title?: string;
+	fullWidth?: boolean;
 }
 
-const { title = "Yang Photography" } = Astro.props;
+const { title = "Yang Photography", fullWidth = false } = Astro.props;
 const pathname = new URL(Astro.url).pathname;
 
 // 導覽定義：多類別雙語導覽，維持細緻字體
@@ -64,7 +65,7 @@ const navItems = [
 	</head>
 	<body class="bg-black text-[#9CA3AF] font-sans font-[200] min-h-screen flex flex-col selection:bg-zinc-800 selection:text-white antialiased">
 		<!-- 頂部導覽：極大垂直留白，營造高級感 -->
-		<header class="w-full py-12 px-8 md:px-16 max-w-7xl mx-auto">
+		<header class="w-full py-12 px-8 md:px-16 max-w-7xl mx-auto relative z-50">
 			<nav class="flex flex-col md:flex-row justify-between items-baseline gap-8">
 				<!-- 左側：攝影師名字，加大尺寸襯線體 -->
 				<a href="/" class="brand-font text-3xl md:text-4xl text-white tracking-wide hover:opacity-70 transition-opacity">
@@ -91,8 +92,8 @@ const navItems = [
 			</nav>
 		</header>
 
-		<!-- 頁面主要容器：寬鬆留白 -->
-		<main class="flex-grow w-full px-8 md:px-16 max-w-7xl mx-auto">
+		<!-- 頁面主要容器：依據設定決定是否滿版 -->
+		<main class={`flex-grow w-full ${fullWidth ? '' : 'px-8 md:px-16 max-w-7xl mx-auto'}`}>
 			<slot />
 		</main>
 
