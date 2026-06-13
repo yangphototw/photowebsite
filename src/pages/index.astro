@@ -15,6 +15,7 @@ const readJson = (filePath: string) => {
 const albums = readJson('src/data/albums.json');
 const carouselData = readJson('src/data/carousel.json');
 const featuredData = readJson('src/data/featured.json');
+const cardsData = readJson('src/data/cards.json');
 
 let allImages: string[] = albums.flatMap((a: any) => a.images);
 const defaultImg = "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=1500&auto=format&fit=crop";
@@ -26,20 +27,18 @@ if (heroImages.length === 0) {
 	heroImages = targetHeroImage ? [targetHeroImage] : [defaultImg];
 }
 
-// 2. 六大分類卡片圖片 (嘗試從相應類別找第一張封面，找不到就給預設)
-const getCategoryCover = (catName: string, fallback: string) => {
-	const catAlbum = albums.find((a: any) => a.category === catName);
-	return catAlbum ? catAlbum.cover : fallback;
+// 2. 六大分類卡片圖片
+const getCardCover = (cardName: string, fallback: string) => {
+	const card = cardsData.find((c: any) => c.category === cardName.toLowerCase());
+	return card ? card.src : fallback;
 };
 
-// 【主要收入來源】
-const cardWedding  = getCategoryCover("Wedding", "https://images.unsplash.com/photo-1511895426328-dc8714191300?q=80&w=1000&auto=format&fit=crop");
-const cardPortrait = getCategoryCover("人像", "https://images.unsplash.com/photo-1554046920-90dc20696342?q=80&w=1000&auto=format&fit=crop");
-const cardEvent    = getCategoryCover("活動紀錄", "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?q=80&w=1000&auto=format&fit=crop"); // 活動紀錄
-
-// 【其他分類】
-const cardProduct  = getCategoryCover("商品", "https://images.unsplash.com/photo-1515378960530-7c0da6229b92?q=80&w=1000&auto=format&fit=crop");
-const cardTravel   = getCategoryCover("Travel", "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?q=80&w=1000&auto=format&fit=crop");
+const cardWedding      = getCardCover("wedding", "https://images.unsplash.com/photo-1511895426328-dc8714191300?q=80&w=1000&auto=format&fit=crop");
+const cardRegistration = getCardCover("registration", "https://images.unsplash.com/photo-1583939003579-730e3918a45a?q=80&w=1000&auto=format&fit=crop");
+const cardPortrait     = getCardCover("portrait", "https://images.unsplash.com/photo-1554046920-90dc20696342?q=80&w=1000&auto=format&fit=crop");
+const cardEvent        = getCardCover("event", "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?q=80&w=1000&auto=format&fit=crop"); 
+const cardProduct      = getCardCover("product", "https://images.unsplash.com/photo-1515378960530-7c0da6229b92?q=80&w=1000&auto=format&fit=crop");
+const cardTravel       = getCardCover("travel", "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?q=80&w=1000&auto=format&fit=crop");
 
 // 3. IG 縮圖 (從全站相簿隨便抓 4 張)
 const igImg1 = allImages[0] || defaultImg;
@@ -77,8 +76,8 @@ const galleryImages = featuredData.length > 0
 					TAIWAN BASED / 獨立攝影與視覺敘事
 				</span>
 				
-				<h1 class="brand-font text-3xl md:text-4xl lg:text-5xl text-white leading-tight tracking-tight">
-					Yang<br />Photo<span class="text-amber-400 drop-shadow-[0_0_8px_rgba(245,158,11,0.5)]">.</span>
+				<h1 class="brand-font font-bold text-3xl md:text-4xl lg:text-5xl text-white leading-tight tracking-tight whitespace-nowrap">
+					Yang Photo<span class="text-amber-400 drop-shadow-[0_0_8px_rgba(245,158,11,0.5)]">.</span>
 				</h1>
 				
 				<p class="text-zinc-400 font-light tracking-wide text-xs md:text-sm max-w-md mb-2">
@@ -94,7 +93,7 @@ const galleryImages = featuredData.length > 0
 
 		<!-- 下半部：六大核心主題卡片 (移入 section 內部，讓背景圖能自動包覆它們) -->
 		<div class="relative z-30 w-full px-8 md:px-16 max-w-7xl mx-auto animate-fade-in-up delay-200">
-			<!-- 第一排：主要收入來源 (Weddings, Portraits, Events) -->
+			<!-- 第一排：(Weddings, Registration, Portraits) -->
 			<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
 				<!-- Wedding -->
 				<a href="/wedding" class="group block p-4 md:p-6 bg-zinc-900/60 backdrop-blur-xl border border-amber-500/30 rounded-2xl hover:border-amber-500/60 hover:shadow-[0_0_40px_rgba(245,158,11,0.15)] transition-all duration-500">
@@ -107,50 +106,65 @@ const galleryImages = featuredData.length > 0
 					</div>
 				</a>
 
+				<!-- Registration -->
+				<a href="/registration" class="group block p-4 md:p-6 bg-zinc-900/60 backdrop-blur-xl border border-amber-500/30 rounded-2xl hover:border-amber-500/60 hover:shadow-[0_0_40px_rgba(245,158,11,0.15)] transition-all duration-500">
+					<div class="flex justify-between items-center mb-6 px-2">
+						<span class="text-xs text-amber-400 font-bold tracking-widest">02</span>
+						<h3 class="brand-font text-xl text-white tracking-wide">Registration / 登記</h3>
+					</div>
+					<div class="relative w-full aspect-[4/5] overflow-hidden rounded-xl bg-black">
+						<img src={cardRegistration} class="w-full h-full object-cover opacity-70 brightness-90 group-hover:brightness-110 group-hover:opacity-100 group-hover:scale-[1.03] transition-all duration-700 ease-out" alt="Registration" />
+					</div>
+				</a>
+
 				<!-- Portrait -->
 				<a href="/portrait" class="group block p-4 md:p-6 bg-zinc-900/60 backdrop-blur-xl border border-amber-500/30 rounded-2xl hover:border-amber-500/60 hover:shadow-[0_0_40px_rgba(245,158,11,0.15)] transition-all duration-500">
 					<div class="flex justify-between items-center mb-6 px-2">
-						<span class="text-xs text-amber-400 font-bold tracking-widest">02</span>
+						<span class="text-xs text-amber-400 font-bold tracking-widest">03</span>
 						<h3 class="brand-font text-xl text-white tracking-wide">Portraits / 人像</h3>
 					</div>
 					<div class="relative w-full aspect-[4/5] overflow-hidden rounded-xl bg-black">
 						<img src={cardPortrait} class="w-full h-full object-cover opacity-70 brightness-90 group-hover:brightness-110 group-hover:opacity-100 group-hover:scale-[1.03] transition-all duration-700 ease-out" alt="Portraits" />
 					</div>
 				</a>
+			</div>
 
+			<!-- 第二排：(Events, Travel, Products) -->
+			<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
 				<!-- Event -->
 				<a href="/event" class="group block p-4 md:p-6 bg-zinc-900/60 backdrop-blur-xl border border-amber-500/30 rounded-2xl hover:border-amber-500/60 hover:shadow-[0_0_40px_rgba(245,158,11,0.15)] transition-all duration-500">
 					<div class="flex justify-between items-center mb-6 px-2">
-						<span class="text-xs text-amber-400 font-bold tracking-widest">03</span>
+						<span class="text-xs text-amber-400 font-bold tracking-widest">04</span>
 						<h3 class="brand-font text-xl text-white tracking-wide">Events / 活動紀錄</h3>
 					</div>
 					<div class="relative w-full aspect-[4/5] overflow-hidden rounded-xl bg-black">
 						<img src={cardEvent} class="w-full h-full object-cover opacity-70 brightness-90 group-hover:brightness-110 group-hover:opacity-100 group-hover:scale-[1.03] transition-all duration-700 ease-out" alt="Events" />
 					</div>
 				</a>
-			</div>
 
-			<!-- 第二排：次要分類 (Travel, Product) -->
-			<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 				<!-- Travel -->
 				<a href="/travel" class="group block p-4 md:p-6 bg-zinc-900/40 backdrop-blur-md border border-amber-500/10 rounded-2xl hover:border-amber-500/40 hover:shadow-[0_0_30px_rgba(245,158,11,0.05)] transition-all duration-500">
 					<div class="flex justify-between items-center mb-4 px-2">
-						<span class="text-[10px] text-amber-500/60 font-bold tracking-widest">04</span>
+						<span class="text-[10px] text-amber-500/60 font-bold tracking-widest">05</span>
 						<h3 class="brand-font text-lg text-zinc-300 group-hover:text-white tracking-wide transition-colors">Travel / 旅遊</h3>
 					</div>
-					<div class="relative w-full aspect-video overflow-hidden rounded-xl bg-black">
+					<div class="relative w-full aspect-video overflow-hidden rounded-xl bg-black hidden"> <!-- 這裡先藏起來以維持 3x2 -->
 						<img src={cardTravel} class="w-full h-full object-cover opacity-60 brightness-75 group-hover:brightness-100 group-hover:opacity-100 group-hover:scale-[1.02] transition-all duration-700 ease-out" alt="Travel" />
+					</div>
+					<!-- 改為與上方一致的比例 -->
+					<div class="relative w-full aspect-[4/5] overflow-hidden rounded-xl bg-black">
+						<img src={cardTravel} class="w-full h-full object-cover opacity-70 brightness-90 group-hover:brightness-110 group-hover:opacity-100 group-hover:scale-[1.03] transition-all duration-700 ease-out" alt="Travel" />
 					</div>
 				</a>
 
 				<!-- Product -->
 				<a href="/product" class="group block p-4 md:p-6 bg-zinc-900/40 backdrop-blur-md border border-amber-500/10 rounded-2xl hover:border-amber-500/40 hover:shadow-[0_0_30px_rgba(245,158,11,0.05)] transition-all duration-500">
 					<div class="flex justify-between items-center mb-4 px-2">
-						<span class="text-[10px] text-amber-500/60 font-bold tracking-widest">05</span>
+						<span class="text-[10px] text-amber-500/60 font-bold tracking-widest">06</span>
 						<h3 class="brand-font text-lg text-zinc-300 group-hover:text-white tracking-wide transition-colors">Products / 商品</h3>
 					</div>
-					<div class="relative w-full aspect-video overflow-hidden rounded-xl bg-black">
-						<img src={cardProduct} class="w-full h-full object-cover opacity-60 brightness-75 group-hover:brightness-100 group-hover:opacity-100 group-hover:scale-[1.02] transition-all duration-700 ease-out" alt="Products" />
+					<div class="relative w-full aspect-[4/5] overflow-hidden rounded-xl bg-black">
+						<img src={cardProduct} class="w-full h-full object-cover opacity-70 brightness-90 group-hover:brightness-110 group-hover:opacity-100 group-hover:scale-[1.03] transition-all duration-700 ease-out" alt="Products" />
 					</div>
 				</a>
 			</div>

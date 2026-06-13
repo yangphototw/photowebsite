@@ -1,0 +1,26 @@
+[
+  {
+    "category": "event",
+    "src": "/images/albums/00_Home/Cards/event.webp"
+  },
+  {
+    "category": "portrait",
+    "src": "/images/albums/00_Home/Cards/portrait.webp"
+  },
+  {
+    "category": "product",
+    "src": "/images/albums/00_Home/Cards/product.webp"
+  },
+  {
+    "category": "registration",
+    "src": "/images/albums/00_Home/Cards/registration.webp"
+  },
+  {
+    "category": "travel",
+    "src": "/images/albums/00_Home/Cards/travel.webp"
+  },
+  {
+    "category": "wedding",
+    "src": "/images/albums/00_Home/Cards/wedding.webp"
+  }
+]

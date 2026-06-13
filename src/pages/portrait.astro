@@ -8,7 +8,7 @@ const albumsPath = path.resolve('src/data/albums.json');
 const allAlbums = JSON.parse(fs.readFileSync(albumsPath, 'utf-8'));
 
 // 篩選出「人像」類別下的專案
-const portraitAlbums = allAlbums.filter(album => album.category === "人像");
+const portraitAlbums = allAlbums.filter(album => album.category === "Portrait");
 
 // 動態判斷 Grid 欄數邏輯
 const count = portraitAlbums.length;

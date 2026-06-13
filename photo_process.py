@@ -10,26 +10,33 @@ TARGET_BASE_DIR = Path("public/images/albums")
 DATA_DIR = Path("src/data")
 
 def slugify(text):
-    # 簡單的 slug 轉換，移除特殊字元
     return re.sub(r'[^\w\s-]', '', text.strip()).replace(' ', '-')
 
-def process_single_folder(folder_path, output_subpath):
-    """處理單一資料夾內的所有圖片，返回 Web 存取路徑列表"""
-    print(f"  📸 正在處理: {folder_path.name}")
+def process_single_folder(folder_path, output_subpath, is_hero=False):
+    """
+    處理單一資料夾內的所有圖片
+    is_hero: 如果是首頁大圖，使用更高的解析度 (4096px) 與品質 (100)
+    回傳：[{ "filename": "name", "src": "/path/to/webp" }, ...]
+    """
+    if not folder_path.exists():
+        return []
+
+    print(f"  📸 正在處理: {folder_path.name} {'(High Quality Mode)' if is_hero else ''}")
     output_dir = TARGET_BASE_DIR / output_subpath
     output_dir.mkdir(parents=True, exist_ok=True)
     
     valid_extensions = ('.jpg', '.jpeg', '.png', '.JPG', '.JPEG', '.PNG')
     project_images = []
     
-    img_files = sorted([f for f in folder_path.iterdir() if f.suffix.lower() in valid_extensions])
+    img_files = sorted([f for f in folder_path.iterdir() if f.is_file() and f.suffix.lower() in valid_extensions])
     
     for img_path in img_files:
         try:
             with Image.open(img_path) as img:
                 img = ImageOps.exif_transpose(img)
                 width, height = img.size
-                max_size = 2048
+                
+                max_size = 4096 if is_hero else 2048
                 if max(width, height) > max_size:
                     ratio = max_size / max(width, height)
                     img = img.resize((int(width * ratio), int(height * ratio)), Image.Resampling.LANCZOS)
@@ -39,11 +46,15 @@ def process_single_folder(folder_path, output_subpath):
                 
                 output_filename = f"{img_path.stem}.webp"
                 final_output_path = output_dir / output_filename
-                img.save(final_output_path, "WEBP", quality=85, method=6)
+                
+                # 全部品質調至 100%
+                img.save(final_output_path, "WEBP", quality=100, method=6)
 
-                # 使用正斜線構建 Web 路徑
                 web_path = f"/images/albums/{output_subpath}/{output_filename}"
-                project_images.append(web_path)
+                project_images.append({
+                    "filename": img_path.stem.lower(),
+                    "src": web_path
+                })
         except Exception as e:
             print(f"    ⚠️ 處理 {img_path.name} 時發生錯誤: {e}")
             
@@ -57,7 +68,7 @@ def save_json(data, filename):
     print(f"📂 已更新: {file_path}")
 
 def process_albums():
-    print(f"🚀 開始掃描資料夾結構...")
+    print(f"🚀 開始掃描資料夾結構 (100% 品質版)...")
     
     if not ALBUMS_DIR.exists():
         print(f"❌ 找不到來源資料夾: {ALBUMS_DIR}")
@@ -66,34 +77,38 @@ def process_albums():
     albums_data = []
     carousel_data = []
     featured_data = []
+    cards_data = []
 
-    # 遍歷 Albums 下的資料夾
-    categories = [d for d in ALBUMS_DIR.iterdir() if d.is_dir()]
+    # 1. 優先處理首頁專屬資源 (00_Home)
+    home_dir = ALBUMS_DIR / "00_Home"
+    if home_dir.exists():
+        print(f"📂 進入類別: 00_Home")
+        
+        # 輪播
+        paths = process_single_folder(home_dir / "Carousel", "00_Home/Carousel", is_hero=True)
+        carousel_data = [{"src": p["src"], "alt": "Carousel Image"} for p in paths]
+        
+        # 精華瀑布流
+        paths = process_single_folder(home_dir / "Featured", "00_Home/Featured")
+        featured_data = [{"src": p["src"], "alt": "Featured Image"} for p in paths]
+        
+        # 卡片封面 (關鍵修正：讀取檔名作為對應依據)
+        paths = process_single_folder(home_dir / "Cards", "00_Home/Cards")
+        cards_data = [{"category": p["filename"], "src": p["src"]} for p in paths]
+
+    # 2. 處理一般作品集類別
+    categories = [d for d in ALBUMS_DIR.iterdir() if d.is_dir() and not d.name.startswith("00_Home")]
     for category_path in categories:
         category_name = category_path.name
-        
-        # 處理首頁特殊資料夾
-        if category_name == "00_Home_Carousel":
-            paths = process_single_folder(category_path, "00_Home_Carousel")
-            carousel_data = [{"src": p, "alt": "Carousel Image"} for p in paths]
-            continue
-            
-        if category_name == "00_Home_Featured":
-            paths = process_single_folder(category_path, "00_Home_Featured")
-            featured_data = [{"src": p, "alt": "Featured Image"} for p in paths]
-            continue
-
-        # 處理一般作品集類別 (如 Portrait, Wedding)
         category_slug = slugify(category_name) or "category"
         print(f"📂 進入類別: {category_name}")
 
         projects = [d for d in category_path.iterdir() if d.is_dir()]
         
-        # 如果該類別下沒有子資料夾，但有照片，就當作一個名為 "Gallery" 的專案處理
+        # 處理散落照片
         img_files = [f for f in category_path.iterdir() if f.is_file() and f.suffix.lower() in ('.jpg', '.jpeg', '.png')]
         if img_files and not projects:
              print(f"  📸 發現散落照片，建立預設專案...")
-             # 建立一個隱擬的子資料夾路徑來借用現有邏輯 (實務上是直接處理這個 category_path)
              paths = process_single_folder(category_path, category_name)
              if paths:
                  albums_data.append({
@@ -101,12 +116,12 @@ def process_albums():
                     "categorySlug": category_slug,
                     "project": "Gallery",
                     "projectSlug": "gallery",
-                    "cover": paths[0],
-                    "images": paths
+                    "cover": paths[0]["src"],
+                    "images": [p["src"] for p in paths]
                 })
              continue
 
-        # 正常處理子專案
+        # 處理子專案
         for project_path in projects:
             project_name = project_path.name
             project_slug = slugify(project_name) or "project"
@@ -119,16 +134,17 @@ def process_albums():
                     "categorySlug": category_slug,
                     "project": project_name,
                     "projectSlug": project_slug,
-                    "cover": paths[0],
-                    "images": paths
+                    "cover": paths[0]["src"],
+                    "images": [p["src"] for p in paths]
                 })
 
-    # 儲存三個 JSON 檔案
+    # 儲存 JSON 檔案
     save_json(albums_data, "albums.json")
     save_json(carousel_data, "carousel.json")
     save_json(featured_data, "featured.json")
+    save_json(cards_data, "cards.json")
     
-    print(f"\n✅ 處理完畢！")
+    print(f"\n✅ 全部高畫質圖片與卡片資料處理完畢！")
 
 if __name__ == "__main__":
     process_albums()

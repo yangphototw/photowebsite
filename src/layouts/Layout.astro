@@ -13,8 +13,9 @@ const pathname = new URL(Astro.url).pathname;
 const navItems = [
 	{ name: 'Home / 首頁', href: '/' },
 	{ name: 'Wedding / 婚禮', href: '/wedding' },
-	{ name: 'Travel / 旅遊', href: '/travel' },
+	{ name: 'Registration / 登記', href: '/registration' },
 	{ name: 'Portrait / 人像', href: '/portrait' },
+	{ name: 'Travel / 旅遊', href: '/travel' },
 	{ name: 'Product / 商品', href: '/product' },
 	{ name: 'Event / 活動紀錄', href: '/event' },
 	{ name: 'About / 關於', href: '/about' },
@@ -29,10 +30,10 @@ const navItems = [
 		<meta name="viewport" content="width=device-width" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		
-		<!-- 載入優雅文藝感的襯線體與極細無襯線體 -->
+		<!-- 載入核心字體：Inter (英文) + Noto Sans TC (中文) -->
 		<link rel="preconnect" href="https://fonts.googleapis.com">
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-		<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Inter:wght@100..300&display=swap" rel="stylesheet">
+		<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Noto+Sans+TC:wght@100..900&display=swap" rel="stylesheet">
 		
 		<title>{title}</title>
 		<ClientRouter />
@@ -41,20 +42,25 @@ const navItems = [
 
 			:root {
 				--color-gray-soft: #9CA3AF;
-				--font-serif: 'Playfair Display', serif;
-				--font-sans: 'Inter', sans-serif;
+				--font-base: 'Inter', 'Noto Sans TC', sans-serif;
+			}
+
+			html {
+				overflow-y: scroll; /* 強制永遠顯示捲軸，確保全站寬度一致 */
+				scrollbar-gutter: stable;
 			}
 
 			body {
 				background-color: #000000;
 				color: var(--color-gray-soft);
-				font-family: var(--font-sans);
-				font-weight: 200; /* 極細無襯線體 */
+				font-family: var(--font-base);
+				font-weight: 200; /* 保持原字重 */
 				-webkit-font-smoothing: antialiased;
 			}
 
 			h1, h2, h3, .brand-font {
-				font-family: var(--font-serif);
+				font-family: var(--font-base);
+				font-weight: 200; /* 保持原字重，將標題也統一為黑體 */
 			}
 
 			/* 移除所有預設的外框選取 */
@@ -67,20 +73,9 @@ const navItems = [
 		<!-- 頂部導覽：改為 absolute 絕對定位，徹底釋放物理空間，讓首頁大圖完美貼頂 -->
 		<header class="absolute top-0 left-0 w-full py-8 md:py-12 px-8 md:px-16 z-50 pointer-events-none">
 			<div class="max-w-7xl mx-auto w-full">
-				<nav class="flex flex-col md:flex-row justify-between items-baseline gap-8 pointer-events-auto">
-					<!-- 左側：首頁顯示極簡圖示，內頁顯示品牌文字 -->
-					{pathname === '/' ? (
-						<a href="/" class="text-white hover:opacity-70 transition-opacity" aria-label="Home">
-							<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-						</a>
-					) : (
-						<a href="/" class="brand-font text-3xl md:text-4xl text-white tracking-wide hover:opacity-70 transition-opacity">
-							Yang
-						</a>
-					)}
-
-					<!-- 右側：極細導覽連結 -->
-					<ul class="flex flex-wrap justify-center md:justify-end gap-x-6 gap-y-4 text-[9px] md:text-[10px] tracking-[0.2em] font-light uppercase">
+				<nav class="flex justify-center pointer-events-auto">
+					<!-- 極細導覽連結：已改為全站置中，移除所有 Logo -->
+					<ul class="flex flex-wrap justify-center gap-x-8 gap-y-4 text-[9px] md:text-[10px] tracking-[0.2em] font-light uppercase">
 						{navItems.map((item) => (
 							<li>
 								<a 
