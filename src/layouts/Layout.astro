@@ -63,37 +63,45 @@ const navItems = [
 			}
 		</style>
 	</head>
-	<body class="bg-black text-[#9CA3AF] font-sans font-[200] min-h-screen flex flex-col selection:bg-zinc-800 selection:text-white antialiased">
-		<!-- 頂部導覽：極大垂直留白，營造高級感 -->
-		<header class="w-full py-12 px-8 md:px-16 max-w-7xl mx-auto relative z-50">
-			<nav class="flex flex-col md:flex-row justify-between items-baseline gap-8">
-				<!-- 左側：攝影師名字，加大尺寸襯線體 -->
-				<a href="/" class="brand-font text-3xl md:text-4xl text-white tracking-wide hover:opacity-70 transition-opacity">
-					Yang
-				</a>
+	<body class="bg-black text-[#9CA3AF] font-sans font-[200] min-h-screen flex flex-col selection:bg-zinc-800 selection:text-white antialiased relative">
+		<!-- 頂部導覽：改為 absolute 絕對定位，徹底釋放物理空間，讓首頁大圖完美貼頂 -->
+		<header class="absolute top-0 left-0 w-full py-8 md:py-12 px-8 md:px-16 z-50 pointer-events-none">
+			<div class="max-w-7xl mx-auto w-full">
+				<nav class="flex flex-col md:flex-row justify-between items-baseline gap-8 pointer-events-auto">
+					<!-- 左側：首頁顯示極簡圖示，內頁顯示品牌文字 -->
+					{pathname === '/' ? (
+						<a href="/" class="text-white hover:opacity-70 transition-opacity" aria-label="Home">
+							<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+						</a>
+					) : (
+						<a href="/" class="brand-font text-3xl md:text-4xl text-white tracking-wide hover:opacity-70 transition-opacity">
+							Yang
+						</a>
+					)}
 
-				<!-- 右側：極細導覽連結 -->
-				<ul class="flex flex-wrap justify-center md:justify-end gap-x-6 gap-y-4 text-[9px] md:text-[10px] tracking-[0.2em] font-light uppercase">
-					{navItems.map((item) => (
-						<li>
-							<a 
-								href={item.href} 
-								class={`hover:text-white transition-colors duration-500 py-1 border-b border-transparent hover:border-white/30 ${
-									pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href))
-									? 'text-white !border-white/50'
-									: ''
-								}`}
-							>
-								{item.name}
-							</a>
-						</li>
-					))}
-				</ul>
-			</nav>
+					<!-- 右側：極細導覽連結 -->
+					<ul class="flex flex-wrap justify-center md:justify-end gap-x-6 gap-y-4 text-[9px] md:text-[10px] tracking-[0.2em] font-light uppercase">
+						{navItems.map((item) => (
+							<li>
+								<a 
+									href={item.href} 
+									class={`hover:text-white transition-colors duration-500 py-1 border-b border-transparent hover:border-white/30 ${
+										pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href))
+										? 'text-white !border-white/50'
+										: ''
+									}`}
+								>
+									{item.name}
+								</a>
+							</li>
+						))}
+					</ul>
+				</nav>
+			</div>
 		</header>
 
-		<!-- 頁面主要容器：依據設定決定是否滿版 -->
-		<main class={`flex-grow w-full ${fullWidth ? '' : 'px-8 md:px-16 max-w-7xl mx-auto'}`}>
+		<!-- 頁面主要容器：依據設定決定是否滿版。若是滿版則不加 padding，若否則加上適當的 top padding 避開 absolute header -->
+		<main class={`flex-grow w-full ${fullWidth ? '' : 'pt-32 px-8 md:px-16 max-w-7xl mx-auto'}`}>
 			<slot />
 		</main>
 

@@ -11,54 +11,73 @@ const readJson = (filePath: string) => {
 	return [];
 };
 
-// 嘗試讀取 albums.json 來獲取最新處理的圖片
-let albums = readJson('src/data/albums.json');
-let allImages: string[] = [];
-if (albums.length > 0) {
-    allImages = albums.flatMap((a: any) => a.images);
-} else {
-    // 降級讀取舊版 images.json (若存在)
-    const oldImages = readJson('src/data/images.json');
-    allImages = oldImages.map((img: any) => img.src);
-}
+// 讀取相簿與首頁專用資料
+const albums = readJson('src/data/albums.json');
+const carouselData = readJson('src/data/carousel.json');
+const featuredData = readJson('src/data/featured.json');
 
+let allImages: string[] = albums.flatMap((a: any) => a.images);
 const defaultImg = "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=1500&auto=format&fit=crop";
 
-// 自動尋找 DSC06557 作為首頁大圖，找不到則用預設圖
-const targetHeroImage = allImages.find((src: string) => src.includes('DSC06557'));
-const heroImage = targetHeroImage || allImages[0] || defaultImg;
+// 1. Hero 輪播圖片 (從 carousel.json 抓，若無則降級尋找 DSC06557，再無則用預設)
+let heroImages = carouselData.map((c: any) => c.src);
+if (heroImages.length === 0) {
+	const targetHeroImage = allImages.find((src: string) => src.includes('DSC06557'));
+	heroImages = targetHeroImage ? [targetHeroImage] : [defaultImg];
+}
 
-const cardImg1 = allImages[1] || "https://images.unsplash.com/photo-1511895426328-dc8714191300?q=80&w=1500&auto=format&fit=crop";
-const cardImg2 = allImages[2] || "https://images.unsplash.com/photo-1554046920-90dc20696342?q=80&w=1500&auto=format&fit=crop";
-const cardImg3 = allImages[3] || "https://images.unsplash.com/photo-1515378960530-7c0da6229b92?q=80&w=1500&auto=format&fit=crop";
+// 2. 六大分類卡片圖片 (嘗試從相應類別找第一張封面，找不到就給預設)
+const getCategoryCover = (catName: string, fallback: string) => {
+	const catAlbum = albums.find((a: any) => a.category === catName);
+	return catAlbum ? catAlbum.cover : fallback;
+};
 
-const igImg1 = allImages[4] || heroImage;
-const igImg2 = allImages[5] || cardImg1;
-const igImg3 = allImages[6] || cardImg2;
-const igImg4 = allImages[7] || cardImg3;
+// 【主要收入來源】
+const cardWedding  = getCategoryCover("Wedding", "https://images.unsplash.com/photo-1511895426328-dc8714191300?q=80&w=1000&auto=format&fit=crop");
+const cardPortrait = getCategoryCover("Portrait", "https://images.unsplash.com/photo-1554046920-90dc20696342?q=80&w=1000&auto=format&fit=crop");
+const cardEvent    = getCategoryCover("Event_活動紀錄", "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?q=80&w=1000&auto=format&fit=crop"); // 活動紀錄
 
-// 精選照片區的圖片 (排除已經用掉的前 8 張)
-const galleryImages = allImages.length > 8 ? allImages.slice(8) : allImages;
+// 【其他分類】
+const cardProduct  = getCategoryCover("Product", "https://images.unsplash.com/photo-1515378960530-7c0da6229b92?q=80&w=1000&auto=format&fit=crop");
+const cardTravel   = getCategoryCover("Travel", "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?q=80&w=1000&auto=format&fit=crop");
+
+// 3. IG 縮圖 (從全站相簿隨便抓 4 張)
+const igImg1 = allImages[0] || defaultImg;
+const igImg2 = allImages[1] || defaultImg;
+const igImg3 = allImages[2] || defaultImg;
+const igImg4 = allImages[3] || defaultImg;
+
+// 4. 精華瀑布流 (從 featured.json 抓)
+const galleryImages = featuredData.length > 0 
+	? featuredData.map((f: any) => f.src) 
+	: (allImages.length > 8 ? allImages.slice(8) : allImages);
 ---
 
 <Layout title="Yang Photography | Luxury Visuals" fullWidth={true}>
-	<!-- 1. 電影感巨幕開場 (Hero Section) -->
-	<section class="relative w-full min-h-screen flex flex-col -mt-[120px] pt-[120px] pb-32 animate-fade-in">
+	<!-- 1. 電影感巨幕開場 (Hero Section - 加入輪播功能) -->
+	<section class="relative w-full min-h-screen animate-fade-in">
 		
-		<!-- 背景大圖與漸層遮罩 -->
-		<div class="absolute inset-0 z-0">
-			<img src={heroImage} alt="Hero Background" class="w-full h-full object-cover object-center opacity-80" />
-			<div class="absolute inset-0 bg-gradient-to-b from-black/20 via-black/40 to-black/90"></div>
+		<!-- 背景大圖與輪播容器 -->
+		<div id="hero-carousel" class="absolute inset-0 z-0">
+			{heroImages.map((src: string, index: number) => (
+				<img 
+					src={src} 
+					alt={`Hero Background ${index + 1}`} 
+					class={`hero-slide absolute inset-0 w-full h-full object-cover object-top transition-opacity duration-[2000ms] ease-in-out ${index === 0 ? 'opacity-90' : 'opacity-0'}`} 
+				/>
+			))}
+			<!-- 減輕漸層：上半部完全透明，只有在最底下才微微變暗 80% 來托住文字與卡片 -->
+			<div class="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/80 z-10 pointer-events-none"></div>
 		</div>
 
 		<!-- 上半部文字內容區 -->
-		<div class="relative z-10 w-full px-8 md:px-16 max-w-7xl mx-auto flex-grow flex flex-col justify-center pt-12 pb-24">
-			<div class="flex flex-col items-start gap-4 md:gap-6 max-w-3xl">
+		<div class="absolute inset-0 z-10 w-full px-8 md:px-16 max-w-7xl mx-auto flex justify-between items-center pointer-events-none">
+			<div class="flex flex-col items-start gap-4 md:gap-6 max-w-3xl pointer-events-auto">
 				<span class="text-[9px] md:text-[10px] tracking-[0.4em] text-zinc-400 font-light uppercase">
 					TAIWAN BASED / 獨立攝影與視覺敘事
 				</span>
 				
-				<h1 class="brand-font text-4xl md:text-5xl lg:text-6xl text-white leading-tight tracking-tight">
+				<h1 class="brand-font text-3xl md:text-4xl lg:text-5xl text-white leading-tight tracking-tight">
 					Yang<br />Photo<span class="text-amber-400 drop-shadow-[0_0_8px_rgba(245,158,11,0.5)]">.</span>
 				</h1>
 				
@@ -67,61 +86,88 @@ const galleryImages = allImages.length > 8 ? allImages.slice(8) : allImages;
 					捕捉自然光影，紀錄真實而純粹的瞬間。
 				</p>
 				
-				<!-- 按鈕錨點導向至下方的精華瀑布流區塊 -->
 				<a href="#featured-gallery" class="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md border border-amber-500/30 rounded-full px-6 py-3 md:px-8 md:py-4 text-xs text-amber-200 tracking-widest hover:bg-amber-500/20 hover:scale-105 hover:border-amber-500/50 transition-all duration-500">
 					VIEW PORTFOLIO / 瀏覽作品 <span class="text-lg leading-none">↓</span>
 				</a>
 			</div>
 			
-			<!-- 右側垂直點綴 (移除 rotate-180 修正方向) -->
-			<div class="hidden md:flex flex-col items-center gap-6 absolute right-8 md:right-16 top-1/2 -translate-y-1/2">
+			<div class="hidden md:flex flex-col items-center gap-6 pointer-events-auto">
 				<span class="text-[9px] tracking-[0.3em] text-zinc-500 [writing-mode:vertical-rl]">
 					SCROLL TO EXPLORE / 往下探索
 				</span>
 				<div class="w-px h-16 bg-gradient-to-b from-zinc-500 to-transparent"></div>
 			</div>
 		</div>
+	</section>
 
-		<!-- 下半部：三大核心主題卡片 -->
-		<div class="relative z-20 w-full px-8 md:px-16 max-w-7xl mx-auto animate-fade-in-up delay-200">
-			<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-				<!-- Card 01 -->
-				<a href="/wedding" class="group block p-4 md:p-6 bg-zinc-900/60 backdrop-blur-xl border border-amber-500/20 rounded-2xl hover:border-amber-500/50 hover:shadow-[0_0_30px_rgba(245,158,11,0.1)] transition-all duration-500">
+	<div class="max-w-7xl mx-auto px-8 md:px-16 w-full relative z-20">
+		<!-- 2. 六大核心主題卡片 -->
+		<!-- 調整：因為變成兩排 6 張，所以將 mt 調為 mt-8 讓整體視覺下移一點，避免上面太擠 -->
+		<div class="relative w-full mt-8 md:-mt-8 animate-fade-in-up delay-200">
+			<!-- 第一排：主要收入來源 (Weddings, Portraits, Events) - 佔據重要位置 -->
+			<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+				<!-- Wedding -->
+				<a href="/wedding" class="group block p-4 md:p-6 bg-zinc-900/60 backdrop-blur-xl border border-amber-500/30 rounded-2xl hover:border-amber-500/60 hover:shadow-[0_0_40px_rgba(245,158,11,0.15)] transition-all duration-500">
 					<div class="flex justify-between items-center mb-6 px-2">
-						<span class="text-xs text-amber-500/80 font-bold tracking-widest">01</span>
+						<span class="text-xs text-amber-400 font-bold tracking-widest">01</span>
 						<h3 class="brand-font text-xl text-white tracking-wide">Weddings / 婚禮</h3>
 					</div>
-					<div class="relative w-full aspect-[3/4] overflow-hidden rounded-xl bg-black">
-						<img src={cardImg1} class="w-full h-full object-cover opacity-70 brightness-75 group-hover:brightness-100 group-hover:opacity-100 group-hover:scale-[1.02] transition-all duration-700 ease-out" alt="Weddings" />
+					<div class="relative w-full aspect-[4/5] overflow-hidden rounded-xl bg-black">
+						<img src={cardWedding} class="w-full h-full object-cover opacity-70 brightness-90 group-hover:brightness-110 group-hover:opacity-100 group-hover:scale-[1.03] transition-all duration-700 ease-out" alt="Weddings" />
 					</div>
 				</a>
 
-				<!-- Card 02 -->
-				<a href="/portrait" class="group block p-4 md:p-6 bg-zinc-900/60 backdrop-blur-xl border border-amber-500/20 rounded-2xl hover:border-amber-500/50 hover:shadow-[0_0_30px_rgba(245,158,11,0.1)] transition-all duration-500">
+				<!-- Portrait -->
+				<a href="/portrait" class="group block p-4 md:p-6 bg-zinc-900/60 backdrop-blur-xl border border-amber-500/30 rounded-2xl hover:border-amber-500/60 hover:shadow-[0_0_40px_rgba(245,158,11,0.15)] transition-all duration-500">
 					<div class="flex justify-between items-center mb-6 px-2">
-						<span class="text-xs text-amber-500/80 font-bold tracking-widest">02</span>
+						<span class="text-xs text-amber-400 font-bold tracking-widest">02</span>
 						<h3 class="brand-font text-xl text-white tracking-wide">Portraits / 人像</h3>
 					</div>
-					<div class="relative w-full aspect-[3/4] overflow-hidden rounded-xl bg-black">
-						<img src={cardImg2} class="w-full h-full object-cover opacity-70 brightness-75 group-hover:brightness-100 group-hover:opacity-100 group-hover:scale-[1.02] transition-all duration-700 ease-out" alt="Portraits" />
+					<div class="relative w-full aspect-[4/5] overflow-hidden rounded-xl bg-black">
+						<img src={cardPortrait} class="w-full h-full object-cover opacity-70 brightness-90 group-hover:brightness-110 group-hover:opacity-100 group-hover:scale-[1.03] transition-all duration-700 ease-out" alt="Portraits" />
 					</div>
 				</a>
 
-				<!-- Card 03 -->
-				<a href="/product" class="group block p-4 md:p-6 bg-zinc-900/60 backdrop-blur-xl border border-amber-500/20 rounded-2xl hover:border-amber-500/50 hover:shadow-[0_0_30px_rgba(245,158,11,0.1)] transition-all duration-500">
+				<!-- Event -->
+				<a href="/event" class="group block p-4 md:p-6 bg-zinc-900/60 backdrop-blur-xl border border-amber-500/30 rounded-2xl hover:border-amber-500/60 hover:shadow-[0_0_40px_rgba(245,158,11,0.15)] transition-all duration-500">
 					<div class="flex justify-between items-center mb-6 px-2">
-						<span class="text-xs text-amber-500/80 font-bold tracking-widest">03</span>
-						<h3 class="brand-font text-xl text-white tracking-wide">Editorials / 專案</h3>
+						<span class="text-xs text-amber-400 font-bold tracking-widest">03</span>
+						<h3 class="brand-font text-xl text-white tracking-wide">Events / 活動紀錄</h3>
 					</div>
-					<div class="relative w-full aspect-[3/4] overflow-hidden rounded-xl bg-black">
-						<img src={cardImg3} class="w-full h-full object-cover opacity-70 brightness-75 group-hover:brightness-100 group-hover:opacity-100 group-hover:scale-[1.02] transition-all duration-700 ease-out" alt="Editorials" />
+					<div class="relative w-full aspect-[4/5] overflow-hidden rounded-xl bg-black">
+						<img src={cardEvent} class="w-full h-full object-cover opacity-70 brightness-90 group-hover:brightness-110 group-hover:opacity-100 group-hover:scale-[1.03] transition-all duration-700 ease-out" alt="Events" />
+					</div>
+				</a>
+			</div>
+
+			<!-- 第二排：次要分類 (Travel, Product) - 兩張圖平分空間 -->
+			<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+				<!-- Travel -->
+				<a href="/travel" class="group block p-4 md:p-6 bg-zinc-900/40 backdrop-blur-md border border-amber-500/10 rounded-2xl hover:border-amber-500/40 hover:shadow-[0_0_30px_rgba(245,158,11,0.05)] transition-all duration-500">
+					<div class="flex justify-between items-center mb-4 px-2">
+						<span class="text-[10px] text-amber-500/60 font-bold tracking-widest">04</span>
+						<h3 class="brand-font text-lg text-zinc-300 group-hover:text-white tracking-wide transition-colors">Travel / 旅遊</h3>
+					</div>
+					<div class="relative w-full aspect-video overflow-hidden rounded-xl bg-black">
+						<img src={cardTravel} class="w-full h-full object-cover opacity-60 brightness-75 group-hover:brightness-100 group-hover:opacity-100 group-hover:scale-[1.02] transition-all duration-700 ease-out" alt="Travel" />
+					</div>
+				</a>
+
+				<!-- Product -->
+				<a href="/product" class="group block p-4 md:p-6 bg-zinc-900/40 backdrop-blur-md border border-amber-500/10 rounded-2xl hover:border-amber-500/40 hover:shadow-[0_0_30px_rgba(245,158,11,0.05)] transition-all duration-500">
+					<div class="flex justify-between items-center mb-4 px-2">
+						<span class="text-[10px] text-amber-500/60 font-bold tracking-widest">05</span>
+						<h3 class="brand-font text-lg text-zinc-300 group-hover:text-white tracking-wide transition-colors">Products / 商品</h3>
+					</div>
+					<div class="relative w-full aspect-video overflow-hidden rounded-xl bg-black">
+						<img src={cardProduct} class="w-full h-full object-cover opacity-60 brightness-75 group-hover:brightness-100 group-hover:opacity-100 group-hover:scale-[1.02] transition-all duration-700 ease-out" alt="Products" />
 					</div>
 				</a>
 			</div>
 		</div>
 	</section>
 
-	<div class="max-w-7xl mx-auto px-8 md:px-16 w-full relative z-10 pt-16">
+	<div class="max-w-7xl mx-auto px-8 md:px-16 w-full relative z-10 pt-24">
 		<!-- 3. 底部品牌金句與社群區塊 -->
 		<section class="grid grid-cols-1 md:grid-cols-2 gap-6 pb-20 animate-fade-in-up delay-500">
 			<!-- 左下角：精緻雙引號金句 -->
@@ -205,7 +251,20 @@ const galleryImages = allImages.length > 8 ? allImages.slice(8) : allImages;
 	</style>
 
 	<script>
-		const initLightbox = () => {
+		const initFeatures = () => {
+			// --- Hero Carousel Logic ---
+			const slides = document.querySelectorAll('.hero-slide');
+			if (slides.length > 1) {
+				let currentIdx = 0;
+				// 每 6 秒切換一次圖片
+				setInterval(() => {
+					slides[currentIdx].classList.replace('opacity-80', 'opacity-0');
+					currentIdx = (currentIdx + 1) % slides.length;
+					slides[currentIdx].classList.replace('opacity-0', 'opacity-80');
+				}, 6000);
+			}
+
+			// --- Lightbox Logic ---
 			const triggers = document.querySelectorAll('.lightbox-trigger');
 			const lightbox = document.getElementById('lightbox');
 			const lightboxImg = document.getElementById('lightbox-img') as HTMLImageElement;
@@ -230,7 +289,7 @@ const galleryImages = allImages.length > 8 ? allImages.slice(8) : allImages;
 				setTimeout(() => {
 					lightbox.classList.add('hidden');
 					document.body.style.overflow = '';
-				}, 500); // 對應 duration-500
+				}, 500);
 			};
 
 			triggers.forEach(trigger => {
@@ -245,6 +304,6 @@ const galleryImages = allImages.length > 8 ? allImages.slice(8) : allImages;
 			});
 		};
 
-		document.addEventListener('astro:page-load', initLightbox);
+		document.addEventListener('astro:page-load', initFeatures);
 	</script>
 </Layout>
