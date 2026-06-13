@@ -3,6 +3,17 @@ import Layout from '../layouts/Layout.astro';
 import fs from 'node:fs';
 import path from 'node:path';
 
+// 讀取 About 資料
+const readJson = (filePath: string) => {
+	try {
+		const fullPath = path.resolve(filePath);
+		if (fs.existsSync(fullPath)) return JSON.parse(fs.readFileSync(fullPath, 'utf-8'));
+	} catch (e) {}
+	return {};
+};
+
+const aboutData = readJson('src/data/about.json');
+
 // 讀取 About.txt 內容
 const aboutPath = path.resolve('src/assets/About.txt');
 let content = "";
@@ -15,39 +26,55 @@ try {
 // 處理文字換行
 const htmlContent = content.replace(/\n/g, '<br />');
 
-// 提取聯絡資訊 (假設 About.txt 內包含 Email 或 IG 關鍵字)
+// 提取聯絡資訊
 const emailMatch = content.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
 const email = emailMatch ? emailMatch[0] : "";
+
+const profileImg = aboutData.profileSrc || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1000&auto=format&fit=crop";
 ---
 
-<Layout title="About | Photography Portfolio">
-	<div class="flex flex-col lg:flex-row gap-16 py-12 lg:py-24">
-		<!-- 左側：個人照預留區 -->
+<Layout title="About | 關於我">
+	<div class="flex flex-col lg:flex-row gap-16 py-12 lg:py-24 animate-fade-in">
+		<!-- 左側：個人照 -->
 		<div class="lg:w-5/12">
-			<div class="aspect-[3/4] bg-zinc-900 rounded-sm border border-zinc-800 flex items-center justify-center overflow-hidden group">
-				<span class="text-zinc-700 italic group-hover:text-zinc-500 transition-colors">Portrait Placeholder</span>
+			<div class="aspect-[3/4] bg-zinc-900 rounded-2xl overflow-hidden border border-zinc-800 shadow-2xl relative group">
+				<img 
+                    src={profileImg} 
+                    alt="Yang" 
+                    class="w-full h-full object-cover group-hover:scale-[1.02] transition-all duration-1000 ease-in-out"
+                />
+                <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent pointer-events-none"></div>
 			</div>
 		</div>
 
 		<!-- 右側：內容區 -->
 		<div class="lg:w-7/12 flex flex-col justify-center">
-			<h1 class="text-5xl font-black text-white tracking-tighter mb-8 uppercase">About Me</h1>
+			<h1 class="text-3xl md:text-4xl font-light text-white tracking-tight mb-8">About Me / 關於我</h1>
 			
-			<div class="prose prose-invert prose-lg max-w-none">
-				<p class="leading-relaxed text-zinc-400 font-light tracking-wide text-lg" set:html={htmlContent}></p>
+			<div class="max-w-none">
+				<p class="leading-relaxed text-zinc-400 font-light tracking-wide text-base md:text-lg" set:html={htmlContent}></p>
 			</div>
 
 			<div class="mt-12 flex flex-wrap gap-6">
 				{email && (
-					<a href={`mailto:${email}`} class="group relative px-8 py-4 bg-white text-black font-bold text-sm tracking-widest uppercase overflow-hidden">
-						<span class="relative z-10">Send Email</span>
-						<div class="absolute inset-0 bg-zinc-200 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
+					<a href={`mailto:${email}`} class="px-8 py-4 bg-white/5 border border-white/10 text-white text-[10px] tracking-[0.3em] uppercase hover:bg-white hover:text-black transition-all duration-500 rounded-full">
+						Send Email
 					</a>
 				)}
-				<a href="#" class="px-8 py-4 border border-zinc-700 text-zinc-300 font-bold text-sm tracking-widest uppercase hover:bg-zinc-900 hover:border-white transition-all duration-300">
-					Follow IG
+				<a href="https://www.instagram.com/yang._.photo/" target="_blank" class="px-8 py-4 border border-zinc-800 text-zinc-500 text-[10px] tracking-[0.3em] uppercase hover:border-amber-500/50 hover:text-amber-200 transition-all duration-500 rounded-full">
+					Follow Instagram
 				</a>
 			</div>
 		</div>
 	</div>
+
+    <style>
+		@keyframes fadeIn {
+			from { opacity: 0; transform: translateY(20px); }
+			to { opacity: 1; transform: translateY(0); }
+		}
+		.animate-fade-in {
+			animation: fadeIn 1.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+		}
+	</style>
 </Layout>

@@ -15,7 +15,7 @@ def slugify(text):
 def process_single_folder(folder_path, output_subpath, is_hero=False):
     """
     處理單一資料夾內的所有圖片
-    is_hero: 如果是首頁大圖，使用更高的解析度 (4096px) 與品質 (100)
+    is_hero: 如果是首頁大圖或大頭貼，使用更高的解析度 (4096px) 與品質 (100)
     回傳：[{ "filename": "name", "src": "/path/to/webp" }, ...]
     """
     if not folder_path.exists():
@@ -25,7 +25,7 @@ def process_single_folder(folder_path, output_subpath, is_hero=False):
     output_dir = TARGET_BASE_DIR / output_subpath
     output_dir.mkdir(parents=True, exist_ok=True)
     
-    valid_extensions = ('.jpg', '.jpeg', '.png', '.JPG', '.JPEG', '.PNG')
+    valid_extensions = ('.jpg', '.jpeg', '.png', '.JPG', '.JPEG', '.PNG', '.webp', '.jfif', '.JFIF')
     project_images = []
     
     img_files = sorted([f for f in folder_path.iterdir() if f.is_file() and f.suffix.lower() in valid_extensions])
@@ -78,26 +78,35 @@ def process_albums():
     carousel_data = []
     featured_data = []
     cards_data = []
+    about_data = {}
 
-    # 1. 優先處理首頁專屬資源 (00_Home)
+    # 1. 優先處理首頁專屬資源 (00_Home) 與 About 資源
+    
+    # --- Home ---
     home_dir = ALBUMS_DIR / "00_Home"
     if home_dir.exists():
         print(f"📂 進入類別: 00_Home")
-        
-        # 輪播
         paths = process_single_folder(home_dir / "Carousel", "00_Home/Carousel", is_hero=True)
         carousel_data = [{"src": p["src"], "alt": "Carousel Image"} for p in paths]
         
-        # 精華瀑布流
         paths = process_single_folder(home_dir / "Featured", "00_Home/Featured")
         featured_data = [{"src": p["src"], "alt": "Featured Image"} for p in paths]
         
-        # 卡片封面 (關鍵修正：讀取檔名作為對應依據)
         paths = process_single_folder(home_dir / "Cards", "00_Home/Cards")
         cards_data = [{"category": p["filename"], "src": p["src"]} for p in paths]
 
-    # 2. 處理一般作品集類別
-    categories = [d for d in ALBUMS_DIR.iterdir() if d.is_dir() and not d.name.startswith("00_Home")]
+    # --- About ---
+    about_dir = ALBUMS_DIR / "00_About"
+    if about_dir.exists():
+        print(f"📂 進入類別: 00_About")
+        paths = process_single_folder(about_dir, "00_About", is_hero=True)
+        if paths:
+            # 尋找命名為 'me' 的圖片作為主大頭貼
+            me_img = next((p for p in paths if p["filename"] == "me"), paths[0])
+            about_data = {"profileSrc": me_img["src"]}
+
+    # 2. 處理一般作品集類別 (忽略 00_ 開頭的)
+    categories = [d for d in ALBUMS_DIR.iterdir() if d.is_dir() and not d.name.startswith("00_")]
     for category_path in categories:
         category_name = category_path.name
         category_slug = slugify(category_name) or "category"
@@ -143,8 +152,9 @@ def process_albums():
     save_json(carousel_data, "carousel.json")
     save_json(featured_data, "featured.json")
     save_json(cards_data, "cards.json")
+    save_json(about_data, "about.json")
     
-    print(f"\n✅ 全部高畫質圖片與卡片資料處理完畢！")
+    print(f"\n✅ 全部資料處理完畢！")
 
 if __name__ == "__main__":
     process_albums()

@@ -20,12 +20,12 @@ const gridColsClass = count === 1
 ---
 
 <Layout title="Portrait | 人像攝影">
-	<!-- 極簡標題標識 -->
-	<section class="py-8 md:py-12 animate-fade-in">
-		<div class="flex items-center gap-3 text-zinc-500 font-bold tracking-widest text-[10px] uppercase">
+	<!-- 極簡標題標識：已改為全站統一的置中設計 -->
+	<section class="py-8 md:py-12 animate-fade-in text-center flex flex-col items-center">
+		<div class="flex items-center gap-3 text-zinc-500 font-light tracking-[0.4em] text-[10px] uppercase">
 			<span>Portrait / 人像</span>
-			<div class="h-px w-8 bg-zinc-800"></div>
 		</div>
+        <div class="h-px w-12 bg-zinc-800 mt-4"></div>
 	</section>
 
 	<!-- 動態調整的網格 -->
@@ -39,9 +39,9 @@ const gridColsClass = count === 1
 						class="w-full h-full object-cover opacity-60 group-hover:opacity-100 group-hover:scale-[1.05] transition-all duration-1000 ease-out" 
 					/>
 					
-					<!-- 懸停資訊區 - 回歸系統粗體 -->
+					<!-- 懸停資訊區：統一使用細緻字體 -->
 					<div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-10">
-						<h3 class="text-2xl font-bold text-white tracking-tight transform translate-y-2 group-hover:translate-y-0 transition-all duration-500">
+						<h3 class="text-2xl font-light text-white tracking-tight transform translate-y-2 group-hover:translate-y-0 transition-all duration-500">
 							{album.project}
 						</h3>
 						<div class="h-px w-0 group-hover:w-12 bg-white/50 mt-4 transition-all duration-700"></div>
