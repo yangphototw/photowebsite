@@ -34,11 +34,11 @@ const getCategoryCover = (catName: string, fallback: string) => {
 
 // 【主要收入來源】
 const cardWedding  = getCategoryCover("Wedding", "https://images.unsplash.com/photo-1511895426328-dc8714191300?q=80&w=1000&auto=format&fit=crop");
-const cardPortrait = getCategoryCover("Portrait", "https://images.unsplash.com/photo-1554046920-90dc20696342?q=80&w=1000&auto=format&fit=crop");
-const cardEvent    = getCategoryCover("Event_活動紀錄", "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?q=80&w=1000&auto=format&fit=crop"); // 活動紀錄
+const cardPortrait = getCategoryCover("人像", "https://images.unsplash.com/photo-1554046920-90dc20696342?q=80&w=1000&auto=format&fit=crop");
+const cardEvent    = getCategoryCover("活動紀錄", "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?q=80&w=1000&auto=format&fit=crop"); // 活動紀錄
 
 // 【其他分類】
-const cardProduct  = getCategoryCover("Product", "https://images.unsplash.com/photo-1515378960530-7c0da6229b92?q=80&w=1000&auto=format&fit=crop");
+const cardProduct  = getCategoryCover("商品", "https://images.unsplash.com/photo-1515378960530-7c0da6229b92?q=80&w=1000&auto=format&fit=crop");
 const cardTravel   = getCategoryCover("Travel", "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?q=80&w=1000&auto=format&fit=crop");
 
 // 3. IG 縮圖 (從全站相簿隨便抓 4 張)
@@ -54,25 +54,25 @@ const galleryImages = featuredData.length > 0
 ---
 
 <Layout title="Yang Photography | Luxury Visuals" fullWidth={true}>
-	<!-- 1. 電影感巨幕開場 (Hero Section - 加入輪播功能) -->
-	<section class="relative w-full min-h-screen animate-fade-in">
+	<!-- 1. 電影感巨幕開場 (Hero Section - 將卡片包入其中以撐開背景) -->
+	<section class="relative w-full min-h-screen flex flex-col animate-fade-in pb-16">
 		
-		<!-- 背景大圖與輪播容器 -->
-		<div id="hero-carousel" class="absolute inset-0 z-0">
+		<!-- 滿版大圖與輪播容器 (因為 absolute inset-0，會自動跟隨 section 的高度延伸) -->
+		<div id="hero-carousel" class="absolute inset-0 z-0 bg-black overflow-hidden">
 			{heroImages.map((src: string, index: number) => (
 				<img 
 					src={src} 
 					alt={`Hero Background ${index + 1}`} 
-					class={`hero-slide absolute inset-0 w-full h-full object-cover object-top transition-opacity duration-[2000ms] ease-in-out ${index === 0 ? 'opacity-90' : 'opacity-0'}`} 
+					class={`hero-slide w-full h-full object-cover transition-all duration-[2000ms] ease-in-out ${index === 0 ? 'relative opacity-90 z-10 scale-100' : 'absolute top-0 left-0 opacity-0 z-0 scale-105'}`} 
 				/>
 			))}
-			<!-- 減輕漸層：上半部完全透明，只有在最底下才微微變暗 80% 來托住文字與卡片 -->
-			<div class="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/80 z-10 pointer-events-none"></div>
+			<!-- 底部加入極端漸層，確保浮在上面的卡片不會太突兀 -->
+			<div class="absolute inset-0 bg-gradient-to-b from-transparent via-black/40 to-black/90 z-20 pointer-events-none"></div>
 		</div>
 
-		<!-- 上半部文字內容區 -->
-		<div class="absolute inset-0 z-10 w-full px-8 md:px-16 max-w-7xl mx-auto flex justify-between items-center pointer-events-none">
-			<div class="flex flex-col items-start gap-4 md:gap-6 max-w-3xl pointer-events-auto">
+		<!-- 上半部文字內容區 (使用 flex-grow 佔據畫面上方，並保留頂部空間避免擋到導覽列) -->
+		<div class="relative z-30 w-full px-8 md:px-16 max-w-7xl mx-auto flex-grow flex flex-col justify-center pt-48 pb-20">
+			<div class="flex flex-col items-start gap-4 md:gap-6 max-w-3xl">
 				<span class="text-[9px] md:text-[10px] tracking-[0.4em] text-zinc-400 font-light uppercase">
 					TAIWAN BASED / 獨立攝影與視覺敘事
 				</span>
@@ -90,21 +90,11 @@ const galleryImages = featuredData.length > 0
 					VIEW PORTFOLIO / 瀏覽作品 <span class="text-lg leading-none">↓</span>
 				</a>
 			</div>
-			
-			<div class="hidden md:flex flex-col items-center gap-6 pointer-events-auto">
-				<span class="text-[9px] tracking-[0.3em] text-zinc-500 [writing-mode:vertical-rl]">
-					SCROLL TO EXPLORE / 往下探索
-				</span>
-				<div class="w-px h-16 bg-gradient-to-b from-zinc-500 to-transparent"></div>
-			</div>
 		</div>
-	</section>
 
-	<div class="max-w-7xl mx-auto px-8 md:px-16 w-full relative z-20">
-		<!-- 2. 六大核心主題卡片 -->
-		<!-- 調整：因為變成兩排 6 張，所以將 mt 調為 mt-8 讓整體視覺下移一點，避免上面太擠 -->
-		<div class="relative w-full mt-8 md:-mt-8 animate-fade-in-up delay-200">
-			<!-- 第一排：主要收入來源 (Weddings, Portraits, Events) - 佔據重要位置 -->
+		<!-- 下半部：六大核心主題卡片 (移入 section 內部，讓背景圖能自動包覆它們) -->
+		<div class="relative z-30 w-full px-8 md:px-16 max-w-7xl mx-auto animate-fade-in-up delay-200">
+			<!-- 第一排：主要收入來源 (Weddings, Portraits, Events) -->
 			<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
 				<!-- Wedding -->
 				<a href="/wedding" class="group block p-4 md:p-6 bg-zinc-900/60 backdrop-blur-xl border border-amber-500/30 rounded-2xl hover:border-amber-500/60 hover:shadow-[0_0_40px_rgba(245,158,11,0.15)] transition-all duration-500">
@@ -140,7 +130,7 @@ const galleryImages = featuredData.length > 0
 				</a>
 			</div>
 
-			<!-- 第二排：次要分類 (Travel, Product) - 兩張圖平分空間 -->
+			<!-- 第二排：次要分類 (Travel, Product) -->
 			<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 				<!-- Travel -->
 				<a href="/travel" class="group block p-4 md:p-6 bg-zinc-900/40 backdrop-blur-md border border-amber-500/10 rounded-2xl hover:border-amber-500/40 hover:shadow-[0_0_30px_rgba(245,158,11,0.05)] transition-all duration-500">
@@ -167,6 +157,7 @@ const galleryImages = featuredData.length > 0
 		</div>
 	</section>
 
+	<!-- 下方其他內容區 -->
 	<div class="max-w-7xl mx-auto px-8 md:px-16 w-full relative z-10 pt-24">
 		<!-- 3. 底部品牌金句與社群區塊 -->
 		<section class="grid grid-cols-1 md:grid-cols-2 gap-6 pb-20 animate-fade-in-up delay-500">
@@ -258,9 +249,15 @@ const galleryImages = featuredData.length > 0
 				let currentIdx = 0;
 				// 每 6 秒切換一次圖片
 				setInterval(() => {
-					slides[currentIdx].classList.replace('opacity-80', 'opacity-0');
+					// 隱藏目前圖片，退到下層並微縮放
+					slides[currentIdx].classList.remove('opacity-90', 'z-10', 'scale-100');
+					slides[currentIdx].classList.add('opacity-0', 'z-0', 'scale-105');
+					
 					currentIdx = (currentIdx + 1) % slides.length;
-					slides[currentIdx].classList.replace('opacity-0', 'opacity-80');
+					
+					// 顯示下一張圖片，浮到上層
+					slides[currentIdx].classList.remove('opacity-0', 'z-0', 'scale-105');
+					slides[currentIdx].classList.add('opacity-90', 'z-10', 'scale-100');
 				}, 6000);
 			}
 
