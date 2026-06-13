@@ -1,0 +1,14 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+<Layout title="Event | 活動紀錄">
+	<section class="py-24 text-center animate-fade-in-up">
+		<h1 class="brand-font text-5xl md:text-7xl text-white mb-6 italic">Event</h1>
+		<p class="text-zinc-500 tracking-[0.3em] uppercase text-[10px]">Documenting the moments</p>
+	</section>
+</Layout>
+
+<style>
+	@keyframes fadeInUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
+	.animate-fade-in-up { animation: fadeInUp 1.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+</style>

@@ -3,56 +3,151 @@ import Layout from '../layouts/Layout.astro';
 import fs from 'node:fs';
 import path from 'node:path';
 
-// 改用 fs 讀取以確保 SSR 環境穩定
-const albumsPath = path.resolve('src/data/albums.json');
-const albums = JSON.parse(fs.readFileSync(albumsPath, 'utf-8'));
+// 安全地讀取資料
+const readJson = (filePath: string) => {
+	try {
+		const fullPath = path.resolve(filePath);
+		if (fs.existsSync(fullPath)) return JSON.parse(fs.readFileSync(fullPath, 'utf-8'));
+	} catch (e) {}
+	return [];
+};
 
-// 首頁展示最新的幾個專案作為精選
-const featuredAlbums = albums.slice(0, 6);
+// 讀取全站相簿資料以供首頁展示
+const albums = readJson('src/data/albums.json');
+// 提供安全的預設佔位圖以展示版面結構
+const defaultImg = "https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?q=80&w=2000&auto=format&fit=crop";
+
+// 準備 4 張精選照片來構築雜誌風版面
+const img1 = albums[0]?.cover || defaultImg;
+const img2 = albums[1]?.cover || "https://images.unsplash.com/photo-1511895426328-dc8714191300?q=80&w=2000&auto=format&fit=crop";
+const img3 = albums[2]?.cover || "https://images.unsplash.com/photo-1554046920-90dc20696342?q=80&w=2000&auto=format&fit=crop";
+const img4 = albums[3]?.cover || "https://images.unsplash.com/photo-1515378960530-7c0da6229b92?q=80&w=2000&auto=format&fit=crop";
 ---
 
-<Layout title="Selected Works | Photography Portfolio">
-	<!-- Hero Section -->
-	<section class="py-12 md:py-24 animate-fade-in">
-		<h1 class="text-6xl md:text-8xl font-black tracking-tighter text-white mb-4 uppercase">
-			Vision &<br />Narrative
-		</h1>
-		<p class="text-zinc-500 text-lg md:text-xl font-light tracking-wide max-w-2xl">
-			每一張照片都是一段靜止的敘事。透過光影的捕捉，我們重構瞬間的情感與氛圍。
-		</p>
-	</section>
-
-	<!-- Featured Projects Grid -->
-	<div class="grid grid-cols-1 md:grid-cols-2 gap-8 pb-32">
-		{featuredAlbums.length > 0 ? (
-			featuredAlbums.map((album) => (
-				<a href={`/portfolio/${album.categorySlug}/${album.projectSlug}`} class="group block relative overflow-hidden bg-zinc-900 aspect-[16/9] animate-fade-in">
-					<img
-						src={album.cover}
-						alt={album.project}
-						class="w-full h-full object-cover opacity-60 group-hover:opacity-100 group-hover:scale-105 transition-all duration-1000 ease-out"
-					/>
-					<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60 group-hover:opacity-100 transition-opacity"></div>
-					<div class="absolute bottom-8 left-8">
-						<span class="text-[10px] tracking-[0.3em] uppercase text-zinc-400 font-bold mb-2 block">{album.category}</span>
-						<h2 class="text-3xl font-bold text-white tracking-tight">{album.project}</h2>
-					</div>
-				</a>
-			))
-		) : (
-			<div class="col-span-full py-20 text-center text-zinc-500 italic">
-				尚未處理照片，請先執行圖片處理腳本。
+<Layout title="Yang Photography | 攝影作品集">
+	<!-- 
+		致敬 website_design_2.jpg 的雜誌排版風格：
+		打破常規的置中對齊，使用絕對定位與極端的負邊距創造文字與圖片的「交疊」。
+		利用極大與極小的圖片對比產生視覺張力。
+	-->
+	<div class="relative w-full pb-40">
+		
+		<!-- 區塊 1: 大膽的開場交疊 -->
+		<section class="relative min-h-screen pt-20">
+			<!-- 巨大排版標題 -->
+			<div class="absolute top-32 left-0 md:left-12 z-20 pointer-events-none animate-fade-in-up">
+				<h1 class="brand-font text-[15vw] leading-[0.8] text-white opacity-90 mix-blend-difference">
+					Visual<br />Poetry
+				</h1>
 			</div>
-		)}
+
+			<!-- 主視覺大圖 (偏右下) -->
+			<div class="absolute top-48 right-0 w-[85%] md:w-[65%] lg:w-[55%] aspect-[4/3] bg-zinc-900 z-10 overflow-hidden group animate-fade-in delay-200">
+				<img src={img1} class="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-[1.02] transition-all duration-[1.5s] ease-out lightbox-trigger cursor-zoom-in" alt="Main Vision" />
+				<div class="absolute bottom-6 left-6 flex items-center gap-4 text-white/50">
+					<span class="text-[9px] tracking-widest uppercase">01</span>
+					<div class="h-px w-8 bg-white/30"></div>
+					<span class="text-[9px] tracking-widest uppercase font-light">Featured</span>
+				</div>
+			</div>
+
+			<!-- 裝飾性質的副視覺窄圖 (偏左下，與大圖重疊) -->
+			<div class="absolute top-[60vh] left-4 md:left-24 w-[40%] md:w-[25%] aspect-[3/4] bg-zinc-900 z-30 overflow-hidden group animate-fade-in delay-500 shadow-2xl shadow-black">
+				<img src={img2} class="w-full h-full object-cover opacity-70 group-hover:opacity-100 group-hover:scale-[1.02] transition-all duration-[1.5s] ease-out lightbox-trigger cursor-zoom-in" alt="Secondary Vision" />
+			</div>
+		</section>
+
+		<!-- 區塊 2: 留白與宣言 -->
+		<section class="relative w-full py-40 md:py-64 flex flex-col items-center justify-center text-center animate-fade-in">
+			<p class="max-w-2xl text-zinc-400 font-light leading-relaxed text-sm md:text-lg tracking-wide px-8">
+				"We capture the silence between moments. The unsaid emotions, the fleeting light, the architecture of shadows. Every frame is a deliberate constraint."
+			</p>
+			<a href="/about" class="mt-12 text-[10px] tracking-[0.3em] uppercase border-b border-zinc-800 pb-2 text-zinc-500 hover:text-white hover:border-white transition-all duration-500">
+				Discover the Philosophy
+			</a>
+		</section>
+
+		<!-- 區塊 3: 錯落的並置網格 -->
+		<section class="relative w-full px-4 md:px-0">
+			<div class="flex flex-col md:flex-row gap-8 md:gap-24 items-center">
+				<!-- 左側：長條直立圖 -->
+				<div class="w-full md:w-5/12 aspect-[9/16] bg-zinc-900 overflow-hidden group animate-fade-in-up">
+					<img src={img3} class="w-full h-full object-cover opacity-60 group-hover:opacity-100 group-hover:scale-[1.02] transition-all duration-[1.5s] ease-out lightbox-trigger cursor-zoom-in" alt="Vertical Story" />
+				</div>
+				<!-- 右側：較小的橫向圖與文字組合 -->
+				<div class="w-full md:w-7/12 flex flex-col justify-center animate-fade-in-up delay-200">
+					<div class="w-full md:w-4/5 aspect-[4/3] bg-zinc-900 overflow-hidden group mb-12">
+						<img src={img4} class="w-full h-full object-cover opacity-60 group-hover:opacity-100 group-hover:scale-[1.02] transition-all duration-[1.5s] ease-out lightbox-trigger cursor-zoom-in" alt="Horizontal Landscape" />
+					</div>
+					<div class="pr-8">
+						<h2 class="brand-font text-3xl text-white mb-4 italic">Light & Architecture</h2>
+						<p class="text-zinc-500 font-light text-xs leading-loose tracking-wide max-w-md">
+							A study in geometry and human presence. Exploring the intersection where natural light defines urban structures.
+						</p>
+					</div>
+				</div>
+			</div>
+		</section>
+
+	</div>
+
+	<!-- 隱形燈箱 -->
+	<div id="lightbox" class="fixed inset-0 bg-[#000000] z-[100] hidden opacity-0 transition-opacity duration-500 flex items-center justify-center p-4 md:p-12">
+		<div id="lightbox-backdrop" class="absolute inset-0 cursor-zoom-out"></div>
+		<img id="lightbox-img" src="" class="relative z-10 max-w-full max-h-full object-contain shadow-2xl scale-95 transition-transform duration-500" />
+		<button id="lightbox-close" class="absolute top-8 right-8 z-20 text-zinc-600 hover:text-white text-3xl font-light transition-colors duration-300">
+			&times;
+		</button>
 	</div>
 
 	<style>
-		@keyframes fadeIn {
-			from { opacity: 0; transform: translateY(20px); }
-			to { opacity: 1; transform: translateY(0); }
-		}
-		.animate-fade-in {
-			animation: fadeIn 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-		}
+		@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+		@keyframes fadeInUp { from { opacity: 0; transform: translateY(80px); } to { opacity: 1; transform: translateY(0); } }
+		.animate-fade-in { animation: fadeIn 2s ease-out forwards; }
+		.animate-fade-in-up { opacity: 0; animation: fadeInUp 2s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 	</style>
+
+	<script>
+		const initLightbox = () => {
+			const triggers = document.querySelectorAll('.lightbox-trigger');
+			const lightbox = document.getElementById('lightbox');
+			const lightboxImg = document.getElementById('lightbox-img') as HTMLImageElement;
+			const closeBtn = document.getElementById('lightbox-close');
+			const backdrop = document.getElementById('lightbox-backdrop');
+
+			if (!lightbox || !lightboxImg) return;
+
+			const open = (src: string) => {
+				lightboxImg.src = src;
+				lightbox.classList.remove('hidden');
+				document.body.style.overflow = 'hidden';
+				requestAnimationFrame(() => {
+					lightbox.classList.add('opacity-100');
+					lightboxImg.classList.remove('scale-95');
+				});
+			};
+
+			const close = () => {
+				lightbox.classList.remove('opacity-100');
+				lightboxImg.classList.add('scale-95');
+				setTimeout(() => {
+					lightbox.classList.add('hidden');
+					document.body.style.overflow = '';
+				}, 500);
+			};
+
+			triggers.forEach(trigger => {
+				trigger.addEventListener('click', (e) => {
+					open((e.target as HTMLImageElement).src);
+				});
+			});
+
+			[closeBtn, backdrop].forEach(el => el?.addEventListener('click', close));
+			window.addEventListener('keydown', (e) => {
+				if (e.key === 'Escape') close();
+			});
+		};
+
+		document.addEventListener('astro:page-load', initLightbox);
+	</script>
 </Layout>

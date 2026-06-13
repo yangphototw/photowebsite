@@ -5,16 +5,17 @@ interface Props {
 	title?: string;
 }
 
-const { title = "Astro Photography" } = Astro.props;
+const { title = "Yang Photography" } = Astro.props;
 const pathname = new URL(Astro.url).pathname;
 
-// 導覽項目定義
+// 導覽定義：多類別雙語導覽，維持細緻字體
 const navItems = [
 	{ name: 'Home / 首頁', href: '/' },
 	{ name: 'Wedding / 婚禮', href: '/wedding' },
 	{ name: 'Travel / 旅遊', href: '/travel' },
 	{ name: 'Portrait / 人像', href: '/portrait' },
 	{ name: 'Product / 商品', href: '/product' },
+	{ name: 'Event / 活動紀錄', href: '/event' },
 	{ name: 'About / 關於', href: '/about' },
 	{ name: 'Contact / 聯絡', href: '/contact' },
 ];
@@ -24,52 +25,82 @@ const navItems = [
 <html lang="zh-TW" class="scroll-smooth">
 	<head>
 		<meta charset="UTF-8" />
-		<meta name="description" content="Photography Portfolio" />
 		<meta name="viewport" content="width=device-width" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		
+		<!-- 載入優雅文藝感的襯線體與極細無襯線體 -->
 		<link rel="preconnect" href="https://fonts.googleapis.com">
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-		<link href="https://fonts.googleapis.com/css2?family=Syne:wght@800&display=swap" rel="stylesheet">
+		<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Inter:wght@100..300&display=swap" rel="stylesheet">
+		
 		<title>{title}</title>
 		<ClientRouter />
-		<style>
+		<style is:global>
 			@import "tailwindcss";
+
+			:root {
+				--color-gray-soft: #9CA3AF;
+				--font-serif: 'Playfair Display', serif;
+				--font-sans: 'Inter', sans-serif;
+			}
+
+			body {
+				background-color: #000000;
+				color: var(--color-gray-soft);
+				font-family: var(--font-sans);
+				font-weight: 200; /* 極細無襯線體 */
+				-webkit-font-smoothing: antialiased;
+			}
+
+			h1, h2, h3, .brand-font {
+				font-family: var(--font-serif);
+			}
+
+			/* 移除所有預設的外框選取 */
+			*:focus {
+				outline: none;
+			}
 		</style>
 	</head>
-	<body class="text-gray-300 font-sans min-h-screen flex flex-col bg-fixed" style="background: radial-gradient(circle at 50% 30%, #0f0f0f 0%, #000000 100%);">
-		<nav class="flex flex-col md:flex-row justify-between items-center px-8 py-10 max-w-7xl mx-auto w-full gap-8">
-			<a href="/" class="text-4xl font-extrabold tracking-tighter text-white hover:opacity-80 transition-opacity uppercase" style="font-family: 'Syne', sans-serif;">
-				Yang
-			</a>
-			<div class="flex flex-wrap justify-center gap-x-6 gap-y-3 text-[10px] md:text-xs font-bold tracking-[0.2em] uppercase">
-				{navItems.map((item) => {
-					// 判斷是否為當前頁面 (首頁需精準匹配，其他頁面採前綴匹配以包含子分頁)
-					const isActive = item.href === '/' 
-						? pathname === '/' 
-						: pathname.startsWith(item.href);
+	<body class="bg-black text-[#9CA3AF] font-sans font-[200] min-h-screen flex flex-col selection:bg-zinc-800 selection:text-white antialiased">
+		<!-- 頂部導覽：極大垂直留白，營造高級感 -->
+		<header class="w-full py-12 px-8 md:px-16 max-w-7xl mx-auto">
+			<nav class="flex flex-col md:flex-row justify-between items-baseline gap-8">
+				<!-- 左側：攝影師名字，加大尺寸襯線體 -->
+				<a href="/" class="brand-font text-3xl md:text-4xl text-white tracking-wide hover:opacity-70 transition-opacity">
+					Yang
+				</a>
 
-					return (
-						<a 
-							href={item.href} 
-							class={`pb-1 border-b-2 transition-all duration-300 hover:text-white ${
-								isActive 
-								? 'text-white border-white/40' 
-								: 'border-transparent hover:border-white/10'
-							}`}
-						>
-							{item.name}
-						</a>
-					);
-				})}
-			</div>
-		</nav>
+				<!-- 右側：極細導覽連結 -->
+				<ul class="flex flex-wrap justify-center md:justify-end gap-x-6 gap-y-4 text-[9px] md:text-[10px] tracking-[0.2em] font-light uppercase">
+					{navItems.map((item) => (
+						<li>
+							<a 
+								href={item.href} 
+								class={`hover:text-white transition-colors duration-500 py-1 border-b border-transparent hover:border-white/30 ${
+									pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href))
+									? 'text-white !border-white/50'
+									: ''
+								}`}
+							>
+								{item.name}
+							</a>
+						</li>
+					))}
+				</ul>
+			</nav>
+		</header>
 
-		<main class="flex-grow max-w-7xl mx-auto w-full px-8">
+		<!-- 頁面主要容器：寬鬆留白 -->
+		<main class="flex-grow w-full px-8 md:px-16 max-w-7xl mx-auto">
 			<slot />
 		</main>
 
-		<footer class="px-8 py-16 text-center text-zinc-600 text-xs tracking-widest uppercase">
-			<p>&copy; 2026 Photography Portfolio. Built with Astro & Tailwind.</p>
+		<!-- 頁尾：低調且克制 -->
+		<footer class="w-full py-20 px-8 md:px-16 max-w-7xl mx-auto">
+			<div class="border-t border-zinc-900 pt-8 flex justify-between items-center text-[10px] tracking-widest uppercase text-zinc-600">
+				<p>&copy; 2026 YANG PHOTOGRAPHY</p>
+			</div>
 		</footer>
 	</body>
 </html>
