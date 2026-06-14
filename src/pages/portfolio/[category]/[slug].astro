@@ -38,8 +38,8 @@ const { album } = Astro.props;
         <div class="h-px w-12 bg-zinc-800 mt-8"></div>
 	</header>
 
-	<!-- Masonry Gallery: 已同步為 sm 以上 3 欄 -->
-	<div class="columns-1 sm:columns-3 gap-6 space-y-6 pb-32 animate-fade-in">
+	<!-- Masonry Gallery: 已同步為手機版 2 欄 / 電腦版 3 欄 -->
+	<div class="columns-2 sm:columns-3 gap-6 space-y-6 pb-32 animate-fade-in">
 		{album.images.map((src) => (
 			<div class="break-inside-avoid overflow-hidden rounded-2xl bg-zinc-900 cursor-zoom-in group relative border border-zinc-800/30">
 				<img

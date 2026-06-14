@@ -9,7 +9,7 @@ interface Props {
 const { title = "Yang Photography", fullWidth = false } = Astro.props;
 const pathname = new URL(Astro.url).pathname;
 
-// 導覽定義：多類別雙語導覽，維持細緻字體
+// 導覽定義
 const navItems = [
 	{ name: 'Home / 首頁', href: '/' },
 	{ name: 'Wedding / 婚禮', href: '/wedding' },
@@ -54,28 +54,39 @@ const navItems = [
 				background-color: #000000;
 				color: var(--color-gray-soft);
 				font-family: var(--font-base);
-				font-weight: 200; /* 保持原字重 */
+				font-weight: 200;
 				-webkit-font-smoothing: antialiased;
 			}
 
 			h1, h2, h3, .brand-font {
 				font-family: var(--font-base);
-				font-weight: 200; /* 保持原字重，將標題也統一為黑體 */
+				font-weight: 200;
 			}
 
-			/* 移除所有預設的外框選取 */
 			*:focus {
 				outline: none;
+			}
+
+			/* 選單動畫 */
+			#mobile-menu-overlay.active {
+				opacity: 1;
+				pointer-events: auto;
+			}
+			#mobile-menu-overlay.active .menu-item {
+				transform: translateY(0);
+				opacity: 1;
 			}
 		</style>
 	</head>
 	<body class="bg-black text-[#9CA3AF] font-sans font-[200] min-h-screen flex flex-col selection:bg-zinc-800 selection:text-white antialiased relative">
-		<!-- 頂部導覽：改為 absolute 絕對定位，徹底釋放物理空間，讓首頁大圖完美貼頂 -->
+		
+		<!-- 頂部導覽 -->
 		<header class="absolute top-0 left-0 w-full py-8 md:py-12 px-8 md:px-16 z-50 pointer-events-none">
 			<div class="max-w-7xl mx-auto w-full">
-				<nav class="flex justify-center pointer-events-auto">
-					<!-- 極細導覽連結：已改為全站置中，移除所有 Logo -->
-					<ul class="flex flex-wrap justify-center gap-x-8 gap-y-4 text-[9px] md:text-[10px] tracking-[0.2em] font-light uppercase">
+				<nav class="flex justify-center md:justify-center pointer-events-auto">
+					
+					<!-- 電腦版導覽 (md 以上顯示) -->
+					<ul class="hidden md:flex flex-wrap justify-center gap-x-8 gap-y-4 text-[9px] md:text-[10px] tracking-[0.2em] font-light uppercase">
 						{navItems.map((item) => (
 							<li>
 								<a 
@@ -91,20 +102,79 @@ const navItems = [
 							</li>
 						))}
 					</ul>
+
+					<!-- 手機版觸發器 (md 以下顯示) -->
+					<button id="menu-toggle" class="md:hidden text-white text-[10px] tracking-[0.4em] uppercase font-light flex items-center gap-4 py-2">
+						<span class="w-8 h-px bg-white/30"></span>
+						MENU / 選單
+						<span class="w-8 h-px bg-white/30"></span>
+					</button>
 				</nav>
 			</div>
 		</header>
 
-		<!-- 頁面主要容器：依據設定決定是否滿版。若是滿版則不加 padding，若否則加上適當的 top padding 避開 absolute header -->
+		<!-- 手機版全螢幕選單 -->
+		<div id="mobile-menu-overlay" class="fixed inset-0 bg-black z-[100] opacity-0 pointer-events-none transition-opacity duration-700 flex flex-col items-center justify-center p-8 overflow-y-auto">
+			<button id="menu-close" class="absolute top-10 right-10 text-zinc-500 hover:text-white text-3xl font-thin">&times;</button>
+			
+			<ul class="flex flex-col items-center gap-8 text-center">
+				{navItems.map((item, index) => (
+					<li class="menu-item opacity-0 transform translate-y-4 transition-all duration-700" style={`transition-delay: ${index * 50}ms`}>
+						<a 
+							href={item.href} 
+							class={`text-xl font-light tracking-[0.2em] uppercase transition-colors hover:text-white ${pathname === item.href ? 'text-white' : 'text-zinc-500'}`}
+						>
+							{item.name}
+						</a>
+					</li>
+				))}
+			</ul>
+
+			<div class="mt-20 border-t border-zinc-900 pt-10 text-[9px] tracking-[0.4em] text-zinc-700 uppercase">
+				&copy; 2026 YANG PHOTOGRAPHY
+			</div>
+		</div>
+
+		<!-- 頁面主要容器 -->
 		<main class={`flex-grow w-full ${fullWidth ? '' : 'pt-32 px-8 md:px-16 max-w-7xl mx-auto'}`}>
 			<slot />
 		</main>
 
-		<!-- 頁尾：低調且克制 -->
 		<footer class="w-full py-20 px-8 md:px-16 max-w-7xl mx-auto">
 			<div class="border-t border-zinc-900 pt-8 flex justify-between items-center text-[10px] tracking-widest uppercase text-zinc-600">
 				<p>&copy; 2026 YANG PHOTOGRAPHY</p>
 			</div>
 		</footer>
+
+		<script>
+			const initMenu = () => {
+				const toggle = document.getElementById('menu-toggle');
+				const close = document.getElementById('menu-close');
+				const overlay = document.getElementById('mobile-menu-overlay');
+				const menuLinks = document.querySelectorAll('#mobile-menu-overlay a');
+
+				if (!toggle || !overlay) return;
+
+				const openMenu = () => {
+					overlay.classList.add('active');
+					document.body.style.overflow = 'hidden';
+				};
+
+				const closeMenu = () => {
+					overlay.classList.remove('active');
+					document.body.style.overflow = '';
+				};
+
+				toggle.addEventListener('click', openMenu);
+				close?.addEventListener('click', closeMenu);
+				
+				// 點擊連結後自動關閉選單
+				menuLinks.forEach(link => {
+					link.addEventListener('click', closeMenu);
+				});
+			};
+
+			document.addEventListener('astro:page-load', initMenu);
+		</script>
 	</body>
 </html>

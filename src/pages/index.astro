@@ -70,13 +70,13 @@ const galleryImages = featuredData.length > 0
 		</div>
 
 		<!-- 上半部文字內容區 (使用 flex-grow 佔據畫面上方，並保留頂部空間避免擋到導覽列) -->
-		<div class="relative z-30 w-full px-8 md:px-16 max-w-7xl mx-auto flex-grow flex flex-col justify-center pt-48 pb-20">
+		<div class="relative z-30 w-full px-8 md:px-16 max-w-7xl mx-auto flex-grow flex flex-col justify-center pt-32 md:pt-48 pb-20">
 			<div class="flex flex-col items-start gap-4 md:gap-6 max-w-3xl">
-				<span class="text-[9px] md:text-[10px] tracking-[0.4em] text-zinc-400 font-light uppercase">
+				<span class="text-[8px] md:text-[10px] tracking-[0.4em] text-zinc-400 font-light uppercase">
 					TAIWAN BASED / 獨立攝影與視覺敘事
 				</span>
 				
-				<h1 class="brand-font font-bold text-3xl md:text-4xl lg:text-5xl text-white leading-tight tracking-tight whitespace-nowrap">
+				<h1 class="brand-font font-bold text-2xl sm:text-3xl md:text-5xl lg:text-7xl text-white leading-tight tracking-tight whitespace-nowrap">
 					Yang Photo<span class="text-amber-400 drop-shadow-[0_0_8px_rgba(245,158,11,0.5)]">.</span>
 				</h1>
 				
@@ -223,7 +223,7 @@ const galleryImages = featuredData.length > 0
 
 		<!-- 4. 精華照片區 (Featured Gallery) 瀑布流 -->
 		<section id="featured-gallery" class="pt-12 pb-32 animate-fade-in-up delay-700">
-			<div class="columns-1 md:columns-2 lg:columns-3 gap-6 space-y-6">
+			<div class="columns-2 md:columns-2 lg:columns-3 gap-6 space-y-6">
 				{galleryImages.map((src) => (
 					<div class="break-inside-avoid overflow-hidden rounded-2xl bg-zinc-900 cursor-zoom-in group relative border border-zinc-800/50">
 						<img
