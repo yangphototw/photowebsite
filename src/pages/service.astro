@@ -1,0 +1,110 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const services = [
+    {
+        title: "Weddings / 婚禮紀錄",
+        price: "NT$ 12,000 up",
+        description: "比起刻意的擺拍，更偏好捕捉那些不經意間流露的真摯情感。紀錄婚禮當天最純粹、最有溫度的自然瞬間。",
+        features: ["全數專業調色照片", "無負擔自然捕捉", "Google 相簿高效呈現", "兩周內快速交付，延續婚禮溫度"]
+    },
+    {
+        title: "Portraits / 個人寫真",
+        price: "NT$ 2,000",
+        description: "探索光影與氣質的交織，打造專屬於您的視覺名片。",
+        features: ["1 ~ 1.5 小時拍攝", "含妝髮建議", "專業調色檔案交付", "適合個人形象或生活感紀錄"]
+    },
+    {
+        title: "Couples / 情侶寫真",
+        price: "NT$ 3,500",
+        description: "紀錄兩人間最自然的互動與情感，捕捉那份專屬的甜蜜氣息。",
+        features: ["1 ~ 1.5 小時拍攝", "互動引導拍攝", "專業調色檔案交付", "適合紀念日或婚前紀錄"]
+    },
+    {
+        title: "Registration / 登記寫真",
+        price: "NT$ 5,000",
+        description: "紀錄最簡約而真摯的法律見證，讓平凡的一天成為永恆。",
+        features: ["登記全程側拍", "戶外生活感類婚紗", "全數檔案交付", "急件處理服務"]
+    },
+    {
+        title: "Events / 活動紀錄",
+        price: "報價請洽詢",
+        description: "精準捕捉品牌活動、派對或講座的精彩瞬間，展現動態的張力。",
+        features: ["商業記者會/派對/講座", "快速交付預覽圖", "專業動態捕捉", "多機位可預約"]
+    },
+    {
+        title: "Product / 商業攝影",
+        price: "報價請洽詢",
+        description: "提升產品的視覺價值，讓質感說話。",
+        features: ["美食/空間/商品", "棚內燈光佈置", "高精度細節呈現", "版權授權使用"]
+    }
+];
+---
+
+<Layout title="Service | 服務項目">
+	<!-- 頁面標題 -->
+	<section class="py-8 md:py-12 animate-fade-in text-center flex flex-col items-center">
+		<div class="flex items-center gap-3 text-zinc-500 font-light tracking-[0.4em] text-[10px] uppercase">
+			<span>Service / 服務項目</span>
+		</div>
+        <div class="h-px w-12 bg-zinc-800 mt-4"></div>
+	</section>
+
+	<!-- 服務方案網格 (優化手機間距與內距) -->
+	<section class="pb-12 animate-fade-in">
+		<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+			{services.map((s, index) => (
+				<div class="group p-6 md:p-12 bg-zinc-900/40 backdrop-blur-md border border-zinc-800 rounded-3xl hover:border-amber-500/30 transition-all duration-700 flex flex-col justify-between">
+					<div>
+						<h3 class="text-lg md:text-2xl font-light text-white tracking-tight mb-2 group-hover:text-amber-200 transition-colors">
+							{s.title}
+						</h3>
+						<div class="text-amber-500/80 text-[10px] md:text-xs tracking-widest font-bold mb-4 md:mb-6 italic">{s.price}</div>
+						<p class="text-zinc-500 text-xs md:text-sm font-light leading-relaxed mb-6 md:mb-8">
+							{s.description}
+						</p>
+						<ul class="space-y-2 md:space-y-3 mb-8 md:mb-10">
+							{s.features.map(f => (
+								<li class="flex items-center gap-3 text-[10px] md:text-[11px] text-zinc-400 tracking-wide">
+									<span class="w-1 h-1 rounded-full bg-amber-500/50"></span>
+									{f}
+								</li>
+							))}
+						</ul>
+					</div>
+					<a href="/about" class="mt-auto block text-center py-3 md:py-4 border border-zinc-800 text-zinc-500 text-[9px] md:text-[10px] tracking-[0.3em] uppercase hover:bg-white hover:text-black hover:border-white transition-all duration-500 rounded-full">
+						Inquiry / 預約諮詢
+					</a>
+				</div>
+			))}
+		</div>
+	</section>
+
+    <!-- 客製化方案 (手機版寬度自適應) -->
+    <section class="pb-32 animate-fade-in flex justify-center px-4 md:px-0">
+        <div class="w-full max-w-lg group p-8 md:p-12 bg-gradient-to-br from-amber-500/10 to-transparent border border-amber-500/20 rounded-3xl flex flex-col justify-center items-center text-center">
+            <h3 class="text-xl font-light text-amber-200 tracking-tight mb-4">Customized / 客製化方案</h3>
+            <p class="text-zinc-500 text-xs font-light leading-relaxed mb-8">
+                上述方案皆可依需求微調，<br />如有特殊拍攝需求或大規模合作歡迎聯繫。
+            </p>
+            <div class="flex flex-col w-full gap-4">
+                <a href="mailto:yang.photo999@gmail.com" class="px-8 py-4 bg-white/5 border border-white/10 text-white text-[10px] tracking-[0.3em] uppercase hover:bg-white hover:text-black transition-all duration-500 rounded-full">
+                    Email Inquiry
+                </a>
+                <a href="https://www.instagram.com/yang._.photo/" target="_blank" class="px-8 py-4 bg-amber-500 text-black text-[10px] tracking-[0.3em] uppercase hover:bg-amber-400 transition-all duration-500 rounded-full font-bold">
+                    DM on Instagram
+                </a>
+            </div>
+        </div>
+    </section>
+
+	<style>
+		@keyframes fadeIn {
+			from { opacity: 0; transform: translateY(20px); }
+			to { opacity: 1; transform: translateY(0); }
+		}
+		.animate-fade-in {
+			animation: fadeIn 1.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+		}
+	</style>
+</Layout>
