@@ -10,7 +10,8 @@ TARGET_BASE_DIR = Path("public/images/albums")
 DATA_DIR = Path("src/data")
 
 def slugify(text):
-    return re.sub(r'[^\w\s-]', '', text.strip()).replace(' ', '-')
+    # 轉小寫並移除非法字元
+    return re.sub(r'[^\w\s-]', '', text.strip().lower()).replace(' ', '-')
 
 def process_single_folder(folder_path, output_subpath, is_hero=False):
     """

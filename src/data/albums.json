@@ -1,7 +1,7 @@
 [
   {
     "category": "Event",
-    "categorySlug": "Event",
+    "categorySlug": "event",
     "project": "Gallery",
     "projectSlug": "gallery",
     "cover": "/images/albums/Event/1169.webp",
@@ -20,7 +20,7 @@
   },
   {
     "category": "Portrait",
-    "categorySlug": "Portrait",
+    "categorySlug": "portrait",
     "project": "個人人像",
     "projectSlug": "個人人像",
     "cover": "/images/albums/Portrait/個人人像/DSC06643.webp",
@@ -31,7 +31,7 @@
   },
   {
     "category": "Portrait",
-    "categorySlug": "Portrait",
+    "categorySlug": "portrait",
     "project": "情侶人像",
     "projectSlug": "情侶人像",
     "cover": "/images/albums/Portrait/情侶人像/DSC08075.webp",
@@ -47,7 +47,7 @@
   },
   {
     "category": "Product",
-    "categorySlug": "Product",
+    "categorySlug": "product",
     "project": "Gallery",
     "projectSlug": "gallery",
     "cover": "/images/albums/Product/16.webp",
@@ -62,7 +62,7 @@
   },
   {
     "category": "Wedding",
-    "categorySlug": "Wedding",
+    "categorySlug": "wedding",
     "project": "Gallery",
     "projectSlug": "gallery",
     "cover": "/images/albums/Wedding/649.webp",

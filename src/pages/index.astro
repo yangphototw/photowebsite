@@ -20,7 +20,7 @@ const cardsData = readJson('src/data/cards.json');
 let allImages: string[] = albums.flatMap((a: any) => a.images);
 const defaultImg = "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=1500&auto=format&fit=crop";
 
-// 1. Hero 輪播圖片 (從 carousel.json 抓，若無則降級尋找 DSC06557，再無則用預設)
+// 1. Hero 輪播圖片
 let heroImages = carouselData.map((c: any) => c.src);
 if (heroImages.length === 0) {
 	const targetHeroImage = allImages.find((src: string) => src.includes('DSC06557'));
@@ -40,131 +40,119 @@ const cardEvent        = getCardCover("event", "https://images.unsplash.com/phot
 const cardProduct      = getCardCover("product", "https://images.unsplash.com/photo-1515378960530-7c0da6229b92?q=80&w=1000&auto=format&fit=crop");
 const cardTravel       = getCardCover("travel", "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?q=80&w=1000&auto=format&fit=crop");
 
-// 3. IG 縮圖 (從全站相簿隨便抓 4 張)
+// 3. IG 縮圖
 const igImg1 = allImages[0] || defaultImg;
 const igImg2 = allImages[1] || defaultImg;
 const igImg3 = allImages[2] || defaultImg;
 const igImg4 = allImages[3] || defaultImg;
 
-// 4. 精華瀑布流 (從 featured.json 抓)
+// 4. 精華瀑布流
 const galleryImages = featuredData.length > 0 
 	? featuredData.map((f: any) => f.src) 
 	: (allImages.length > 8 ? allImages.slice(8) : allImages);
 ---
 
 <Layout title="Yang Photography | Luxury Visuals" fullWidth={true}>
-	<!-- 1. 電影感巨幕開場 (Hero Section - 將卡片包入其中以撐開背景) -->
+	<!-- 1. Hero Section -->
 	<section class="relative w-full min-h-screen flex flex-col animate-fade-in pb-16">
-		
-		<!-- 滿版大圖與輪播容器 (因為 absolute inset-0，會自動跟隨 section 的高度延伸) -->
 		<div id="hero-carousel" class="absolute inset-0 z-0 bg-black overflow-hidden">
 			{heroImages.map((src: string, index: number) => (
 				<img 
 					src={src} 
 					alt={`Hero Background ${index + 1}`} 
+					fetchpriority={index === 0 ? "high" : "low"}
+					decoding="async"
 					class={`hero-slide w-full h-full object-cover transition-all duration-[2000ms] ease-in-out ${index === 0 ? 'relative opacity-90 z-10 scale-100' : 'absolute top-0 left-0 opacity-0 z-0 scale-105'}`} 
 				/>
 			))}
-			<!-- 底部加入極端漸層，確保浮在上面的卡片不會太突兀 -->
 			<div class="absolute inset-0 bg-gradient-to-b from-transparent via-black/40 to-black/90 z-20 pointer-events-none"></div>
 		</div>
 
-		<!-- 上半部文字內容區 (使用 flex-grow 佔據畫面上方，並保留頂部空間避免擋到導覽列) -->
+		<!-- 上半部文字 -->
 		<div class="relative z-30 w-full px-8 md:px-16 max-w-7xl mx-auto flex-grow flex flex-col justify-center pt-32 md:pt-48 pb-20">
 			<div class="flex flex-col items-start gap-4 md:gap-6 max-w-3xl">
 				<span class="text-[8px] md:text-[10px] tracking-[0.4em] text-zinc-400 font-light uppercase">
 					TAIWAN BASED / 獨立攝影與視覺敘事
 				</span>
-				
 				<h1 class="brand-font font-bold text-2xl sm:text-3xl md:text-5xl lg:text-7xl text-white leading-tight tracking-tight whitespace-nowrap">
 					Yang Photo<span class="text-amber-400 drop-shadow-[0_0_8px_rgba(245,158,11,0.5)]">.</span>
 				</h1>
-				
 				<p class="text-zinc-400 font-light tracking-wide text-xs md:text-sm max-w-md mb-2">
 					Embracing natural light and genuine moments. <br />
 					捕捉自然光影，紀錄真實而純粹的瞬間。
 				</p>
-				
 				<a href="#featured-gallery" class="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md border border-amber-500/30 rounded-full px-6 py-3 md:px-8 md:py-4 text-xs text-amber-200 tracking-widest hover:bg-amber-500/20 hover:scale-105 hover:border-amber-500/50 transition-all duration-500">
 					VIEW PORTFOLIO / 瀏覽作品 <span class="text-lg leading-none">↓</span>
 				</a>
 			</div>
 		</div>
 
-		<!-- 下半部：六大核心主題卡片 (移入 section 內部，讓背景圖能自動包覆它們) -->
+		<!-- 下半部：六大主題卡片 (優化為滿版影像 + 金框 + 懸停文字彈出) -->
 		<div class="relative z-30 w-full px-8 md:px-16 max-w-7xl mx-auto animate-fade-in-up delay-200">
-			<!-- 第一排：(Weddings, Registration, Portraits) -->
-			<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+			<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
 				<!-- Wedding -->
-				<a href="/wedding" class="group block p-4 md:p-6 bg-zinc-900/60 backdrop-blur-xl border border-amber-500/30 rounded-2xl hover:border-amber-500/60 hover:shadow-[0_0_40px_rgba(245,158,11,0.15)] transition-all duration-500">
-					<div class="flex justify-between items-center mb-6 px-2">
-						<span class="text-xs text-amber-400 font-bold tracking-widest">01</span>
-						<h3 class="brand-font text-xl text-white tracking-wide">Weddings / 婚禮</h3>
-					</div>
-					<div class="relative w-full aspect-[4/5] overflow-hidden rounded-xl bg-black">
-						<img src={cardWedding} class="w-full h-full object-cover opacity-70 brightness-90 group-hover:brightness-110 group-hover:opacity-100 group-hover:scale-[1.03] transition-all duration-700 ease-out" alt="Weddings" />
+				<a href="/wedding" class="group relative block overflow-hidden rounded-2xl aspect-[4/5] bg-zinc-900 border border-amber-500/30 hover:border-amber-500/60 hover:shadow-[0_0_40px_rgba(245,158,11,0.15)] transition-all duration-700">
+					<img src={cardWedding} class="w-full h-full object-cover opacity-70 group-hover:opacity-100 group-hover:scale-[1.02] transition-all duration-700 ease-out" alt="Weddings" />
+					<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex flex-col justify-end p-8 opacity-0 group-hover:opacity-100 transition-opacity duration-700">
+						<div class="flex justify-between items-center transform translate-y-2 group-hover:translate-y-0 transition-transform duration-700">
+							<h3 class="brand-font text-lg md:text-xl text-white tracking-wide">Weddings / 婚禮</h3>
+							<span class="text-[10px] text-amber-500 font-bold tracking-widest opacity-60">01</span>
+						</div>
 					</div>
 				</a>
 
 				<!-- Registration -->
-				<a href="/registration" class="group block p-4 md:p-6 bg-zinc-900/60 backdrop-blur-xl border border-amber-500/30 rounded-2xl hover:border-amber-500/60 hover:shadow-[0_0_40px_rgba(245,158,11,0.15)] transition-all duration-500">
-					<div class="flex justify-between items-center mb-6 px-2">
-						<span class="text-xs text-amber-400 font-bold tracking-widest">02</span>
-						<h3 class="brand-font text-xl text-white tracking-wide">Registration / 登記</h3>
-					</div>
-					<div class="relative w-full aspect-[4/5] overflow-hidden rounded-xl bg-black">
-						<img src={cardRegistration} class="w-full h-full object-cover opacity-70 brightness-90 group-hover:brightness-110 group-hover:opacity-100 group-hover:scale-[1.03] transition-all duration-700 ease-out" alt="Registration" />
+				<a href="/registration" class="group relative block overflow-hidden rounded-2xl aspect-[4/5] bg-zinc-900 border border-amber-500/30 hover:border-amber-500/60 hover:shadow-[0_0_40px_rgba(245,158,11,0.15)] transition-all duration-700">
+					<img src={cardRegistration} class="w-full h-full object-cover opacity-70 group-hover:opacity-100 group-hover:scale-[1.02] transition-all duration-700 ease-out" alt="Registration" />
+					<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex flex-col justify-end p-8 opacity-0 group-hover:opacity-100 transition-opacity duration-700">
+						<div class="flex justify-between items-center transform translate-y-2 group-hover:translate-y-0 transition-transform duration-700">
+							<h3 class="brand-font text-lg md:text-xl text-white tracking-wide">Registration / 登記</h3>
+							<span class="text-[10px] text-amber-500 font-bold tracking-widest opacity-60">02</span>
+						</div>
 					</div>
 				</a>
 
 				<!-- Portrait -->
-				<a href="/portrait" class="group block p-4 md:p-6 bg-zinc-900/60 backdrop-blur-xl border border-amber-500/30 rounded-2xl hover:border-amber-500/60 hover:shadow-[0_0_40px_rgba(245,158,11,0.15)] transition-all duration-500">
-					<div class="flex justify-between items-center mb-6 px-2">
-						<span class="text-xs text-amber-400 font-bold tracking-widest">03</span>
-						<h3 class="brand-font text-xl text-white tracking-wide">Portraits / 人像</h3>
-					</div>
-					<div class="relative w-full aspect-[4/5] overflow-hidden rounded-xl bg-black">
-						<img src={cardPortrait} class="w-full h-full object-cover opacity-70 brightness-90 group-hover:brightness-110 group-hover:opacity-100 group-hover:scale-[1.03] transition-all duration-700 ease-out" alt="Portraits" />
+				<a href="/portrait" class="group relative block overflow-hidden rounded-2xl aspect-[4/5] bg-zinc-900 border border-amber-500/30 hover:border-amber-500/60 hover:shadow-[0_0_40px_rgba(245,158,11,0.15)] transition-all duration-700">
+					<img src={cardPortrait} class="w-full h-full object-cover opacity-70 group-hover:opacity-100 group-hover:scale-[1.02] transition-all duration-700 ease-out" alt="Portraits" />
+					<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex flex-col justify-end p-8 opacity-0 group-hover:opacity-100 transition-opacity duration-700">
+						<div class="flex justify-between items-center transform translate-y-2 group-hover:translate-y-0 transition-transform duration-700">
+							<h3 class="brand-font text-lg md:text-xl text-white tracking-wide">Portraits / 人像</h3>
+							<span class="text-[10px] text-amber-500 font-bold tracking-widest opacity-60">03</span>
+						</div>
 					</div>
 				</a>
-			</div>
 
-			<!-- 第二排：(Events, Travel, Products) -->
-			<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
 				<!-- Event -->
-				<a href="/event" class="group block p-4 md:p-6 bg-zinc-900/60 backdrop-blur-xl border border-amber-500/30 rounded-2xl hover:border-amber-500/60 hover:shadow-[0_0_40px_rgba(245,158,11,0.15)] transition-all duration-500">
-					<div class="flex justify-between items-center mb-6 px-2">
-						<span class="text-xs text-amber-400 font-bold tracking-widest">04</span>
-						<h3 class="brand-font text-xl text-white tracking-wide">Events / 活動紀錄</h3>
-					</div>
-					<div class="relative w-full aspect-[4/5] overflow-hidden rounded-xl bg-black">
-						<img src={cardEvent} class="w-full h-full object-cover opacity-70 brightness-90 group-hover:brightness-110 group-hover:opacity-100 group-hover:scale-[1.03] transition-all duration-700 ease-out" alt="Events" />
+				<a href="/event" class="group relative block overflow-hidden rounded-2xl aspect-[4/5] bg-zinc-900 border border-amber-500/30 hover:border-amber-500/60 hover:shadow-[0_0_40px_rgba(245,158,11,0.15)] transition-all duration-700">
+					<img src={cardEvent} class="w-full h-full object-cover opacity-70 group-hover:opacity-100 group-hover:scale-[1.02] transition-all duration-700 ease-out" alt="Events" />
+					<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex flex-col justify-end p-8 opacity-0 group-hover:opacity-100 transition-opacity duration-700">
+						<div class="flex justify-between items-center transform translate-y-2 group-hover:translate-y-0 transition-transform duration-700">
+							<h3 class="brand-font text-lg md:text-xl text-white tracking-wide">Events / 活動紀錄</h3>
+							<span class="text-[10px] text-amber-500 font-bold tracking-widest opacity-60">04</span>
+						</div>
 					</div>
 				</a>
 
 				<!-- Travel -->
-				<a href="/travel" class="group block p-4 md:p-6 bg-zinc-900/40 backdrop-blur-md border border-amber-500/10 rounded-2xl hover:border-amber-500/40 hover:shadow-[0_0_30px_rgba(245,158,11,0.05)] transition-all duration-500">
-					<div class="flex justify-between items-center mb-4 px-2">
-						<span class="text-[10px] text-amber-500/60 font-bold tracking-widest">05</span>
-						<h3 class="brand-font text-lg text-zinc-300 group-hover:text-white tracking-wide transition-colors">Travel / 旅遊</h3>
-					</div>
-					<div class="relative w-full aspect-video overflow-hidden rounded-xl bg-black hidden"> <!-- 這裡先藏起來以維持 3x2 -->
-						<img src={cardTravel} class="w-full h-full object-cover opacity-60 brightness-75 group-hover:brightness-100 group-hover:opacity-100 group-hover:scale-[1.02] transition-all duration-700 ease-out" alt="Travel" />
-					</div>
-					<!-- 改為與上方一致的比例 -->
-					<div class="relative w-full aspect-[4/5] overflow-hidden rounded-xl bg-black">
-						<img src={cardTravel} class="w-full h-full object-cover opacity-70 brightness-90 group-hover:brightness-110 group-hover:opacity-100 group-hover:scale-[1.03] transition-all duration-700 ease-out" alt="Travel" />
+				<a href="/travel" class="group relative block overflow-hidden rounded-2xl aspect-[4/5] bg-zinc-900 border border-amber-500/30 hover:border-amber-500/60 hover:shadow-[0_0_40px_rgba(245,158,11,0.15)] transition-all duration-700">
+					<img src={cardTravel} class="w-full h-full object-cover opacity-70 group-hover:opacity-100 group-hover:scale-[1.02] transition-all duration-700 ease-out" alt="Travel" />
+					<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex flex-col justify-end p-8 opacity-0 group-hover:opacity-100 transition-opacity duration-700">
+						<div class="flex justify-between items-center transform translate-y-2 group-hover:translate-y-0 transition-transform duration-700">
+							<h3 class="brand-font text-lg md:text-xl text-white tracking-wide">Travel / 旅遊</h3>
+							<span class="text-[10px] text-amber-500 font-bold tracking-widest opacity-60">05</span>
+						</div>
 					</div>
 				</a>
 
 				<!-- Product -->
-				<a href="/product" class="group block p-4 md:p-6 bg-zinc-900/40 backdrop-blur-md border border-amber-500/10 rounded-2xl hover:border-amber-500/40 hover:shadow-[0_0_30px_rgba(245,158,11,0.05)] transition-all duration-500">
-					<div class="flex justify-between items-center mb-4 px-2">
-						<span class="text-[10px] text-amber-500/60 font-bold tracking-widest">06</span>
-						<h3 class="brand-font text-lg text-zinc-300 group-hover:text-white tracking-wide transition-colors">Products / 商品</h3>
-					</div>
-					<div class="relative w-full aspect-[4/5] overflow-hidden rounded-xl bg-black">
-						<img src={cardProduct} class="w-full h-full object-cover opacity-70 brightness-90 group-hover:brightness-110 group-hover:opacity-100 group-hover:scale-[1.03] transition-all duration-700 ease-out" alt="Products" />
+				<a href="/product" class="group relative block overflow-hidden rounded-2xl aspect-[4/5] bg-zinc-900 border border-amber-500/30 hover:border-amber-500/60 hover:shadow-[0_0_40px_rgba(245,158,11,0.15)] transition-all duration-700">
+					<img src={cardProduct} class="w-full h-full object-cover opacity-70 group-hover:opacity-100 group-hover:scale-[1.02] transition-all duration-700 ease-out" alt="Products" />
+					<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex flex-col justify-end p-8 opacity-0 group-hover:opacity-100 transition-opacity duration-700">
+						<div class="flex justify-between items-center transform translate-y-2 group-hover:translate-y-0 transition-transform duration-700">
+							<h3 class="brand-font text-lg md:text-xl text-white tracking-wide">Products / 商品</h3>
+							<span class="text-[10px] text-amber-500 font-bold tracking-widest opacity-60">06</span>
+						</div>
 					</div>
 				</a>
 			</div>
@@ -173,31 +161,25 @@ const galleryImages = featuredData.length > 0
 
 	<!-- 下方其他內容區 -->
 	<div class="max-w-7xl mx-auto px-8 md:px-16 w-full relative z-10 pt-24">
-		<!-- 3. 底部品牌金句與社群區塊 -->
 		<section class="grid grid-cols-1 md:grid-cols-2 gap-6 pb-20 animate-fade-in-up delay-500">
-			<!-- 左下角：精緻雙引號金句 -->
 			<div class="flex flex-col justify-center p-10 md:p-16 border border-zinc-800/50 rounded-2xl bg-zinc-900/20 relative overflow-hidden group hover:border-zinc-700 transition-colors duration-500">
 				<span class="absolute top-8 left-8 text-7xl text-zinc-800 font-serif leading-none group-hover:text-amber-900/30 transition-colors duration-700">"</span>
 				<p class="brand-font text-xl md:text-2xl text-zinc-300 italic leading-relaxed tracking-wide relative z-10 pl-6">
-					致力於捕捉光影中<br />最純粹的情感與真實的故事。
+					致力於捕捉光影中最純粹的情感與真實的故事。
 				</p>
 				<p class="text-[10px] tracking-widest text-zinc-500 uppercase mt-8 pl-6">
 					— Yang Photo / 品牌哲學
 				</p>
 			</div>
 
-			<!-- 右下角：分成兩個方塊 -->
 			<div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-				<!-- 全台拍攝服務 -->
 				<div class="p-8 bg-zinc-900/40 backdrop-blur-md border border-zinc-800/80 rounded-2xl flex flex-col items-center justify-center text-center group hover:bg-zinc-800/40 transition-colors">
 					<div class="w-16 h-16 rounded-full border border-zinc-700 flex items-center justify-center mb-6 group-hover:border-amber-500/50 group-hover:shadow-[0_0_15px_rgba(245,158,11,0.2)] transition-all duration-500">
 						<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="text-zinc-400 group-hover:text-amber-400 transition-colors"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path><path d="M2 12h20"></path></svg>
 					</div>
-					<h4 class="brand-font text-lg text-white mb-2">Available Taiwan<br/><span class="text-sm">全台拍攝服務</span></h4>
+					<h4 class="brand-font text-lg text-white mb-2 text-center">Available Taiwan<br/><span class="text-sm">全台拍攝服務</span></h4>
 					<p class="text-[10px] text-zinc-500 tracking-widest uppercase mt-2">Based in Taiwan / 駐點台灣</p>
 				</div>
-
-				<!-- IG 預覽 -->
 				<a href="https://www.instagram.com/yang._.photo/" target="_blank" rel="noopener noreferrer" class="p-6 bg-zinc-900/40 backdrop-blur-md border border-zinc-800/80 rounded-2xl flex flex-col justify-between group hover:border-amber-500/30 transition-colors">
 					<h4 class="text-[10px] text-zinc-400 tracking-[0.2em] uppercase font-bold mb-4 flex items-center justify-between">
 						Follow me <span>↗</span>
@@ -221,7 +203,6 @@ const galleryImages = featuredData.length > 0
 			</div>
 		</section>
 
-		<!-- 4. 精華照片區 (Featured Gallery) 瀑布流 -->
 		<section id="featured-gallery" class="pt-12 pb-32 animate-fade-in-up delay-700">
 			<div class="columns-2 md:columns-2 lg:columns-3 gap-6 space-y-6">
 				{galleryImages.map((src) => (
@@ -257,25 +238,18 @@ const galleryImages = featuredData.length > 0
 
 	<script>
 		const initFeatures = () => {
-			// --- Hero Carousel Logic ---
 			const slides = document.querySelectorAll('.hero-slide');
 			if (slides.length > 1) {
 				let currentIdx = 0;
-				// 每 6 秒切換一次圖片
 				setInterval(() => {
-					// 隱藏目前圖片，退到下層並微縮放
 					slides[currentIdx].classList.remove('opacity-90', 'z-10', 'scale-100');
 					slides[currentIdx].classList.add('opacity-0', 'z-0', 'scale-105');
-					
 					currentIdx = (currentIdx + 1) % slides.length;
-					
-					// 顯示下一張圖片，浮到上層
 					slides[currentIdx].classList.remove('opacity-0', 'z-0', 'scale-105');
 					slides[currentIdx].classList.add('opacity-90', 'z-10', 'scale-100');
 				}, 6000);
 			}
 
-			// --- Lightbox Logic ---
 			const triggers = document.querySelectorAll('.lightbox-trigger');
 			const lightbox = document.getElementById('lightbox');
 			const lightboxImg = document.getElementById('lightbox-img') as HTMLImageElement;
