@@ -37,13 +37,17 @@ const gridColsClass = count === 1
         <section class="pb-32 animate-fade-in">
             <div class="columns-2 sm:columns-3 gap-6 space-y-6">
                 {directImages.map((src) => (
-                    <div class="break-inside-avoid overflow-hidden rounded-2xl bg-zinc-900 cursor-zoom-in group relative border border-zinc-800/50">
+                    <div 
+                        class="break-inside-avoid overflow-hidden rounded-2xl bg-zinc-900 cursor-zoom-in group relative border border-zinc-800/50"
+                        style="contain: content; will-change: transform;"
+                    >
                         <img
                             src={src}
                             alt="Wedding Work"
                             loading="lazy"
                             decoding="async"
-                            class="w-full h-auto object-cover opacity-70 group-hover:opacity-100 group-hover:scale-[1.02] transition-all duration-700 ease-out lightbox-trigger"
+                            class="w-full h-auto object-cover opacity-70 group-hover:opacity-100 group-hover:scale-[1.02] transition-[transform,opacity] duration-700 ease-out lightbox-trigger"
+                            style="will-change: transform, opacity;"
                         />
                     </div>
                 ))}

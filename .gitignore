@@ -22,3 +22,8 @@ pnpm-debug.log*
 
 # jetbrains setting folder
 .idea/
+
+# temporary folders
+tmp/
+contact_sheets/
+temp_vision/

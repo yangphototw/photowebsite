@@ -45,13 +45,17 @@ const { album } = Astro.props;
 	<!-- Masonry Gallery: 2/3 欄自適應 -->
 	<div class="columns-2 sm:columns-3 gap-6 space-y-6 pb-32 animate-fade-in">
 		{album.images.map((src) => (
-			<div class="break-inside-avoid overflow-hidden rounded-2xl bg-zinc-900 cursor-zoom-in group relative border border-zinc-800/30">
+			<div 
+				class="break-inside-avoid overflow-hidden rounded-2xl bg-zinc-900 cursor-zoom-in group relative border border-zinc-800/30"
+				style="contain: content; will-change: transform;"
+			>
 				<img
 					src={src}
 					alt={album.project}
 					loading="lazy"
 					decoding="async"
-					class="w-full h-auto object-cover opacity-80 group-hover:opacity-100 group-hover:scale-[1.02] transition-all duration-700 ease-out lightbox-trigger"
+					class="w-full h-auto object-cover opacity-80 group-hover:opacity-100 group-hover:scale-[1.02] transition-[transform,opacity] duration-700 ease-out lightbox-trigger"
+					style="will-change: transform, opacity;"
 				/>
 			</div>
 		))}

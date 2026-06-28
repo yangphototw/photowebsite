@@ -1,8 +1,14 @@
 import os
 import json
 import re
+import sys
 from pathlib import Path
 from PIL import Image, ImageOps
+
+# 解決 Windows 主機 print unicode/emoji 時的 CP950 編碼錯誤
+if sys.platform == "win32":
+    sys.stdout.reconfigure(encoding='utf-8')
+
 
 # 設定路徑
 ALBUMS_DIR = Path("../Albums")
