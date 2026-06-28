@@ -32,6 +32,11 @@ def process_single_folder(folder_path, output_subpath, is_hero=False):
     output_dir = TARGET_BASE_DIR / output_subpath
     output_dir.mkdir(parents=True, exist_ok=True)
     
+    # 建立縮圖子目錄
+    thumbs_dir = output_dir / "thumbs"
+    if not is_hero:
+        thumbs_dir.mkdir(parents=True, exist_ok=True)
+    
     valid_extensions = ('.jpg', '.jpeg', '.png', '.JPG', '.JPEG', '.PNG', '.webp', '.jfif', '.JFIF')
     project_images = []
     
@@ -43,19 +48,38 @@ def process_single_folder(folder_path, output_subpath, is_hero=False):
                 img = ImageOps.exif_transpose(img)
                 width, height = img.size
                 
+                # 1. 產生原圖 (High-Res)
+                img_raw = img.copy()
                 max_size = 4096 if is_hero else 2048
                 if max(width, height) > max_size:
                     ratio = max_size / max(width, height)
-                    img = img.resize((int(width * ratio), int(height * ratio)), Image.Resampling.LANCZOS)
+                    img_raw = img_raw.resize((int(width * ratio), int(height * ratio)), Image.Resampling.LANCZOS)
 
-                if img.mode in ("RGBA", "P"):
-                    img = img.convert("RGB")
+                if img_raw.mode in ("RGBA", "P"):
+                    img_raw = img_raw.convert("RGB")
                 
                 output_filename = f"{img_path.stem}.webp"
                 final_output_path = output_dir / output_filename
                 
-                # 全部品質調至 100%
-                img.save(final_output_path, "WEBP", quality=100, method=6)
+                # 原圖品質 100% 儲存
+                img_raw.save(final_output_path, "WEBP", quality=100, method=6)
+                img_raw.close()
+                
+                # 2. 產生縮圖 (Thumbnail)
+                if not is_hero:
+                    img_thumb = img.copy()
+                    thumb_max_size = 1000
+                    if max(width, height) > thumb_max_size:
+                        ratio = thumb_max_size / max(width, height)
+                        img_thumb = img_thumb.resize((int(width * ratio), int(height * ratio)), Image.Resampling.LANCZOS)
+                    
+                    if img_thumb.mode in ("RGBA", "P"):
+                        img_thumb = img_thumb.convert("RGB")
+                        
+                    final_thumb_path = thumbs_dir / output_filename
+                    # 縮圖品質 80% 儲存，大幅縮小檔案大小
+                    img_thumb.save(final_thumb_path, "WEBP", quality=80, method=6)
+                    img_thumb.close()
 
                 web_path = f"/images/albums/{output_subpath}/{output_filename}"
                 project_images.append({

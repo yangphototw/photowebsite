@@ -21,6 +21,12 @@ const gridColsClass = count === 1
     : count === 2 
     ? 'grid-cols-1 md:grid-cols-2 max-w-2xl mx-auto' 
     : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3';
+
+const getThumbSrc = (src: string) => {
+	const parts = src.split('/');
+	parts.splice(parts.length - 1, 0, 'thumbs');
+	return parts.join('/');
+};
 ---
 
 <Layout title="Event | 活動紀錄">
@@ -41,7 +47,8 @@ const gridColsClass = count === 1
                         style="contain: content; will-change: transform;"
                     >
                         <img 
-                            src={src} 
+                            src={getThumbSrc(src)} 
+                            data-raw={src}
                             alt="Event Work" 
                             loading="lazy" 
                             class="w-full h-auto object-cover opacity-70 group-hover:opacity-100 group-hover:scale-[1.02] transition-[transform,opacity] duration-700 ease-out lightbox-trigger" 
@@ -57,7 +64,7 @@ const gridColsClass = count === 1
                 <div class="relative group">
                     <a href={`/portfolio/${album.categorySlug}/${album.projectSlug}`} class="group relative block overflow-hidden rounded-2xl aspect-[4/5] bg-zinc-900 border border-amber-500/30 hover:border-amber-500/60 hover:shadow-[0_0_40px_rgba(245,158,11,0.15)] transition-all duration-700">
                         <img 
-                            src={album.cover} 
+                            src={getThumbSrc(album.cover)} 
                             alt={album.project} 
                             class="w-full h-full object-cover opacity-70 group-hover:opacity-100 group-hover:scale-[1.02] transition-all duration-700 ease-out" 
                         />
@@ -99,8 +106,8 @@ const gridColsClass = count === 1
 			const closeBtn = document.getElementById('lightbox-close');
 			const backdrop = document.getElementById('lightbox-backdrop');
 			if (!lightbox || !lightboxImg) return;
-			const open = (src: string) => {
-				lightboxImg.src = src;
+			const open = (src: string, rawSrc?: string) => {
+				lightboxImg.src = rawSrc || src;
 				lightbox.classList.remove('hidden');
 				document.body.style.overflow = 'hidden';
 				requestAnimationFrame(() => {
@@ -116,7 +123,13 @@ const gridColsClass = count === 1
 					document.body.style.overflow = '';
 				}, 500);
 			};
-			triggers.forEach(trigger => { trigger.addEventListener('click', (e) => { open((e.target as HTMLImageElement).src); }); });
+			triggers.forEach(trigger => {
+				trigger.addEventListener('click', (e) => {
+					const imgEl = e.target as HTMLImageElement;
+					const rawSrc = imgEl.getAttribute('data-raw');
+					open(imgEl.src, rawSrc || undefined);
+				});
+			});
 			[closeBtn, backdrop].forEach(el => el?.addEventListener('click', close));
 			window.addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
 		};

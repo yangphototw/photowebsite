@@ -22,6 +22,12 @@ const defaultImg = "https://images.unsplash.com/photo-1534528741775-53994a69daeb
 
 // 1. Hero 輪播圖片
 let heroImages = carouselData.map((c: any) => c.src);
+
+const getThumbSrc = (src: string) => {
+	const parts = src.split('/');
+	parts.splice(parts.length - 1, 0, 'thumbs');
+	return parts.join('/');
+};
 if (heroImages.length === 0) {
 	const targetHeroImage = allImages.find((src: string) => src.includes('DSC06557'));
 	heroImages = targetHeroImage ? [targetHeroImage] : [defaultImg];
@@ -211,7 +217,8 @@ const galleryImages = featuredData.length > 0
 						style="contain: content; will-change: transform;"
 					>
 						<img
-							src={src}
+							src={getThumbSrc(src)}
+							data-raw={src}
 							alt="Featured Work"
 							loading="lazy"
 							class="w-full h-auto object-cover opacity-70 group-hover:opacity-100 group-hover:scale-[1.02] transition-[transform,opacity] duration-700 ease-out lightbox-trigger"
@@ -262,8 +269,8 @@ const galleryImages = featuredData.length > 0
 
 			if (!lightbox || !lightboxImg) return;
 
-			const open = (src: string) => {
-				lightboxImg.src = src;
+			const open = (src: string, rawSrc?: string) => {
+				lightboxImg.src = rawSrc || src;
 				lightbox.classList.remove('hidden');
 				document.body.style.overflow = 'hidden';
 				requestAnimationFrame(() => {
@@ -283,7 +290,9 @@ const galleryImages = featuredData.length > 0
 
 			triggers.forEach(trigger => {
 				trigger.addEventListener('click', (e) => {
-					open((e.target as HTMLImageElement).src);
+					const imgEl = e.target as HTMLImageElement;
+					const rawSrc = imgEl.getAttribute('data-raw');
+					open(imgEl.src, rawSrc || undefined);
 				});
 			});
 

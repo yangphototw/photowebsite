@@ -21,6 +21,12 @@ export async function getStaticPaths() {
 }
 
 const { album } = Astro.props;
+
+const getThumbSrc = (src: string) => {
+	const parts = src.split('/');
+	parts.splice(parts.length - 1, 0, 'thumbs');
+	return parts.join('/');
+};
 ---
 
 <Layout title={`${album.project} | ${album.category}`}>
@@ -50,7 +56,8 @@ const { album } = Astro.props;
 				style="contain: content; will-change: transform;"
 			>
 				<img
-					src={src}
+					src={getThumbSrc(src)}
+					data-raw={src}
 					alt={album.project}
 					loading="lazy"
 					decoding="async"
@@ -88,8 +95,8 @@ const { album } = Astro.props;
 			const closeBtn = document.getElementById('lightbox-close');
 			const backdrop = document.getElementById('lightbox-backdrop');
 			if (!lightbox || !lightboxImg) return;
-			const open = (src: string) => {
-				lightboxImg.src = src;
+			const open = (src: string, rawSrc?: string) => {
+				lightboxImg.src = rawSrc || src;
 				lightbox.classList.remove('hidden');
 				document.body.style.overflow = 'hidden';
 				requestAnimationFrame(() => {
@@ -107,7 +114,9 @@ const { album } = Astro.props;
 			};
 			triggers.forEach(trigger => {
 				trigger.addEventListener('click', (e) => {
-					open((e.target as HTMLImageElement).src);
+					const imgEl = e.target as HTMLImageElement;
+					const rawSrc = imgEl.getAttribute('data-raw');
+					open(imgEl.src, rawSrc || undefined);
 				});
 			});
 			[closeBtn, backdrop].forEach(el => el?.addEventListener('click', close));
