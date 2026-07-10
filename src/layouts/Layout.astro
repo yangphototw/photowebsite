@@ -123,7 +123,17 @@ const navItems = [
 			<p class="text-[10px] tracking-widest uppercase text-zinc-600">&copy; 2026 YANG PHOTOGRAPHY</p>
 		</footer>
 
+		<!-- 全域隱形燈箱 -->
+		<div id="lightbox" class="fixed inset-0 bg-[#000000] z-[100] hidden opacity-0 transition-opacity duration-500 flex items-center justify-center p-4 md:p-12">
+			<div id="lightbox-backdrop" class="absolute inset-0 cursor-zoom-out"></div>
+			<img id="lightbox-img" src="" class="relative z-10 max-w-full max-h-full object-contain shadow-2xl scale-95 transition-transform duration-500" />
+			<button id="lightbox-close" class="absolute top-8 right-8 z-20 text-zinc-600 hover:text-white text-3xl font-light transition-colors duration-300">
+				&times;
+			</button>
+		</div>
+
 		<script>
+			// 1. 全域選單及載入動畫 (每次換頁均需重新對當前 DOM 進行初始化)
 			const init = () => {
 				//選單
 				const toggle = document.getElementById('menu-toggle');
@@ -156,6 +166,52 @@ const navItems = [
 				});
 			};
 			document.addEventListener('astro:page-load', init);
+
+			// 2. 全域 Lightbox 控制邏輯 (利用事件代理 Event Delegation，僅在模組載入時執行一次，防止記憶體洩漏)
+			const openLightbox = (src: string, rawSrc?: string) => {
+				const lightbox = document.getElementById('lightbox');
+				const lightboxImg = document.getElementById('lightbox-img') as HTMLImageElement;
+				if (!lightbox || !lightboxImg) return;
+
+				lightboxImg.src = rawSrc || src;
+				lightbox.classList.remove('hidden');
+				document.body.style.overflow = 'hidden';
+				requestAnimationFrame(() => {
+					lightbox.classList.add('opacity-100');
+					lightboxImg.classList.remove('scale-95');
+				});
+			};
+
+			const closeLightbox = () => {
+				const lightbox = document.getElementById('lightbox');
+				const lightboxImg = document.getElementById('lightbox-img') as HTMLImageElement;
+				if (!lightbox || !lightboxImg) return;
+				
+				lightbox.classList.remove('opacity-100');
+				lightboxImg.classList.add('scale-95');
+				setTimeout(() => {
+					lightbox.classList.add('hidden');
+					document.body.style.overflow = '';
+				}, 500);
+			};
+
+			// 全域點擊監聽，利用 Event Delegation 捕捉所有圖片點擊事件
+			document.addEventListener('click', (e) => {
+				const target = e.target as HTMLElement;
+				if (target && target.classList.contains('lightbox-trigger')) {
+					const img = target as HTMLImageElement;
+					const rawSrc = img.getAttribute('data-raw');
+					openLightbox(img.src, rawSrc || undefined);
+				}
+				if (target && (target.id === 'lightbox-close' || target.id === 'lightbox-backdrop')) {
+					closeLightbox();
+				}
+			});
+
+			// 全域按鍵監聽，支援 Escape 關閉
+			window.addEventListener('keydown', (e) => {
+				if (e.key === 'Escape') closeLightbox();
+			});
 		</script>
 	</body>
 </html>

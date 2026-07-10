@@ -1,10 +1,14 @@
-# Astro Starter Kit: Minimal
+# 📷 Photography Portfolio
 
-```sh
-npm create astro@latest -- --template minimal
-```
+本專案是一個使用 Astro 框架開發的攝影作品集網站。
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+## 🌐 網站連結 (Websites)
+
+* **正式網站 (Live Site)**: [https://yangphoto.vercel.app/](https://yangphoto.vercel.app/)
+* **本地開發網址 (Local Dev)**: [http://localhost:4321](http://localhost:4321) (請先執行 `npm run dev`)
+* **GitHub 儲存庫 (Repository)**: [https://github.com/yangphototw/photowebsite](https://github.com/yangphototw/photowebsite)
+
+---
 
 ## 🚀 Project Structure
 

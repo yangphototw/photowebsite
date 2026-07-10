@@ -1,0 +1,176 @@
+---
+import Layout from '../layouts/Layout.astro';
+import allAlbums from '../data/albums.json';
+
+// 動態路由設定，讓 Astro 在建置時自動為每個類別生成對應網頁
+export async function getStaticPaths() {
+	// 定義預設的六大類別，確保即使無相片也一定會生成路由頁面
+	const defaultCategories = [
+		{ slug: 'wedding', name: 'Wedding' },
+		{ slug: 'registration', name: 'Registration' },
+		{ slug: 'portrait', name: 'Portrait' },
+		{ slug: 'travel', name: 'Travel' },
+		{ slug: 'product', name: 'Product' },
+		{ slug: 'event', name: 'Event' }
+	];
+
+	// 從 albums.json 動態取得其他可能存在的類別 (做聯集)
+	const allCategories = [...defaultCategories];
+	allAlbums.forEach((album: any) => {
+		if (!allCategories.some(item => item.slug === album.categorySlug)) {
+			allCategories.push({
+				slug: album.categorySlug,
+				name: album.category,
+			});
+		}
+	});
+
+	return allCategories.map((cat) => ({
+		params: { category: cat.slug },
+		props: { categoryName: cat.name }
+	}));
+}
+
+const { category } = Astro.params;
+const { categoryName } = Astro.props;
+
+// 篩選出目前類別下的所有專案/相簿
+const targetAlbums = allAlbums.filter(album => album.categorySlug === category);
+
+// 分離「子專案」與「散落相簿」
+const projectAlbums = targetAlbums.filter(album => album.projectSlug !== "gallery");
+const galleryAlbum = targetAlbums.find(album => album.projectSlug === "gallery");
+const directImages = galleryAlbum ? galleryAlbum.images : [];
+
+// 【智慧佈局判斷】: 如果該分類下「沒有子專案」只有「散落相片」，則直接顯示大瀑布流
+const isDirectGallery = projectAlbums.length === 0 && galleryAlbum !== undefined;
+
+// 如果是專案模式，動態判斷 Grid 欄數以求美觀
+const count = projectAlbums.length;
+const gridColsClass = count === 1 
+    ? 'grid-cols-1 max-w-sm mx-auto' 
+    : count === 2 
+    ? 'grid-cols-1 md:grid-cols-2 max-w-2xl mx-auto' 
+    : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3';
+
+const getThumbSrc = (src: string) => {
+	if (!src) return '';
+	if (src.startsWith('http://') || src.startsWith('https://')) return src;
+	const parts = src.split('/');
+	parts.splice(parts.length - 1, 0, 'thumbs');
+	return parts.join('/');
+};
+---
+
+<Layout title={`${categoryName} | YANG PHOTOGRAPHY`}>
+	<!-- 極簡標題標識 -->
+	<section class="py-8 md:py-12 animate-fade-in text-center flex flex-col items-center">
+		<div class="flex items-center gap-3 text-zinc-500 font-light tracking-[0.4em] text-[10px] uppercase">
+			<span>{categoryName} / {category?.toUpperCase()}</span>
+		</div>
+        <div class="h-px w-12 bg-zinc-800 mt-4"></div>
+	</section>
+
+    {isDirectGallery ? (
+        /* --- 模式 A: 直接瀑布流藝廊 (只有散落相片，維持純粹極簡，無額外標題) --- */
+        <section class="pb-32 animate-fade-in">
+            <div class="columns-2 sm:columns-3 gap-6 space-y-6">
+                {directImages.map((img: any) => (
+                    <div 
+                        class="break-inside-avoid overflow-hidden rounded-2xl bg-zinc-900 cursor-zoom-in group relative border border-zinc-800/50"
+                        style="contain: content; will-change: transform;"
+                    >
+                        <img
+                            src={getThumbSrc(img.src)}
+                            data-raw={img.src}
+                            width={img.width}
+                            height={img.height}
+                            style={`aspect-ratio: ${img.width} / ${img.height}`}
+                            alt={`${categoryName} Work`}
+                            loading="lazy"
+                            decoding="async"
+                            class="w-full h-auto object-cover opacity-70 group-hover:opacity-100 group-hover:scale-[1.02] transition-[transform,opacity] duration-700 ease-out lightbox-trigger"
+                            style="will-change: transform, opacity;"
+                        />
+                    </div>
+                ))}
+            </div>
+        </section>
+    ) : (
+        /* --- 模式 B: 混合呈現模式 (專案卡片在上，散落照片瀑布流在下) --- */
+        <div class="space-y-24 pb-32">
+            <!-- 上半部：子專案網格 -->
+            {projectAlbums.length > 0 && (
+                <div class={`grid ${gridColsClass} gap-6 animate-fade-in`}>
+                    {projectAlbums.map(album => (
+                        <div class="relative group">
+                            <a href={`/portfolio/${album.categorySlug}/${album.projectSlug}`} class="group relative block overflow-hidden rounded-2xl aspect-[4/5] bg-zinc-900 border border-amber-500/30 hover:border-amber-500/60 hover:shadow-[0_0_40px_rgba(245,158,11,0.15)] transition-all duration-700">
+                                <img 
+                                	src={getThumbSrc(album.cover)} 
+                                	alt={album.project} 
+                                	class="w-full h-full object-cover opacity-70 group-hover:opacity-100 group-hover:scale-[1.02] transition-all duration-700 ease-out" 
+                                />
+                                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 flex flex-col justify-end p-8">
+                                    <h3 class="text-xl font-light text-white tracking-widest transform translate-y-2 group-hover:translate-y-0 transition-all duration-700">
+                                        {album.project}
+                                    </h3>
+                                    <span class="text-[9px] text-zinc-400 uppercase tracking-[0.4em] mt-3 opacity-0 group-hover:opacity-100 transition-all duration-700 delay-100">
+                                        View Project
+                                    </span>
+                                </div>
+                            </a>
+                        </div>
+                    ))}
+                </div>
+            )}
+
+            <!-- 下半部：散落照片大瀑布流 (精選照片) -->
+            {directImages.length > 0 && (
+                <div class="animate-fade-in pt-12 border-t border-zinc-900/50">
+                    <h2 class="text-[10px] text-zinc-500 tracking-[0.4em] uppercase mb-12 text-center">
+                        — Featured Photos / 精選照片 —
+                    </h2>
+                    <div class="columns-2 sm:columns-3 gap-6 space-y-6">
+                        {directImages.map((img: any) => (
+                            <div 
+                                class="break-inside-avoid overflow-hidden rounded-2xl bg-zinc-900 cursor-zoom-in group relative border border-zinc-800/30"
+                                style="contain: content; will-change: transform;"
+                            >
+                                <img
+                                    src={getThumbSrc(img.src)}
+                                    data-raw={img.src}
+                                    width={img.width}
+                                    height={img.height}
+                                    style={`aspect-ratio: ${img.width} / ${img.height}`}
+                                    alt={`${categoryName} Work`}
+                                    loading="lazy"
+                                    decoding="async"
+                                    class="w-full h-auto object-cover opacity-70 group-hover:opacity-100 group-hover:scale-[1.02] transition-[transform,opacity] duration-700 ease-out lightbox-trigger"
+                                    style="will-change: transform, opacity;"
+                                />
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
+
+            <!-- Fallback: 完全無作品 -->
+            {projectAlbums.length === 0 && directImages.length === 0 && (
+                <section class="py-24 text-center animate-fade-in">
+                    <p class="text-zinc-600 tracking-widest text-xs uppercase">Capturing the pulse of life.</p>
+                    <p class="text-zinc-800 mt-4 italic text-sm">No stories yet / 暫無作品</p>
+                </section>
+            )}
+        </div>
+    )}
+
+	<style>
+		@keyframes fadeIn {
+			from { opacity: 0; transform: translateY(20px); }
+			to { opacity: 1; transform: translateY(0); }
+		}
+		.animate-fade-in {
+			animation: fadeIn 1.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+		}
+	</style>
+</Layout>

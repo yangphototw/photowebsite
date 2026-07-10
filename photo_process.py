@@ -23,7 +23,7 @@ def process_single_folder(folder_path, output_subpath, is_hero=False):
     """
     處理單一資料夾內的所有圖片
     is_hero: 如果是首頁大圖或大頭貼，使用更高的解析度 (4096px) 與品質 (100)
-    回傳：[{ "filename": "name", "src": "/path/to/webp" }, ...]
+    回傳：[{ "filename": "name", "src": "/path/to/webp", "width": 1200, "height": 800 }, ...]
     """
     if not folder_path.exists():
         return []
@@ -37,13 +37,44 @@ def process_single_folder(folder_path, output_subpath, is_hero=False):
     if not is_hero:
         thumbs_dir.mkdir(parents=True, exist_ok=True)
     
-    valid_extensions = ('.jpg', '.jpeg', '.png', '.JPG', '.JPEG', '.PNG', '.webp', '.jfif', '.JFIF')
+    valid_extensions = ('.jpg', '.jpeg', '.png', '.JPG', '.JPEG', '.PNG', '.webp', '.webp', '.jfif', '.JFIF')
     project_images = []
     
     img_files = sorted([f for f in folder_path.iterdir() if f.is_file() and f.suffix.lower() in valid_extensions])
     
     for img_path in img_files:
         try:
+            output_filename = f"{img_path.stem}.webp"
+            final_output_path = output_dir / output_filename
+            final_thumb_path = thumbs_dir / output_filename if not is_hero else None
+            
+            # 增量快取檢查：確認 WebP 檔案是否已存在且新於原始檔案
+            skip_process = False
+            if final_output_path.exists():
+                thumb_ok = True if is_hero else (final_thumb_path and final_thumb_path.exists())
+                if thumb_ok:
+                    mtime_ok = final_output_path.stat().st_mtime > img_path.stat().st_mtime
+                    if not is_hero and final_thumb_path and final_thumb_path.exists():
+                        mtime_ok = mtime_ok and (final_thumb_path.stat().st_mtime > img_path.stat().st_mtime)
+                    
+                    if mtime_ok:
+                        skip_process = True
+            
+            if skip_process:
+                # 讀取已存在的 WebP header 來獲得正確的寬高，不重複壓縮圖片
+                with Image.open(final_output_path) as cached_img:
+                    final_width, final_height = cached_img.size
+                
+                web_path = f"/images/albums/{output_subpath}/{output_filename}"
+                project_images.append({
+                    "filename": img_path.stem.lower(),
+                    "src": web_path,
+                    "width": final_width,
+                    "height": final_height
+                })
+                continue
+
+            # 執行圖片優化壓縮
             with Image.open(img_path) as img:
                 img = ImageOps.exif_transpose(img)
                 width, height = img.size
@@ -58,15 +89,14 @@ def process_single_folder(folder_path, output_subpath, is_hero=False):
                 if img_raw.mode in ("RGBA", "P"):
                     img_raw = img_raw.convert("RGB")
                 
-                output_filename = f"{img_path.stem}.webp"
-                final_output_path = output_dir / output_filename
+                final_width, final_height = img_raw.size
                 
-                # 原圖品質 100% 儲存
+                # 原圖品質 100% 儲存 (使用者要求首頁大圖不壓縮，維持 100 品質)
                 img_raw.save(final_output_path, "WEBP", quality=100, method=6)
                 img_raw.close()
                 
                 # 2. 產生縮圖 (Thumbnail)
-                if not is_hero:
+                if not is_hero and final_thumb_path:
                     img_thumb = img.copy()
                     thumb_max_size = 1000
                     if max(width, height) > thumb_max_size:
@@ -76,7 +106,6 @@ def process_single_folder(folder_path, output_subpath, is_hero=False):
                     if img_thumb.mode in ("RGBA", "P"):
                         img_thumb = img_thumb.convert("RGB")
                         
-                    final_thumb_path = thumbs_dir / output_filename
                     # 縮圖品質 80% 儲存，大幅縮小檔案大小
                     img_thumb.save(final_thumb_path, "WEBP", quality=80, method=6)
                     img_thumb.close()
@@ -84,9 +113,13 @@ def process_single_folder(folder_path, output_subpath, is_hero=False):
                 web_path = f"/images/albums/{output_subpath}/{output_filename}"
                 project_images.append({
                     "filename": img_path.stem.lower(),
-                    "src": web_path
+                    "src": web_path,
+                    "width": final_width,
+                    "height": final_height
                 })
         except Exception as e:
+            import traceback
+            traceback.print_exc()
             print(f"    ⚠️ 處理 {img_path.name} 時發生錯誤: {e}")
             
     return project_images
@@ -121,7 +154,7 @@ def process_albums():
         carousel_data = [{"src": p["src"], "alt": "Carousel Image"} for p in paths]
         
         paths = process_single_folder(home_dir / "Featured", "00_Home/Featured")
-        featured_data = [{"src": p["src"], "alt": "Featured Image"} for p in paths]
+        featured_data = [{"src": p["src"], "width": p["width"], "height": p["height"], "alt": "Featured Image"} for p in paths]
         
         paths = process_single_folder(home_dir / "Cards", "00_Home/Cards")
         cards_data = [{"category": p["filename"], "src": p["src"]} for p in paths]
@@ -146,20 +179,19 @@ def process_albums():
         projects = [d for d in category_path.iterdir() if d.is_dir()]
         
         # 處理散落照片
-        img_files = [f for f in category_path.iterdir() if f.is_file() and f.suffix.lower() in ('.jpg', '.jpeg', '.png')]
-        if img_files and not projects:
+        img_files = [f for f in category_path.iterdir() if f.is_file() and f.suffix.lower() in ('.jpg', '.jpeg', '.png', '.JPG', '.JPEG', '.PNG', '.webp')]
+        if img_files:
              print(f"  📸 發現散落照片，建立預設專案...")
              paths = process_single_folder(category_path, category_name)
              if paths:
-                 albums_data.append({
-                    "category": category_name,
-                    "categorySlug": category_slug,
-                    "project": "Gallery",
-                    "projectSlug": "gallery",
-                    "cover": paths[0]["src"],
-                    "images": [p["src"] for p in paths]
-                })
-             continue
+                  albums_data.append({
+                     "category": category_name,
+                     "categorySlug": category_slug,
+                     "project": "Gallery",
+                     "projectSlug": "gallery",
+                     "cover": paths[0]["src"],
+                     "images": paths
+                 })
 
         # 處理子專案
         for project_path in projects:
@@ -175,7 +207,7 @@ def process_albums():
                     "project": project_name,
                     "projectSlug": project_slug,
                     "cover": paths[0]["src"],
-                    "images": [p["src"] for p in paths]
+                    "images": paths
                 })
 
     # 儲存 JSON 檔案
