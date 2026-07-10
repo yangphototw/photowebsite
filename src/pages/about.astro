@@ -493,12 +493,12 @@ const profileImg = aboutData.profileSrc || "https://images.unsplash.com/photo-15
 					if (isDefaultLoc) {
 						const isLight = document.documentElement.getAttribute('data-theme') === 'light';
 						if (isLight) {
-							locBadge.className = 'hidden md:absolute md:top-2 md:right-2 text-[10px] text-zinc-500 bg-white border border-zinc-200 px-1 py-0.5 rounded font-light tracking-widest pointer-events-none whitespace-nowrap';
+							locBadge.className = 'hidden md:block md:absolute md:top-2 md:right-2 text-[10px] text-zinc-500 bg-white border border-zinc-200 px-1 py-0.5 rounded font-light tracking-widest pointer-events-none whitespace-nowrap';
 						} else {
-							locBadge.className = 'hidden md:absolute md:top-2 md:right-2 text-[10px] text-zinc-500 bg-zinc-900/60 border border-zinc-900/20 px-1 py-0.5 rounded font-light tracking-widest pointer-events-none whitespace-nowrap';
+							locBadge.className = 'hidden md:block md:absolute md:top-2 md:right-2 text-[10px] text-zinc-500 bg-zinc-900/60 border border-zinc-900/20 px-1 py-0.5 rounded font-light tracking-widest pointer-events-none whitespace-nowrap';
 						}
 					} else {
-						locBadge.className = 'hidden md:absolute md:top-2 md:right-2 text-[10px] text-sky-300 bg-sky-500/20 border border-sky-500/30 px-1 py-0.5 rounded font-medium tracking-widest pointer-events-none whitespace-nowrap';
+						locBadge.className = 'hidden md:block md:absolute md:top-2 md:right-2 text-[10px] text-sky-300 bg-sky-500/20 border border-sky-500/30 px-1 py-0.5 rounded font-medium tracking-widest pointer-events-none whitespace-nowrap';
 					}
 					locBadge.textContent = displayLocation;
 					cell.appendChild(locBadge);
@@ -532,11 +532,11 @@ const profileImg = aboutData.profileSrc || "https://images.unsplash.com/photo-15
 						
 						if (isBooked) {
 							// 客滿：調暗且 line-through 的小圓角長條
-							badge.className = 'w-full text-center text-[7px] md:text-[8.5px] text-zinc-500 bg-zinc-900/60 border border-zinc-800/40 py-0.5 rounded cursor-help line-through opacity-40 md:opacity-50 transition-colors duration-300';
+							badge.className = 'w-full text-center text-[7px] md:text-[10.5px] text-zinc-500 bg-zinc-900/60 border border-zinc-800/40 py-0.5 md:py-1 rounded cursor-help line-through opacity-40 md:opacity-50 transition-colors duration-300';
 							badge.title = `${slot.label}: 已預約 / 不開放`;
 						} else {
 							// 有空：帶金色邊框與底色的小圓角長條
-							badge.className = 'w-full text-center text-[7px] md:text-[8.5px] text-amber-300 bg-amber-400/10 border border-amber-500/30 py-0.5 rounded cursor-help transition-all duration-300 hover:bg-amber-400/20';
+							badge.className = 'w-full text-center text-[7px] md:text-[10.5px] text-amber-300 bg-amber-400/10 border border-amber-500/30 py-0.5 md:py-1 rounded cursor-help transition-all duration-300 hover:bg-amber-400/20';
 							badge.title = `${slot.label}: 可預約`;
 						}
 						badge.textContent = slot.text;
