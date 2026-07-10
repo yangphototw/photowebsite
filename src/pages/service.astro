@@ -126,6 +126,11 @@ const services = [
 				<button id="next-month" class="text-zinc-500 hover:text-white text-[10px] tracking-widest uppercase transition-colors duration-300 cursor-pointer">Next / 下月 →</button>
 			</div>
 			
+			<!-- 外縣市行程公告欄 (方案 B：自動整併連續日期地點) -->
+			<div id="location-announcements" class="mb-6 px-4 py-3 bg-sky-500/10 border border-sky-500/20 text-sky-200 text-[10px] md:text-xs tracking-widest uppercase rounded-xl flex flex-col gap-1.5 hidden">
+				<!-- 由 JS 動態填充 -->
+			</div>
+
 			<!-- 星期欄 -->
 			<div class="grid grid-cols-7 gap-2 text-center text-[9px] tracking-widest text-zinc-400 uppercase mb-4 font-bold">
 				<div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
@@ -367,6 +372,96 @@ const services = [
 			let currentYear = currentDate.getFullYear();
 			let currentMonth = currentDate.getMonth();
 
+			// 方案 B：動態計算並整併當月外縣市連續行程公告
+			const updateAnnouncements = () => {
+				const container = document.getElementById('location-announcements');
+				if (!container) return;
+
+				container.innerHTML = '';
+				const announcements = [];
+				let startDay = null;
+				let currentLoc = null;
+
+				const totalDays = new Date(currentYear, currentMonth + 1, 0).getDate();
+
+				for (let day = 1; day <= totalDays; day++) {
+					const formattedMonth = String(currentMonth + 1).padStart(2, '0');
+					const formattedDay = String(day).padStart(2, '0');
+					const dateStr = `${currentYear}-${formattedMonth}-${formattedDay}`;
+					
+					const loc = (bookingData[dateStr] && bookingData[dateStr].location) || "";
+					const hasForeignLoc = loc && loc !== "新竹";
+
+					if (hasForeignLoc) {
+						if (currentLoc === loc) {
+							// 連續同個地點，繼續合併
+						} else {
+							// 遇到新的地點，結算上個
+							if (startDay !== null) {
+								announcements.push({
+									start: startDay,
+									end: day - 1,
+									location: currentLoc
+								});
+							}
+							startDay = day;
+							currentLoc = loc;
+						}
+					} else {
+						// 沒有外縣市地點，結算上個
+						if (startDay !== null) {
+							announcements.push({
+								start: startDay,
+								end: day - 1,
+								location: currentLoc
+							});
+							startDay = null;
+							currentLoc = null;
+						}
+					}
+				}
+
+				if (startDay !== null) {
+					announcements.push({
+						start: startDay,
+						end: totalDays,
+						location: currentLoc
+					});
+				}
+
+				if (announcements.length > 0) {
+					container.classList.remove('hidden');
+					
+					// 標題
+					const title = document.createElement('div');
+					title.className = 'font-bold flex items-center gap-2 mb-1 text-[10px] md:text-xs text-sky-300';
+					title.innerHTML = '<span>✈️</span> 外縣市行程公告 / TRAVEL SCHEDULE';
+					container.appendChild(title);
+
+					announcements.forEach(ann => {
+						const item = document.createElement('div');
+						item.className = 'font-light flex items-center justify-between text-[9px] md:text-xs py-0.5 border-b border-sky-500/5 last:border-0';
+						
+						const dateSpan = document.createElement('span');
+						if (ann.start === ann.end) {
+							dateSpan.textContent = `${currentMonth + 1}月${ann.start}日`;
+						} else {
+							dateSpan.textContent = `${currentMonth + 1}月${ann.start}日 – ${currentMonth + 1}月${ann.end}日`;
+						}
+
+						const locSpan = document.createElement('span');
+						locSpan.className = 'px-2 py-0.5 bg-sky-500/20 border border-sky-500/30 rounded text-[8px] md:text-[9.5px] font-semibold text-sky-200';
+						locSpan.textContent = ann.location;
+
+						item.appendChild(dateSpan);
+						item.appendChild(locSpan);
+						container.appendChild(item);
+					});
+				} else {
+					container.classList.add('hidden');
+				}
+			};
+
 			const render = () => {
 				calendarDays.innerHTML = '';
 				
@@ -433,23 +528,6 @@ const services = [
 					
 					// 預設 Location 為新竹
 					const displayLocation = status.location || "新竹";
-					const isDefaultLoc = displayLocation === "新竹";
-					
-					const locBadge = document.createElement('span');
-					if (isDefaultLoc) {
-						// 預設新竹：極低調的灰底灰字，融入底色 (根據主題決定初始 class)
-						const isLight = document.documentElement.getAttribute('data-theme') === 'light';
-						if (isLight) {
-							locBadge.className = 'block md:absolute md:top-2 md:right-2 text-[7.5px] md:text-[10px] text-zinc-500 bg-white border border-zinc-200 px-0.5 md:px-1 py-0.5 rounded font-light tracking-widest pointer-events-none mt-1 md:mt-0 text-center w-fit mx-auto whitespace-nowrap';
-						} else {
-							locBadge.className = 'block md:absolute md:top-2 md:right-2 text-[7.5px] md:text-[10px] text-zinc-500 bg-zinc-900/60 border border-zinc-900/20 px-0.5 md:px-1 py-0.5 rounded font-light tracking-widest pointer-events-none mt-1 md:mt-0 text-center w-fit mx-auto whitespace-nowrap';
-						}
-					} else {
-						// 外縣市：醒目的天空藍底藍字
-						locBadge.className = 'block md:absolute md:top-2 md:right-2 text-[7.5px] md:text-[10px] text-sky-300 bg-sky-500/20 border border-sky-500/30 px-0.5 md:px-1 py-0.5 rounded font-medium tracking-widest pointer-events-none mt-1 md:mt-0 text-center w-fit mx-auto whitespace-nowrap';
-					}
-					locBadge.textContent = displayLocation;
-					cell.appendChild(locBadge);
 					
 					// 判定是否有備註註記 (Note)
 					let hoverTitle = `當日地點: ${displayLocation}`;
@@ -494,6 +572,9 @@ const services = [
 					cell.appendChild(slotContainer);
 					calendarDays.appendChild(cell);
 				}
+
+				// 方案 B：更新外縣市公告欄
+				updateAnnouncements();
 			};
 
 			prevBtn?.addEventListener('click', () => {
