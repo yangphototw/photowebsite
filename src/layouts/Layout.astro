@@ -312,6 +312,16 @@ const navItems = [
 			html[data-theme="light"] .border-white\/10 {
 				border-color: var(--card-border) !important;
 			}
+
+			/* 複製成功通知在 Light theme 下的主題色調與毛玻璃優化 */
+			html[data-theme="light"] #email-toast {
+				background-color: rgba(255, 255, 255, 0.9) !important;
+				color: #b45309 !important;
+				border-color: rgba(180, 83, 9, 0.3) !important;
+				box-shadow: 0 10px 30px rgba(180, 83, 9, 0.12) !important;
+				backdrop-filter: blur(8px) !important;
+				-webkit-backdrop-filter: blur(8px) !important;
+			}
 		</style>
 	</head>
 	<body class="bg-black text-[#9CA3AF] font-sans font-[200] min-h-screen flex flex-col selection:bg-zinc-800 selection:text-white antialiased relative">
