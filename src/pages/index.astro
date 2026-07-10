@@ -54,14 +54,40 @@ const igImg2 = allImages[1]?.src || defaultImg;
 const igImg3 = allImages[2]?.src || defaultImg;
 const igImg4 = allImages[3]?.src || defaultImg;
 
+// 讀取實體資料夾中的首頁精選相片
+const homeGalleryDir = path.resolve('public/images/home-gallery');
+let folderImages: any[] = [];
+try {
+	if (fs.existsSync(homeGalleryDir)) {
+		const files = fs.readdirSync(homeGalleryDir);
+		const imgExtensions = ['.jpg', '.jpeg', '.png', '.webp', '.gif'];
+		folderImages = files
+			.filter(file => imgExtensions.includes(path.extname(file).toLowerCase()))
+			// 按照檔名升冪排序，例如 01.webp、02.webp、03.webp
+			.sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }))
+			.map(file => ({
+				src: `/images/home-gallery/${file}`,
+				width: 1200,
+				height: 800
+			}));
+	}
+} catch (e) {}
+
 // 4. 精華瀑布流
-const galleryImages = featuredData.length > 0 
-	? featuredData.map((f: any) => ({
+let galleryImages = [];
+if (featuredData.length > 0) {
+	galleryImages = featuredData.map((f: any) => ({
 		src: f.src,
 		width: f.width || 1200,
 		height: f.height || 800
-	  })) 
-	: (allImages.length > 8 ? allImages.slice(8) : allImages);
+	}));
+} else if (folderImages.length > 0) {
+	// 優先使用實體資料夾內的相片
+	galleryImages = folderImages;
+} else {
+	// 備用來源：抓取全站相簿的第 8 張以後照片
+	galleryImages = allImages.length > 8 ? allImages.slice(8) : allImages;
+}
 ---
 
 <Layout title="Yang Photography | Luxury Visuals" fullWidth={true}>
@@ -81,7 +107,7 @@ const galleryImages = featuredData.length > 0
 		</div>
 
 		<!-- 上半部文字 -->
-		<div class="relative z-30 w-full px-8 md:px-16 max-w-7xl mx-auto flex-grow flex flex-col justify-center pt-32 md:pt-48 pb-20">
+		<div class="hero-text-container relative z-30 w-full px-8 md:px-16 max-w-7xl mx-auto flex-grow flex flex-col justify-center pt-32 md:pt-48 pb-20">
 			<div class="flex flex-col items-start gap-4 md:gap-6 max-w-3xl">
 				<span class="text-[8px] md:text-[10px] tracking-[0.4em] text-zinc-400 font-light uppercase">
 					TAIWAN BASED / 獨立攝影與視覺敘事

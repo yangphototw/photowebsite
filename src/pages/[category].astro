@@ -60,13 +60,22 @@ const getThumbSrc = (src: string) => {
 	parts.splice(parts.length - 1, 0, 'thumbs');
 	return parts.join('/');
 };
+const categoryChNames: Record<string, string> = {
+	wedding: '婚禮',
+	registration: '登記',
+	portrait: '人像',
+	travel: '旅遊',
+	product: '商品',
+	event: '活動紀錄'
+};
+const chName = categoryChNames[category || ''] || categoryName;
 ---
 
 <Layout title={`${categoryName} | YANG PHOTOGRAPHY`}>
 	<!-- 極簡標題標識 -->
 	<section class="py-8 md:py-12 animate-fade-in text-center flex flex-col items-center">
 		<div class="flex items-center gap-3 text-zinc-500 font-light tracking-[0.4em] text-[10px] uppercase">
-			<span>{categoryName} / {category?.toUpperCase()}</span>
+			<span>{categoryName} / {chName}</span>
 		</div>
         <div class="h-px w-12 bg-zinc-800 mt-4"></div>
 	</section>

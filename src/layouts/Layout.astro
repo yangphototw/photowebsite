@@ -37,12 +37,40 @@ const navItems = [
 		
 		<title>{title}</title>
 		<ClientRouter />
+		<script is:inline>
+			// 防止主題閃爍：立即套用 LocalStorage 中設定的主題
+			const theme = localStorage.getItem('theme') || 'dark';
+			document.documentElement.setAttribute('data-theme', theme);
+		</script>
 		<style is:global>
 			@import "tailwindcss";
 
 			:root {
-				--color-gray-soft: #9CA3AF;
 				--font-base: 'Inter', 'Noto Sans TC', sans-serif;
+				
+				/* 暗黑主題變數 */
+				--bg-primary: #000000;
+				--text-primary: #e4e4e7;
+				--text-secondary: #9ca3af;
+				--card-bg: rgba(24, 24, 27, 0.4);
+				--card-border: #27272a;
+				--nav-bg-scroll: rgba(0, 0, 0, 0.75);
+				--input-bg: rgba(9, 9, 11, 0.6);
+				--input-border: #27272a;
+				--footer-border: #18181b;
+			}
+
+			html[data-theme="light"] {
+				/* 明亮燕麥奶白主題變數 */
+				--bg-primary: #FAF8F5; /* 溫暖燕麥奶白 */
+				--text-primary: #2D2D2A; /* 深炭灰，極具閱讀質感 */
+				--text-secondary: #4B5563; /* 灰褐 */
+				--card-bg: rgba(255, 255, 255, 0.85); /* 明亮卡片底色 */
+				--card-border: #E5E7EB; /* border-zinc-200 */
+				--nav-bg-scroll: rgba(250, 248, 245, 0.85); /* 滾動時的燕麥色背景 */
+				--input-bg: rgba(255, 255, 255, 0.95); /* 白色輸入框 */
+				--input-border: #D1D5DB;
+				--footer-border: #E5E7EB;
 			}
 
 			html {
@@ -51,11 +79,12 @@ const navItems = [
 			}
 
 			body {
-				background-color: #000000;
-				color: var(--color-gray-soft);
+				background-color: var(--bg-primary);
+				color: var(--text-primary);
 				font-family: var(--font-base);
-				font-weight: 200;
+				font-weight: 300; /* 微幅加粗更易讀 */
 				-webkit-font-smoothing: antialiased;
+				transition: background-color 0.4s ease, color 0.4s ease;
 			}
 
 			h1, h2, h3, .brand-font {
@@ -104,15 +133,194 @@ const navItems = [
 					0 2px 8px rgba(0, 0, 0, 0.95),
 					0 4px 16px rgba(0, 0, 0, 0.8);
 			}
+
+			/* 全域覆寫元件以支援雙主題變數 */
+			.bg-black, body.bg-black {
+				background-color: var(--bg-primary) !important;
+				transition: background-color 0.4s ease;
+			}
+			.bg-zinc-900\/40, .bg-zinc-900\/50, .bg-zinc-900\/20, .bg-zinc-950\/20 {
+				background-color: var(--card-bg) !important;
+				transition: background-color 0.4s ease;
+			}
+			.border-zinc-800, .border-zinc-900, .border-zinc-800\/40, .border-zinc-800\/45 {
+				border-color: var(--card-border) !important;
+				transition: border-color 0.4s ease;
+			}
+			.bg-zinc-950\/60 {
+				background-color: var(--input-bg) !important;
+				transition: background-color 0.4s ease;
+			}
+			footer.border-zinc-900, div.border-zinc-900\/60 {
+				border-color: var(--card-border) !important;
+				transition: border-color 0.4s ease;
+			}
+			header.active-scroll {
+				background-color: var(--nav-bg-scroll) !important;
+				border-bottom-color: var(--card-border) !important;
+			}
+			.text-zinc-500, .text-zinc-400 {
+				color: var(--text-secondary) !important;
+				transition: color 0.4s ease;
+			}
+			.text-zinc-300, .text-zinc-200 {
+				color: var(--text-primary) !important;
+				transition: color 0.4s ease;
+			}
+			.text-white {
+				color: var(--text-primary) !important;
+				transition: color 0.4s ease;
+			}
+			.text-\[\#9CA3AF\] {
+				color: var(--text-secondary) !important;
+				transition: color 0.4s ease;
+			}
+
+			/* 明亮模式 (Light Theme) 下的專屬微調 */
+			html[data-theme="light"] .nav-link {
+				text-shadow: none !important;
+				color: var(--text-primary) !important;
+			}
+			html[data-theme="light"] #menu-toggle span {
+				background-color: #2D2D2A !important;
+				box-shadow: none !important;
+			}
+			html[data-theme="light"] select option {
+				background-color: #ffffff !important;
+				color: #2D2D2A !important;
+			}
+			html[data-theme="light"] input[type="date"]::-webkit-calendar-picker-indicator {
+				filter: invert(0.2) !important; /* 讓日曆 icon 在白底上為深灰 */
+			}
+			html[data-theme="light"] #mobile-menu-overlay {
+				background-color: var(--bg-primary) !important;
+			}
+			html[data-theme="light"] input, 
+			html[data-theme="light"] select, 
+			html[data-theme="light"] textarea {
+				color: #2D2D2A !important;
+				background-color: var(--input-bg) !important;
+			}
+			html[data-theme="light"] input::placeholder, 
+			html[data-theme="light"] textarea::placeholder {
+				color: #9CA3AF !important;
+			}
+			html[data-theme="light"] input:focus,
+			html[data-theme="light"] select:focus,
+			html[data-theme="light"] textarea:focus {
+				border-color: #d97706 !important;
+			}
+			html[data-theme="light"] #calendar-title {
+				color: #2D2D2A !important;
+			}
+			html[data-theme="light"] .booking-calendar-wrapper span {
+				color: #2D2D2A !important;
+			}
+			html[data-theme="light"] #booking-section h2 {
+				color: #2D2D2A !important;
+			}
+			html[data-theme="light"] .date-time-row label {
+				color: #4B5563 !important;
+			}
+			html[data-theme="light"] .date-time-row button.remove-date-btn {
+				border-color: #D1D5DB !important;
+				color: #4B5563 !important;
+			}
+			html[data-theme="light"] .date-time-row button.remove-date-btn:hover {
+				border-color: #ef4444 !important;
+				color: #ef4444 !important;
+			}
+			html[data-theme="light"] .date-time-row {
+				background-color: rgba(0, 0, 0, 0.02) !important;
+				border-color: #E5E7EB !important;
+			}
+			html[data-theme="light"] .bg-zinc-900\/60 {
+				background-color: #ffffff !important;
+				color: var(--text-secondary) !important;
+				border-color: #E5E7EB !important;
+			}
+			html[data-theme="light"] #add-date-btn {
+				color: #b45309 !important; /* 暗金色 / 深琥珀色 (amber-700) */
+				transition: color 0.4s ease;
+			}
+			html[data-theme="light"] #add-date-btn span {
+				border-color: rgba(180, 83, 9, 0.4) !important;
+				transition: border-color 0.4s ease;
+			}
+			html[data-theme="light"] #add-date-btn:hover {
+				color: #d97706 !important; /* hover 變為稍微亮的 amber-600 */
+			}
+			html[data-theme="light"] #add-date-btn:hover span {
+				border-color: #d97706 !important;
+			}
+
+			/* 全域 amber 色系輔色在 Light theme 下轉暗覆寫，確保無障礙對比度 */
+			html[data-theme="light"] .text-amber-300,
+			html[data-theme="light"] .text-amber-400 {
+				color: #b45309 !important;
+			}
+			html[data-theme="light"] .text-amber-500 {
+				color: #d97706 !important;
+			}
+			html[data-theme="light"] .text-amber-200 {
+				color: #b45309 !important;
+			}
+			html[data-theme="light"] .hover\:text-amber-200:hover {
+				color: #d97706 !important;
+			}
+			html[data-theme="light"] .border-amber-500\/30 {
+				border-color: rgba(180, 83, 9, 0.4) !important;
+			}
+			html[data-theme="light"] .bg-amber-400\/10 {
+				background-color: rgba(180, 83, 9, 0.08) !important;
+				border-color: rgba(180, 83, 9, 0.3) !important;
+			}
+			html[data-theme="light"] .bg-amber-500\/10 {
+				background-color: rgba(180, 83, 9, 0.06) !important;
+			}
+			html[data-theme="light"] .border-amber-500\/80 {
+				border-color: rgba(180, 83, 9, 0.7) !important;
+			}
+			/* 選擇時段按鈕勾選後狀態 */
+			html[data-theme="light"] .has-\[\:checked\]\:border-amber-500\/60:has(:checked) {
+				border-color: rgba(180, 83, 9, 0.7) !important;
+				color: #b45309 !important;
+				background-color: rgba(180, 83, 9, 0.06) !important;
+			}
+
+			/* 豁免任何疊加在滿版背景照片或卡片影像上的文字，使其在 Light theme 下依然維持亮白色 */
+			html[data-theme="light"] .hero-text-container h1,
+			html[data-theme="light"] .hero-text-container span,
+			html[data-theme="light"] .hero-text-container p,
+			html[data-theme="light"] .absolute h3 {
+				color: #ffffff !important;
+			}
+			html[data-theme="light"] .hero-text-container .text-zinc-400 {
+				color: #9CA3AF !important;
+			}
+
+			/* 「客製化方案」卡片在 Light theme 下轉深，提供更佳對比度 */
+			html[data-theme="light"] .from-amber-500\/10 {
+				--tw-gradient-from: rgba(180, 83, 9, 0.05) !important;
+				border-color: rgba(180, 83, 9, 0.25) !important;
+			}
+			html[data-theme="light"] .bg-white\/5 {
+				background-color: var(--input-bg) !important;
+				border-color: var(--card-border) !important;
+				color: var(--text-primary) !important;
+			}
+			html[data-theme="light"] .border-white\/10 {
+				border-color: var(--card-border) !important;
+			}
 		</style>
 	</head>
 	<body class="bg-black text-[#9CA3AF] font-sans font-[200] min-h-screen flex flex-col selection:bg-zinc-800 selection:text-white antialiased relative">
 		
 		<header class="fixed top-0 left-0 w-full py-8 md:py-10 px-8 md:px-16 z-50 pointer-events-none border-b border-transparent">
 			<div class="max-w-7xl mx-auto w-full">
-				<nav class="flex justify-center pointer-events-auto">
+				<nav class="flex justify-center items-center pointer-events-auto relative w-full">
 					<!-- 桌機版選單：移除大黑底，回歸極簡文字加黑框描邊 -->
-					<ul class="hidden md:flex flex-wrap justify-center items-center gap-x-8 gap-y-4 text-[9px] md:text-[10px] tracking-[0.2em] font-medium uppercase">
+					<ul class="hidden md:flex flex-wrap justify-center items-center gap-x-3 lg:gap-x-6 gap-y-2 text-[10px] lg:text-[11px] tracking-[0.15em] font-medium uppercase">
 						{navItems.map((item) => (
 							<li>
 								<a href={item.href} class={`nav-link text-zinc-300 hover:text-amber-400 transition-colors duration-500 py-1 border-b border-transparent hover:border-amber-400/30 ${pathname === item.href ? 'text-amber-400 !border-amber-400/50 font-bold' : ''}`}>
@@ -122,8 +330,13 @@ const navItems = [
 						))}
 					</ul>
 					
+					<!-- 桌機主題切換按鈕：採用絕對定位，優雅地靠右，不干擾選單居中 -->
+					<button id="theme-toggle" class="hidden md:flex items-center justify-center w-8 h-8 rounded-full border border-zinc-800/40 bg-zinc-900/10 hover:bg-zinc-800/30 hover:border-amber-400/30 transition-all duration-300 nav-link absolute right-0 text-sm tracking-widest text-zinc-300 hover:text-amber-400 cursor-pointer pointer-events-auto" title="切換明暗主題">
+						<span id="theme-icon">☀️</span>
+					</button>
+
 					<!-- 手機版選單按鈕：同樣移除實心黑底，改為帶極細黑描邊的選單字體 -->
-					<button id="menu-toggle" class="nav-link md:hidden text-zinc-200 text-[10px] tracking-[0.4em] uppercase font-medium flex items-center gap-4 py-2 hover:text-amber-400 transition-colors duration-300 cursor-pointer">
+					<button id="menu-toggle" class="nav-link md:hidden text-zinc-200 text-[11px] tracking-[0.4em] uppercase font-medium flex items-center gap-4 py-2 hover:text-amber-400 transition-colors duration-300 cursor-pointer">
 						<span class="w-8 h-px bg-white/30 shadow-[0_1px_2px_rgba(0,0,0,0.8)]"></span>MENU / 選單<span class="w-8 h-px bg-white/30 shadow-[0_1px_2px_rgba(0,0,0,0.8)]"></span>
 					</button>
 				</nav>
@@ -138,6 +351,12 @@ const navItems = [
 						<a href={item.href} class={`text-xl font-light tracking-[0.2em] uppercase transition-colors hover:text-white ${pathname === item.href ? 'text-white' : 'text-zinc-500'}`}>{item.name}</a>
 					</li>
 				))}
+				<!-- 手機主題切換按鈕 -->
+				<li class="menu-item opacity-0 transform translate-y-4 transition-all duration-700" style={`transition-delay: ${navItems.length * 50}ms`}>
+					<button id="theme-toggle-mobile" class="mt-4 px-6 py-2.5 border border-zinc-800 rounded-full text-zinc-300 text-[11px] tracking-[0.2em] flex items-center gap-2 hover:border-white transition-colors cursor-pointer">
+						<span id="theme-icon-mobile">☀️ LIGHT MODE</span>
+					</button>
+				</li>
 			</ul>
 		</div>
 
@@ -206,8 +425,53 @@ const navItems = [
 						else img.addEventListener('load', handleLoad);
 					}
 				});
+
+				// 主題切換初始化
+				const themeToggle = document.getElementById('theme-toggle');
+				const themeToggleMobile = document.getElementById('theme-toggle-mobile');
+				const themeIcon = document.getElementById('theme-icon');
+				const themeIconMobile = document.getElementById('theme-icon-mobile');
+
+				const updateToggleUI = (theme: string) => {
+					if (themeIcon) {
+						themeIcon.textContent = theme === 'light' ? '🌙' : '☀️';
+					}
+					if (themeIconMobile) {
+						themeIconMobile.textContent = theme === 'light' ? '🌙 DARK MODE' : '☀️ LIGHT MODE';
+					}
+				};
+
+				// 每次頁面載入時根據當前狀態更新按鈕圖示
+				const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+				updateToggleUI(currentTheme);
+
+				const toggleTheme = () => {
+					const theme = document.documentElement.getAttribute('data-theme') || 'dark';
+					const nextTheme = theme === 'light' ? 'dark' : 'light';
+					document.documentElement.setAttribute('data-theme', nextTheme);
+					localStorage.setItem('theme', nextTheme);
+					updateToggleUI(nextTheme);
+				};
+
+				themeToggle?.addEventListener('click', toggleTheme);
+				themeToggleMobile?.addEventListener('click', toggleTheme);
 			};
 			document.addEventListener('astro:page-load', init);
+
+			// 3. Astro SPA 換頁後的主題重新同步與按鈕狀態更新
+			document.addEventListener('astro:after-swap', () => {
+				const theme = localStorage.getItem('theme') || 'dark';
+				document.documentElement.setAttribute('data-theme', theme);
+				
+				const themeIcon = document.getElementById('theme-icon');
+				const themeIconMobile = document.getElementById('theme-icon-mobile');
+				if (themeIcon) {
+					themeIcon.textContent = theme === 'light' ? '🌙' : '☀️';
+				}
+				if (themeIconMobile) {
+					themeIconMobile.textContent = theme === 'light' ? '🌙 DARK MODE' : '☀️ LIGHT MODE';
+				}
+			});
 
 			// 2. 全域 Lightbox 控制邏輯 (利用事件代理 Event Delegation，僅在模組載入時執行一次，防止記憶體洩漏)
 			const openLightbox = (src: string, rawSrc?: string) => {

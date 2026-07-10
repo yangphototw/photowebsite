@@ -317,10 +317,10 @@ const profileImg = aboutData.profileSrc || "https://images.unsplash.com/photo-15
 				const totalDays = new Date(currentYear, currentMonth + 1, 0).getDate();
 				
 				const monthNames = [
-					"January", "February", "March", "April", "May", "June",
-					"July", "August", "September", "October", "November", "December"
+					"1月", "2月", "3月", "4月", "5月", "6月",
+					"7月", "8月", "9月", "10月", "11月", "12月"
 				];
-				calendarTitle.textContent = `${monthNames[currentMonth]} ${currentYear}`;
+				calendarTitle.textContent = `${currentYear}年 ${monthNames[currentMonth]}`;
 
 				// 渲染上月尾巴空白格
 				for (let i = 0; i < firstDayIndex; i++) {
@@ -347,9 +347,9 @@ const profileImg = aboutData.profileSrc || "https://images.unsplash.com/photo-15
 					
 					const dayNum = document.createElement('span');
 					if (isToday) {
-						dayNum.className = 'text-[9px] md:text-[10px] text-amber-300 font-bold';
+						dayNum.className = 'text-[11px] md:text-[12px] text-amber-300 font-bold';
 					} else {
-						dayNum.className = 'text-[9px] md:text-[10px] text-zinc-300 font-normal';
+						dayNum.className = 'text-[11px] md:text-[12px] text-zinc-300 font-medium';
 					}
 					dayNum.textContent = day;
 					cell.appendChild(dayNum);
@@ -380,11 +380,16 @@ const profileImg = aboutData.profileSrc || "https://images.unsplash.com/photo-15
 					
 					const locBadge = document.createElement('span');
 					if (isDefaultLoc) {
-						// 預設新竹：極低調的灰底灰字，融入底色
-						locBadge.className = 'absolute top-1 md:top-2 right-1 md:right-2 text-[7px] md:text-[8px] text-zinc-500 bg-zinc-900/60 border border-zinc-900/20 px-1 py-0.5 rounded font-light tracking-widest pointer-events-none';
+						// 預設新竹：極低調的灰底灰字，融入底色 (根據主題決定初始 class)
+						const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+						if (isLight) {
+							locBadge.className = 'absolute top-1 md:top-2 right-1 md:right-2 text-[9px] md:text-[10px] text-zinc-500 bg-white border border-zinc-200 px-1 py-0.5 rounded font-light tracking-widest pointer-events-none';
+						} else {
+							locBadge.className = 'absolute top-1 md:top-2 right-1 md:right-2 text-[9px] md:text-[10px] text-zinc-500 bg-zinc-900/60 border border-zinc-900/20 px-1 py-0.5 rounded font-light tracking-widest pointer-events-none';
+						}
 					} else {
 						// 外縣市：醒目的天空藍底藍字
-						locBadge.className = 'absolute top-1 md:top-2 right-1 md:right-2 text-[7px] md:text-[8px] text-sky-300 bg-sky-500/20 border border-sky-500/30 px-1 py-0.5 rounded font-medium tracking-widest pointer-events-none';
+						locBadge.className = 'absolute top-1 md:top-2 right-1 md:right-2 text-[9px] md:text-[10px] text-sky-300 bg-sky-500/20 border border-sky-500/30 px-1 py-0.5 rounded font-medium tracking-widest pointer-events-none';
 					}
 					locBadge.textContent = displayLocation;
 					cell.appendChild(locBadge);
