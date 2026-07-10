@@ -1,0 +1,109 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Yang Photo / Links" minimal={true}>
+	<div class="flex flex-col items-center justify-center min-h-[70vh] py-8 text-center animate-fade-in">
+		
+		<!-- 個人 Logo / 圓形幾何頭像 -->
+		<div class="w-20 h-20 rounded-full border border-amber-500/30 flex items-center justify-center bg-zinc-900/40 backdrop-blur-md mb-6 relative group shadow-[0_0_30px_rgba(245,158,11,0.1)] hover:border-amber-400 transition-colors duration-500">
+			<div class="absolute inset-0.5 rounded-full border border-zinc-800/60"></div>
+			<span class="brand-font text-white text-lg tracking-[0.2em] font-light group-hover:text-amber-200 transition-colors duration-300">Y.P</span>
+		</div>
+
+		<!-- 標題與簡介 -->
+		<h1 class="brand-font text-white text-xl tracking-[0.25em] uppercase font-light mb-2">
+			Yang Photo
+		</h1>
+		<p class="text-zinc-500 text-[10px] md:text-[11px] tracking-[0.25em] uppercase mb-1 font-light">
+			獨立攝影與視覺敘事
+		</p>
+		<p class="text-zinc-600 text-[9px] md:text-[10px] tracking-wide mb-12 max-w-sm leading-relaxed font-light">
+			捕捉自然光影，紀錄真實而純粹的瞬間。<br />
+			Embracing natural light and genuine moments.
+		</p>
+
+		<!-- 連結按鈕清單 -->
+		<div class="w-full flex flex-col gap-4 max-w-md px-2">
+			
+			<!-- 官方網站 -->
+			<a href="/" class="linktree-btn flex items-center justify-between px-6 py-4 rounded-2xl bg-zinc-900/40 border border-zinc-800 hover:border-amber-500/40 text-zinc-300 hover:text-amber-300 transition-all duration-500 text-[11px] tracking-[0.2em] uppercase font-medium">
+				<span>🏠 Official Website / 官方網站</span>
+				<span class="text-[9px] text-zinc-600 group-hover:text-amber-500 transition-colors">→</span>
+			</a>
+
+			<!-- 服務項目與價目 -->
+			<a href="/service" class="linktree-btn flex items-center justify-between px-6 py-4 rounded-2xl bg-zinc-900/40 border border-zinc-800 hover:border-amber-500/40 text-zinc-300 hover:text-amber-300 transition-all duration-500 text-[11px] tracking-[0.2em] uppercase font-medium">
+				<span>📷 Services & Pricing / 服務項目</span>
+				<span class="text-[9px] text-zinc-600">→</span>
+			</a>
+
+			<!-- 預約狀況與表單 -->
+			<a href="/booking" class="linktree-btn flex items-center justify-between px-6 py-4 rounded-2xl bg-zinc-900/40 border border-zinc-800 hover:border-amber-500/40 text-zinc-300 hover:text-amber-300 transition-all duration-500 text-[11px] tracking-[0.2em] uppercase font-medium">
+				<span>📅 Book a Session / 預約狀況與表單</span>
+				<span class="text-[9px] text-zinc-600">→</span>
+			</a>
+
+			<!-- Instagram -->
+			<a href="https://www.instagram.com/yang._.photo/" target="_blank" class="linktree-btn flex items-center justify-between px-6 py-4 rounded-2xl bg-zinc-900/40 border border-zinc-800 hover:border-amber-500/40 text-zinc-300 hover:text-amber-300 transition-all duration-500 text-[11px] tracking-[0.2em] uppercase font-medium">
+				<span>✉️ Instagram 作品集</span>
+				<span class="text-[8px] text-zinc-600">OPEN ↗</span>
+			</a>
+
+			<!-- 複製 Email (整合防失效與 Toast 提示) -->
+			<button data-email="yang.photo999@gmail.com" class="send-email-btn linktree-btn w-full flex items-center justify-between px-6 py-4 rounded-2xl bg-zinc-900/40 border border-zinc-800 hover:border-amber-500/40 text-zinc-300 hover:text-amber-300 transition-all duration-500 text-[11px] tracking-[0.2em] uppercase font-medium cursor-pointer text-left">
+				<span>✉️ Email Inquiry / 電子郵件諮詢</span>
+				<span class="text-[8px] text-zinc-600">COPY & OPEN ↗</span>
+			</button>
+
+		</div>
+
+		<!-- 底部版權 -->
+		<div class="mt-20 text-[9px] tracking-[0.3em] uppercase text-zinc-700 font-light">
+			&copy; 2026 Yang Photo. All Rights Reserved.
+		</div>
+
+	</div>
+</Layout>
+
+<style>
+	@keyframes fadeIn {
+		from { opacity: 0; transform: translateY(15px); }
+		to { opacity: 1; transform: translateY(0); }
+	}
+	.animate-fade-in {
+		animation: fadeIn 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+	}
+
+	/* LinkTree 按鈕的毛玻璃與 Hover 發光動態效果 */
+	.linktree-btn {
+		backdrop-filter: blur(12px);
+		-webkit-backdrop-filter: blur(12px);
+		box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+	}
+	.linktree-btn:hover {
+		box-shadow: 0 4px 30px rgba(245, 158, 11, 0.06);
+		transform: translateY(-2px);
+	}
+
+	/* 明亮主題 (Light Theme) 樣式相容 */
+	html[data-theme="light"] .linktree-btn {
+		background-color: rgba(255, 255, 255, 0.8) !important;
+		border-color: rgba(0, 0, 0, 0.05) !important;
+		color: #1f2937 !important;
+	}
+	html[data-theme="light"] .linktree-btn:hover {
+		border-color: rgba(180, 83, 9, 0.3) !important;
+		color: #b45309 !important;
+		background-color: rgba(255, 255, 255, 0.95) !important;
+		box-shadow: 0 10px 30px rgba(180, 83, 9, 0.06) !important;
+	}
+	html[data-theme="light"] .send-email-btn span {
+		color: inherit !important;
+	}
+</style>
+
+<script>
+	// 由於 links.astro 使用了 Layout 佈局，底部的 email 按鈕會自動被 Layout.astro 中的 initEmailCopy 邏輯監聽綁定
+	// 因為 Layout 註冊了 .send-email-btn 類別，所以無需在此重寫複製邏輯，直接實現全站邏輯複用！
+</script>

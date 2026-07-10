@@ -4,9 +4,10 @@ import { ClientRouter } from 'astro:transitions';
 interface Props {
 	title?: string;
 	fullWidth?: boolean;
+	minimal?: boolean;
 }
 
-const { title = "Yang Photography", fullWidth = false } = Astro.props;
+const { title = "Yang Photography", fullWidth = false, minimal = false } = Astro.props;
 const pathname = new URL(Astro.url).pathname;
 
 // 導覽定義
@@ -337,57 +338,72 @@ const navItems = [
 	</head>
 	<body class="bg-black text-[#9CA3AF] font-sans font-[200] min-h-screen flex flex-col selection:bg-zinc-800 selection:text-white antialiased relative">
 		
-		<header class="fixed top-0 left-0 w-full py-8 md:py-10 px-8 md:px-16 z-50 pointer-events-none border-b border-transparent">
-			<div class="max-w-7xl mx-auto w-full">
-				<nav class="flex justify-center items-center pointer-events-auto relative w-full">
-					<!-- 桌機版選單：移除大黑底，回歸極簡文字加黑框描邊 -->
-					<ul class="hidden md:flex flex-wrap justify-center items-center gap-x-3 lg:gap-x-6 gap-y-2 text-[10px] lg:text-[11px] tracking-[0.15em] font-medium uppercase">
-						{navItems.map((item) => (
-							<li>
-								<a href={item.href} class={`nav-link text-zinc-300 hover:text-amber-400 transition-colors duration-500 py-1 border-b border-transparent hover:border-amber-400/30 ${pathname === item.href ? 'text-amber-400 !border-amber-400/50 font-bold' : ''}`}>
-									{item.name}
-								</a>
-							</li>
-						))}
-					</ul>
-					
-					<!-- 桌機主題切換按鈕：採用絕對定位，優雅地靠右，不干擾選單居中 -->
-					<button id="theme-toggle" class="hidden md:flex items-center justify-center w-8 h-8 rounded-full border border-zinc-800/40 bg-zinc-900/10 hover:bg-zinc-800/30 hover:border-amber-400/30 transition-all duration-300 nav-link absolute right-0 text-sm tracking-widest text-zinc-300 hover:text-amber-400 cursor-pointer pointer-events-auto" title="切換明暗主題">
-						<span id="theme-icon">☀️</span>
-					</button>
+		{ !minimal && (
+			<header class="fixed top-0 left-0 w-full py-8 md:py-10 px-8 md:px-16 z-50 pointer-events-none border-b border-transparent">
+				<div class="max-w-7xl mx-auto w-full">
+					<nav class="flex justify-center items-center pointer-events-auto relative w-full">
+						<!-- 桌機版選單：移除大黑底，回歸極簡文字加黑框描邊 -->
+						<ul class="hidden md:flex flex-wrap justify-center items-center gap-x-3 lg:gap-x-6 gap-y-2 text-[10px] lg:text-[11px] tracking-[0.15em] font-medium uppercase">
+							{navItems.map((item) => (
+								<li>
+									<a href={item.href} class={`nav-link text-zinc-300 hover:text-amber-400 transition-colors duration-500 py-1 border-b border-transparent hover:border-amber-400/30 ${pathname === item.href ? 'text-amber-400 !border-amber-400/50 font-bold' : ''}`}>
+										{item.name}
+									</a>
+								</li>
+							))}
+						</ul>
+						
+						<!-- 桌機主題切換按鈕：採用絕對定位，優雅地靠右，不干擾選單居中 -->
+						<button id="theme-toggle" class="hidden md:flex items-center justify-center w-8 h-8 rounded-full border border-zinc-800/40 bg-zinc-900/10 hover:bg-zinc-800/30 hover:border-amber-400/30 transition-all duration-300 nav-link absolute right-0 text-sm tracking-widest text-zinc-300 hover:text-amber-400 cursor-pointer pointer-events-auto" title="切換明暗主題">
+							<span id="theme-icon">☀️</span>
+						</button>
 
-					<!-- 手機版選單按鈕：同樣移除實心黑底，改為帶極細黑描邊的選單字體 -->
-					<button id="menu-toggle" class="nav-link md:hidden text-zinc-200 text-[11px] tracking-[0.4em] uppercase font-medium flex items-center gap-4 py-2 hover:text-amber-400 transition-colors duration-300 cursor-pointer">
-						<span class="w-8 h-px bg-white/30 shadow-[0_1px_2px_rgba(0,0,0,0.8)]"></span>MENU / 選單<span class="w-8 h-px bg-white/30 shadow-[0_1px_2px_rgba(0,0,0,0.8)]"></span>
-					</button>
-				</nav>
+						<!-- 手機版選單按鈕：同樣移除實心黑底，改為帶極細黑描邊的選單字體 -->
+						<button id="menu-toggle" class="nav-link md:hidden text-zinc-200 text-[11px] tracking-[0.4em] uppercase font-medium flex items-center gap-4 py-2 hover:text-amber-400 transition-colors duration-300 cursor-pointer">
+							<span class="w-8 h-px bg-white/30 shadow-[0_1px_2px_rgba(0,0,0,0.8)]"></span>MENU / 選單<span class="w-8 h-px bg-white/30 shadow-[0_1px_2px_rgba(0,0,0,0.8)]"></span>
+						</button>
+					</nav>
+				</div>
+			</header>
+		)}
+
+		{ minimal && (
+			/* LinkTree 專用右上角精緻懸浮切換按鈕 */
+			<div class="fixed top-6 right-6 z-50">
+				<button id="theme-toggle" class="flex items-center justify-center w-9 h-9 rounded-full border border-zinc-800/40 bg-zinc-900/10 hover:bg-zinc-800/35 hover:border-amber-500/30 transition-all duration-300 nav-link text-sm text-zinc-300 hover:text-amber-400 cursor-pointer shadow-[0_4px_20px_rgba(0,0,0,0.35)]" title="切換明暗主題">
+					<span id="theme-icon">☀️</span>
+				</button>
 			</div>
-		</header>
+		)}
 
-		<div id="mobile-menu-overlay" class="fixed inset-0 bg-black z-[100] opacity-0 pointer-events-none transition-opacity duration-700 flex flex-col items-center justify-center p-8 overflow-y-auto">
-			<button id="menu-close" class="absolute top-10 right-10 text-zinc-500 hover:text-white text-3xl font-thin">&times;</button>
-			<ul class="flex flex-col items-center gap-8 text-center">
-				{navItems.map((item, index) => (
-					<li class="menu-item opacity-0 transform translate-y-4 transition-all duration-700" style={`transition-delay: ${index * 50}ms`}>
-						<a href={item.href} class={`text-xl font-light tracking-[0.2em] uppercase transition-colors hover:text-white ${pathname === item.href ? 'text-white' : 'text-zinc-500'}`}>{item.name}</a>
+		{ !minimal && (
+			<div id="mobile-menu-overlay" class="fixed inset-0 bg-black z-[100] opacity-0 pointer-events-none transition-opacity duration-700 flex flex-col items-center justify-center p-8 overflow-y-auto">
+				<button id="menu-close" class="absolute top-10 right-10 text-zinc-500 hover:text-white text-3xl font-thin">&times;</button>
+				<ul class="flex flex-col items-center gap-8 text-center">
+					{navItems.map((item, index) => (
+						<li class="menu-item opacity-0 transform translate-y-4 transition-all duration-700" style={`transition-delay: ${index * 50}ms`}>
+							<a href={item.href} class={`text-xl font-light tracking-[0.2em] uppercase transition-colors hover:text-white ${pathname === item.href ? 'text-white' : 'text-zinc-500'}`}>{item.name}</a>
+						</li>
+					))}
+					<!-- 手機主題切換按鈕 -->
+					<li class="menu-item opacity-0 transform translate-y-4 transition-all duration-700" style={`transition-delay: ${navItems.length * 50}ms`}>
+						<button id="theme-toggle-mobile" class="mt-4 px-6 py-2.5 border border-zinc-800 rounded-full text-zinc-300 text-[11px] tracking-[0.2em] flex items-center gap-2 hover:border-white transition-colors cursor-pointer">
+							<span id="theme-icon-mobile">☀️ LIGHT MODE</span>
+						</button>
 					</li>
-				))}
-				<!-- 手機主題切換按鈕 -->
-				<li class="menu-item opacity-0 transform translate-y-4 transition-all duration-700" style={`transition-delay: ${navItems.length * 50}ms`}>
-					<button id="theme-toggle-mobile" class="mt-4 px-6 py-2.5 border border-zinc-800 rounded-full text-zinc-300 text-[11px] tracking-[0.2em] flex items-center gap-2 hover:border-white transition-colors cursor-pointer">
-						<span id="theme-icon-mobile">☀️ LIGHT MODE</span>
-					</button>
-				</li>
-			</ul>
-		</div>
+				</ul>
+			</div>
+		)}
 
-		<main class={`flex-grow w-full ${fullWidth ? '' : 'pt-32 px-8 md:px-16 max-w-7xl mx-auto'}`}>
+		<main class={`flex-grow w-full ${fullWidth ? '' : (minimal ? 'pt-24 pb-20 px-4 md:px-8 max-w-xl mx-auto' : 'pt-32 px-8 md:px-16 max-w-7xl mx-auto')}`}>
 			<slot />
 		</main>
 
-		<footer class="w-full py-20 px-8 md:px-16 max-w-7xl mx-auto border-t border-zinc-900">
-			<p class="text-[10px] tracking-widest uppercase text-zinc-600">&copy; 2026 YANG PHOTOGRAPHY</p>
-		</footer>
+		{ !minimal && (
+			<footer class="w-full py-20 px-8 md:px-16 max-w-7xl mx-auto border-t border-zinc-900">
+				<p class="text-[10px] tracking-widest uppercase text-zinc-600">&copy; 2026 YANG PHOTOGRAPHY</p>
+			</footer>
+		)}
 
 		<!-- 全域隱形燈箱 -->
 		<div id="lightbox" class="fixed inset-0 bg-[#000000] z-[100] hidden opacity-0 transition-opacity duration-500 flex items-center justify-center p-4 md:p-12">
