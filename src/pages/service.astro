@@ -465,8 +465,8 @@ const services = [
 					cell.title = hoverTitle;
 					
 					const slotContainer = document.createElement('div');
-					// 手機端水平並排小圓點，桌機端垂直堆疊長條按鈕
-					slotContainer.className = 'flex flex-row md:flex-col justify-center items-center gap-1.5 md:gap-1 mt-2 w-full';
+					// 永遠為垂直堆疊且橫向撐滿，手機端與桌機端一致
+					slotContainer.className = 'flex flex-col gap-0.5 md:gap-1 mt-1 md:mt-2 w-full';
 
 					const slots = [
 						{ key: 'morning', text: '早上', label: '上午 AM' },
@@ -479,21 +479,15 @@ const services = [
 						const isBooked = status[slot.key] === true || status[slot.key] === "客滿" || status[slot.key] === "不開放";
 						
 						if (isBooked) {
-							// 客滿：手機端為極小灰圓點，桌機端為半透明 line-through 長條
-							badge.className = 'w-1.5 h-1.5 md:w-full rounded-full md:rounded text-zinc-500 bg-zinc-800 md:bg-zinc-900/60 border border-transparent md:border-zinc-800/40 py-0 md:py-0.5 cursor-help opacity-40 md:opacity-50 transition-colors duration-300 flex items-center justify-center';
+							// 客滿：調暗且 line-through 的小圓角長條
+							badge.className = 'w-full text-center text-[7px] md:text-[8.5px] text-zinc-500 bg-zinc-900/60 border border-zinc-800/40 py-0.5 rounded cursor-help line-through opacity-40 md:opacity-50 transition-colors duration-300';
 							badge.title = `${slot.label}: 已預約 / 不開放`;
 						} else {
-							// 有空：手機端為極小金圓點，桌機端為金邊半透明長條
-							badge.className = 'w-1.5 h-1.5 md:w-full rounded-full md:rounded text-amber-300 bg-amber-400 md:bg-amber-400/10 border border-transparent md:border-amber-500/30 py-0 md:py-0.5 cursor-help transition-all duration-300 hover:bg-amber-400/20 flex items-center justify-center';
+							// 有空：帶金色邊框與底色的小圓角長條
+							badge.className = 'w-full text-center text-[7px] md:text-[8.5px] text-amber-300 bg-amber-400/10 border border-amber-500/30 py-0.5 rounded cursor-help transition-all duration-300 hover:bg-amber-400/20';
 							badge.title = `${slot.label}: 可預約`;
 						}
-
-						// 文字在手機端隱藏，桌機端顯示
-						const textSpan = document.createElement('span');
-						textSpan.className = 'hidden md:inline';
-						textSpan.textContent = slot.text;
-						badge.appendChild(textSpan);
-
+						badge.textContent = slot.text;
 						slotContainer.appendChild(badge);
 					});
 
