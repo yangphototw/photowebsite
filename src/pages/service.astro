@@ -151,6 +151,119 @@ const services = [
 		</div>
 	</div>
 
+	<!-- 預約表單區塊 -->
+	<div class="max-w-4xl mx-auto mt-16 mb-32 animate-fade-in px-4 md:px-0">
+		<div class="rounded-2xl border border-zinc-800 bg-zinc-900/40 backdrop-blur-md p-8 md:p-12 shadow-[0_0_50px_rgba(0,0,0,0.6)]">
+			<h3 class="brand-font text-white text-base md:text-lg tracking-[0.2em] uppercase font-light text-center mb-2">Book a Session / 填寫預約表單</h3>
+			<p class="text-[10px] text-zinc-500 tracking-widest text-center mb-8 uppercase">Please refer to the calendar above for availability / 請參考上方月曆空檔</p>
+			
+			<form id="booking-form" class="space-y-6">
+				<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+					<!-- 姓名 -->
+					<div class="flex flex-col gap-2">
+						<label class="text-[10px] text-zinc-400 tracking-widest uppercase font-bold" for="form-name">Name / 稱呼 <span class="text-amber-500">*</span></label>
+						<input type="text" id="form-name" required placeholder="您的稱呼或姓名" class="bg-zinc-950/60 border border-zinc-800 rounded-lg px-4 py-3 text-xs text-white focus:outline-none focus:border-amber-500/50 transition-colors duration-300 placeholder:text-zinc-700" />
+					</div>
+					
+					<!-- 聯絡方式 -->
+					<div class="flex flex-col gap-2">
+						<label class="text-[10px] text-zinc-400 tracking-widest uppercase font-bold" for="form-contact">Contact / 聯絡方式 (LINE / IG / 電話擇一) <span class="text-amber-500">*</span></label>
+						<input type="text" id="form-contact" required placeholder="請填寫您的 LINE ID、IG 帳號或手機" class="bg-zinc-950/60 border border-zinc-800 rounded-lg px-4 py-3 text-xs text-white focus:outline-none focus:border-amber-500/50 transition-colors duration-300 placeholder:text-zinc-700" />
+					</div>
+				</div>
+				
+				<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+					<!-- Email -->
+					<div class="flex flex-col gap-2">
+						<label class="text-[10px] text-zinc-400 tracking-widest uppercase font-bold" for="form-email">Email / 電子信箱 (選填)</label>
+						<input type="email" id="form-email" placeholder="your.name@example.com (選填)" class="bg-zinc-950/60 border border-zinc-800 rounded-lg px-4 py-3 text-xs text-white focus:outline-none focus:border-amber-500/50 transition-colors duration-300 placeholder:text-zinc-700" />
+					</div>
+					
+					<!-- 拍攝方案 -->
+					<div class="flex flex-col gap-2">
+						<label class="text-[10px] text-zinc-400 tracking-widest uppercase font-bold" for="form-service">Service / 預約方案 <span class="text-amber-500">*</span></label>
+						<select id="form-service" required class="bg-zinc-950/60 border border-zinc-800 rounded-lg px-4 py-3 text-xs text-zinc-400 focus:outline-none focus:border-amber-500/50 transition-colors duration-300 cursor-pointer">
+							<option value="" disabled selected>請選擇您想預約的項目</option>
+							<option value="婚禮紀錄">Weddings / 婚禮紀錄</option>
+							<option value="個人寫真">Portraits / 個人寫真</option>
+							<option value="情侶寫真">Couples / 情侶寫真</option>
+							<option value="登記寫真">Registration / 登記寫真</option>
+							<option value="活動紀錄">Events / 活動紀錄</option>
+							<option value="商業攝影">Product / 商業攝影</option>
+							<option value="客製化方案">Customized / 客製化方案</option>
+						</select>
+					</div>
+				</div>
+				
+				<!-- 動態日期時段容器 (預設顯示一列，可點擊新增多個備選時間) -->
+				<div id="date-time-container" class="space-y-4">
+					<div class="date-time-row grid grid-cols-1 md:grid-cols-2 gap-6 p-4 rounded-xl border border-zinc-800/40 bg-zinc-950/20 relative group">
+						<!-- 預約日期 -->
+						<div class="flex flex-col gap-2">
+							<label class="text-[10px] text-zinc-400 tracking-widest uppercase font-bold">Date / 拍攝日期 (選填 / 無硬性要求可留空)</label>
+							<input type="date" name="row-date" class="bg-zinc-950/60 border border-zinc-800 rounded-lg px-4 py-3 text-xs text-zinc-400 focus:outline-none focus:border-amber-500/50 transition-colors duration-300 cursor-pointer" />
+						</div>
+						
+						<!-- 預約時段 -->
+						<div class="flex flex-col gap-2 relative pr-8">
+							<label class="text-[10px] text-zinc-400 tracking-widest uppercase font-bold">Time / 拍攝時段 (可複選) <span class="text-amber-500">*</span></label>
+							<div class="grid grid-cols-3 gap-3">
+								<label class="flex items-center justify-center gap-2 bg-zinc-950/60 border border-zinc-800 rounded-lg py-3 text-[10px] text-zinc-400 cursor-pointer select-none hover:border-zinc-750 transition-all duration-300 has-[:checked]:border-amber-500/60 has-[:checked]:text-amber-200">
+									<input type="checkbox" name="row-time-morning" value="早上" class="hidden" />
+									<span>早上 AM</span>
+								</label>
+								<label class="flex items-center justify-center gap-2 bg-zinc-950/60 border border-zinc-800 rounded-lg py-3 text-[10px] text-zinc-400 cursor-pointer select-none hover:border-zinc-750 transition-all duration-300 has-[:checked]:border-amber-500/60 has-[:checked]:text-amber-200">
+									<input type="checkbox" name="row-time-afternoon" value="下午" class="hidden" />
+									<span>下午 PM</span>
+								</label>
+								<label class="flex items-center justify-center gap-2 bg-zinc-950/60 border border-zinc-800 rounded-lg py-3 text-[10px] text-zinc-400 cursor-pointer select-none hover:border-zinc-750 transition-all duration-300 has-[:checked]:border-amber-500/60 has-[:checked]:text-amber-200">
+									<input type="checkbox" name="row-time-evening" value="晚上" class="hidden" />
+									<span>晚上 EVE</span>
+								</label>
+							</div>
+						</div>
+					</div>
+				</div>
+				
+				<!-- 新增日期按鈕 -->
+				<div class="flex justify-start">
+					<button type="button" id="add-date-btn" class="flex items-center gap-2 text-[10px] text-amber-300 hover:text-amber-200 transition-colors duration-300 cursor-pointer">
+						<span class="inline-flex items-center justify-center w-4 h-4 rounded-full border border-amber-500/50 text-[10px] font-bold">+</span>
+						<span>Add Alternative Date / 新增備選日期時段</span>
+					</button>
+				</div>
+				
+				<!-- 需求描述 -->
+				<div class="flex flex-col gap-2">
+					<label class="text-[10px] text-zinc-400 tracking-widest uppercase font-bold" for="form-message">Details / 需求說明</label>
+					<textarea id="form-message" rows="4" placeholder="請描述您的拍攝需求、理想地點，或任何想問的事項" class="bg-zinc-950/60 border border-zinc-800 rounded-lg px-4 py-3 text-xs text-white focus:outline-none focus:border-amber-500/50 transition-colors duration-300 placeholder:text-zinc-750 resize-none"></textarea>
+				</div>
+				
+				<!-- 提交按鈕與狀態 -->
+				<div class="pt-4 flex flex-col items-center">
+					<button type="submit" id="form-submit-btn" class="w-full md:w-auto px-12 py-4 bg-white/5 border border-white/10 text-white text-[10px] tracking-[0.3em] uppercase hover:bg-white hover:text-black hover:border-white transition-all duration-500 rounded-full font-bold cursor-pointer">
+						Send Request / 送出預約諮詢
+					</button>
+					<p id="form-status-msg" class="text-[10px] mt-4 tracking-widest uppercase hidden"></p>
+				</div>
+			</form>
+		</div>
+	</div>
+
+	<!-- 預約成功彈窗 Modal -->
+	<div id="success-modal" class="fixed inset-0 bg-[#000000]/80 z-[100] hidden opacity-0 transition-opacity duration-500 flex items-center justify-center p-4">
+		<div class="max-w-md w-full bg-zinc-900 border border-zinc-800 rounded-2xl p-8 text-center shadow-2xl scale-95 transition-transform duration-500">
+			<span class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-amber-400/10 text-amber-300 text-xl font-bold mb-4">✓</span>
+			<h3 class="brand-font text-white text-base tracking-[0.2em] uppercase font-light mb-2">Request Sent / 預約已送出</h3>
+			<p class="text-zinc-400 text-xs font-light leading-relaxed mb-6">
+				我們已收到您的拍攝預約諮詢！<br />將會儘快透過 LINE 或 Email 與您取得聯繫，謝謝您。
+			</p>
+			<button id="close-success-btn" class="px-8 py-3 bg-white text-black text-[9px] tracking-[0.3em] uppercase hover:bg-zinc-200 transition-colors duration-300 rounded-full font-bold cursor-pointer">
+				OK
+			</button>
+		</div>
+	</div>
+
 	<style>
 		@keyframes fadeIn {
 			from { opacity: 0; transform: translateY(20px); }
@@ -318,6 +431,216 @@ const services = [
 			render();
 		};
 
-		document.addEventListener('astro:page-load', initCalendar);
+		// 3. 預約表單處理功能
+		const initBookingForm = () => {
+			const form = document.getElementById('booking-form') as HTMLFormElement;
+			const submitBtn = document.getElementById('form-submit-btn');
+			const statusMsg = document.getElementById('form-status-msg');
+			const successModal = document.getElementById('success-modal');
+			const closeModalBtn = document.getElementById('close-success-btn');
+			const addDateBtn = document.getElementById('add-date-btn');
+			const dateTimeContainer = document.getElementById('date-time-container');
+			
+			if (!form || !submitBtn) return;
+
+			// 新增備選日期時段
+			addDateBtn?.addEventListener('click', () => {
+				if (!dateTimeContainer) return;
+				const rowCount = dateTimeContainer.querySelectorAll('.date-time-row').length;
+				if (rowCount >= 5) {
+					alert('最多可提供 5 個備選日期時段！');
+					return;
+				}
+				
+				const newRow = document.createElement('div');
+				newRow.className = 'date-time-row grid grid-cols-1 md:grid-cols-2 gap-6 p-4 rounded-xl border border-zinc-800/45 bg-zinc-950/20 relative group';
+				
+				newRow.innerHTML = `
+					<!-- 預約日期 -->
+					<div class="flex flex-col gap-2">
+						<label class="text-[10px] text-zinc-400 tracking-widest uppercase font-bold">Date / 備選拍攝日期 (選填)</label>
+						<input type="date" name="row-date" class="bg-zinc-950/60 border border-zinc-800 rounded-lg px-4 py-3 text-xs text-zinc-400 focus:outline-none focus:border-amber-500/50 transition-colors duration-300 cursor-pointer" />
+					</div>
+					
+					<!-- 預約時段 -->
+					<div class="flex flex-col gap-2 relative pr-8">
+						<label class="text-[10px] text-zinc-400 tracking-widest uppercase font-bold">Time / 拍攝時段 (可複選) <span class="text-amber-500">*</span></label>
+						<div class="grid grid-cols-3 gap-3">
+							<label class="flex items-center justify-center gap-2 bg-zinc-950/60 border border-zinc-800 rounded-lg py-3 text-[10px] text-zinc-400 cursor-pointer select-none hover:border-zinc-750 transition-all duration-300 has-[:checked]:border-amber-500/60 has-[:checked]:text-amber-200">
+								<input type="checkbox" name="row-time-morning" value="早上" class="hidden" />
+								<span>早上 AM</span>
+							</label>
+							<label class="flex items-center justify-center gap-2 bg-zinc-950/60 border border-zinc-800 rounded-lg py-3 text-[10px] text-zinc-400 cursor-pointer select-none hover:border-zinc-750 transition-all duration-300 has-[:checked]:border-amber-500/60 has-[:checked]:text-amber-200">
+								<input type="checkbox" name="row-time-afternoon" value="下午" class="hidden" />
+								<span>下午 PM</span>
+							</label>
+							<label class="flex items-center justify-center gap-2 bg-zinc-950/60 border border-zinc-800 rounded-lg py-3 text-[10px] text-zinc-400 cursor-pointer select-none hover:border-zinc-750 transition-all duration-300 has-[:checked]:border-amber-500/60 has-[:checked]:text-amber-200">
+								<input type="checkbox" name="row-time-evening" value="晚上" class="hidden" />
+								<span>晚上 EVE</span>
+							</label>
+						</div>
+						
+						<!-- 刪除按鈕 -->
+						<button type="button" class="remove-date-btn absolute right-0 top-9 w-6 h-6 rounded-full border border-zinc-800 hover:border-red-500/50 hover:text-red-400 transition-colors duration-300 text-[10px] flex items-center justify-center cursor-pointer">✕</button>
+					</div>
+				`;
+				
+				dateTimeContainer.appendChild(newRow);
+				
+				// 綁定刪除事件
+				newRow.querySelector('.remove-date-btn')?.addEventListener('click', () => {
+					newRow.remove();
+				});
+			});
+			
+			// 關閉 Modal
+			closeModalBtn?.addEventListener('click', () => {
+				if (!successModal) return;
+				successModal.classList.remove('opacity-100');
+				successModal.querySelector('div')?.classList.add('scale-95');
+				setTimeout(() => {
+					successModal.classList.add('hidden');
+				}, 500);
+			});
+
+			form.addEventListener('submit', async (e) => {
+				e.preventDefault();
+				
+				// 收集所有日期與時段列
+				const rows = form.querySelectorAll('.date-time-row');
+				const bookingDates: string[] = [];
+				const bookingTimes: string[] = [];
+				let hasTimeSelected = true;
+
+				rows.forEach((row) => {
+					const dateInput = row.querySelector('input[name="row-date"]') as HTMLInputElement;
+					const dateVal = dateInput.value || "無硬性要求";
+					
+					// 抓取時段 (可能是第一列或新增列)
+					const morningChecked = (row.querySelector('input[name="row-time-morning"]') || row.querySelector('input[name="form-time"][value="早上"]')) as HTMLInputElement;
+					const afternoonChecked = (row.querySelector('input[name="row-time-afternoon"]') || row.querySelector('input[name="form-time"][value="下午"]')) as HTMLInputElement;
+					const eveningChecked = (row.querySelector('input[name="row-time-evening"]') || row.querySelector('input[name="form-time"][value="晚上"]')) as HTMLInputElement;
+					
+					const times: string[] = [];
+					if (morningChecked?.checked) times.push("早上");
+					if (afternoonChecked?.checked) times.push("下午");
+					if (eveningChecked?.checked) times.push("晚上");
+					
+					if (times.length === 0) {
+						hasTimeSelected = false;
+					}
+					
+					bookingDates.push(dateVal);
+					bookingTimes.push(`${dateVal} (${times.join(', ')})`);
+				});
+				
+				if (!hasTimeSelected) {
+					alert('每一組日期皆須勾選至少一個時段（早上/下午/晚上）！');
+					return;
+				}
+				
+				// 整理表單數據
+				const formData = {
+					name: (document.getElementById('form-name') as HTMLInputElement).value,
+					contact: (document.getElementById('form-contact') as HTMLInputElement).value,
+					email: (document.getElementById('form-email') as HTMLInputElement).value,
+					service: (document.getElementById('form-service') as HTMLSelectElement).value,
+					date: bookingDates.join(' | '),
+					time: bookingTimes.join(' | '),
+					message: (document.getElementById('form-message') as HTMLTextAreaElement).value
+				};
+				
+				// 狀態列改為「傳送中...」
+				if (statusMsg) {
+					statusMsg.className = 'text-[10px] mt-4 tracking-widest uppercase text-amber-300 animate-pulse';
+					statusMsg.textContent = 'Submitting... / 傳送中...';
+					statusMsg.classList.remove('hidden');
+				}
+				submitBtn.setAttribute('disabled', 'true');
+				
+				// ==========================================
+				// 🛠️ 資料庫串接 DEMO 設定區 🛠️
+				// ==========================================
+				// 預設為 "demo" 模式 (直接模擬傳送成功)。若要使用試算表，請改為 "sheets"；使用 Supabase 請改為 "supabase"
+				const activeDatabase: "demo" | "sheets" | "supabase" = "sheets"; 
+				
+				const GOOGLE_SHEETS_URL = "https://script.google.com/macros/s/AKfycbwr64qsLJgqajMP_xwu5Z17uJmZAp21guLW-I_0dTH_3LKb9IGbIuiZ2X2w4Or7TLM4CA/exec";
+				const SUPABASE_URL = "您的_SUPABASE_PROJECT_URL";
+				const SUPABASE_ANON_KEY = "您的_SUPABASE_PUBLIC_ANON_KEY";
+				
+				try {
+					let success = false;
+					
+					if (activeDatabase === "demo") {
+						// 【模擬 Demo】延遲 1.5 秒模擬寫入資料庫
+						await new Promise(resolve => setTimeout(resolve, 1500));
+						console.log("【Demo 模式】預約資料寫入成功：", formData);
+						success = true;
+						
+					} else if (activeDatabase === "sheets") {
+						// 【方案一：Google 試算表 (GAS)】
+						await fetch(GOOGLE_SHEETS_URL, {
+							method: 'POST',
+							mode: 'no-cors',
+							headers: { 'Content-Type': 'application/json' },
+							body: JSON.stringify(formData)
+						});
+						success = true;
+						
+					} else if (activeDatabase === "supabase") {
+						// 【方案二：Supabase REST API】
+						const response = await fetch(`${SUPABASE_URL}/rest/v1/bookings`, {
+							method: 'POST',
+							headers: {
+								'Content-Type': 'application/json',
+								'apikey': SUPABASE_ANON_KEY,
+								'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+								'Prefer': 'return=minimal'
+							},
+							body: JSON.stringify(formData)
+						});
+						if (response.ok) success = true;
+						else throw new Error("Supabase 寫入失敗");
+					}
+					
+					if (success) {
+						// 表單重設
+						form.reset();
+						
+						// 清空動態新增的備選日期列 (只保留第一列)
+						if (dateTimeContainer) {
+							const extraRows = dateTimeContainer.querySelectorAll('.date-time-row');
+							extraRows.forEach((row, idx) => {
+								if (idx > 0) row.remove();
+							});
+						}
+						
+						if (statusMsg) statusMsg.classList.add('hidden');
+						
+						// 顯示成功 Modal
+						if (successModal) {
+							successModal.classList.remove('hidden');
+							requestAnimationFrame(() => {
+								successModal.classList.add('opacity-100');
+								successModal.querySelector('div')?.classList.remove('scale-95');
+							});
+						}
+					}
+				} catch (err) {
+					console.error("預約提交失敗：", err);
+					if (statusMsg) {
+						statusMsg.className = 'text-[10px] mt-4 tracking-widest uppercase text-red-500 font-bold';
+						statusMsg.textContent = 'Error! Please try again later / 傳送失敗，請稍後再試！';
+					}
+				} finally {
+					submitBtn.removeAttribute('disabled');
+				}
+			});
+		};
+
+		document.addEventListener('astro:page-load', () => {
+			initCalendar();
+			initBookingForm();
+		});
 	</script>
 </Layout>
