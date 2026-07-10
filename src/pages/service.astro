@@ -161,17 +161,19 @@ const services = [
 			</div>
 			
 			<form id="booking-form" class="space-y-6">
-				<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-					<!-- 姓名 -->
-					<div class="flex flex-col gap-2">
-						<label class="text-[10px] text-zinc-400 tracking-widest uppercase font-bold" for="form-name">Name / 稱呼 <span class="text-amber-500">*</span></label>
-						<input type="text" id="form-name" required placeholder="您的稱呼或姓名" class="bg-zinc-950/60 border border-zinc-800 rounded-lg px-4 py-3 text-xs text-white focus:outline-none focus:border-amber-500/50 transition-colors duration-300 placeholder:text-zinc-700" />
-					</div>
-					
-					<!-- 聯絡方式 -->
-					<div class="flex flex-col gap-2">
-						<label class="text-[10px] text-zinc-400 tracking-widest uppercase font-bold" for="form-contact">Contact / 聯絡方式 (LINE / IG / 電話擇一) <span class="text-amber-500">*</span></label>
-						<input type="text" id="form-contact" required placeholder="請填寫您的 LINE ID、IG 帳號或手機" class="bg-zinc-950/60 border border-zinc-800 rounded-lg px-4 py-3 text-xs text-white focus:outline-none focus:border-amber-500/50 transition-colors duration-300 placeholder:text-zinc-700" />
+				<!-- 姓名 -->
+				<div class="flex flex-col gap-2">
+					<label class="text-[10px] text-zinc-400 tracking-widest uppercase font-bold" for="form-name">Name / 稱呼 <span class="text-amber-500">*</span></label>
+					<input type="text" id="form-name" required placeholder="您的稱呼或姓名" class="bg-zinc-950/60 border border-zinc-800 rounded-lg px-4 py-3 text-xs text-white focus:outline-none focus:border-amber-500/50 transition-colors duration-300 placeholder:text-zinc-700" />
+				</div>
+				
+				<!-- 聯絡方式 (LINE / IG / 電話擇一) -->
+				<div class="flex flex-col gap-2">
+					<label class="text-[10px] text-zinc-400 tracking-widest uppercase font-bold">Contact / 聯絡管道 (LINE / IG / 手機請至少填寫一項) <span class="text-amber-500">*</span></label>
+					<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+						<input type="text" id="form-line" placeholder="LINE ID (選填)" class="bg-zinc-950/60 border border-zinc-800 rounded-lg px-4 py-3 text-xs text-white focus:outline-none focus:border-amber-500/50 transition-colors duration-300 placeholder:text-zinc-700" />
+						<input type="text" id="form-ig" placeholder="Instagram 帳號 (選填)" class="bg-zinc-950/60 border border-zinc-800 rounded-lg px-4 py-3 text-xs text-white focus:outline-none focus:border-amber-500/50 transition-colors duration-300 placeholder:text-zinc-700" />
+						<input type="text" id="form-phone" placeholder="手機號碼 (選填)" class="bg-zinc-950/60 border border-zinc-800 rounded-lg px-4 py-3 text-xs text-white focus:outline-none focus:border-amber-500/50 transition-colors duration-300 placeholder:text-zinc-700" />
 					</div>
 				</div>
 				
@@ -446,6 +448,22 @@ const services = [
 			
 			if (!form || !submitBtn) return;
 			
+			// 日期輸入框輔助器：點選輸入框任何地方即可彈出日曆
+			const bindDatePickerHelper = (input: HTMLInputElement) => {
+				if (!input) return;
+				const handler = () => {
+					try {
+						input.showPicker();
+					} catch (e) {}
+				};
+				input.addEventListener('focus', handler);
+				input.addEventListener('click', handler);
+			};
+
+			// 對初始第一列日期輸入框進行綁定
+			const initialDateInput = form.querySelector('input[name="row-date"]') as HTMLInputElement;
+			if (initialDateInput) bindDatePickerHelper(initialDateInput);
+
 			// 預約諮詢按鈕與方案連動＋平滑滾動到月曆區
 			const inquiryBtns = document.querySelectorAll('.inquiry-btn');
 			const serviceSelect = document.getElementById('form-service') as HTMLSelectElement;
@@ -510,6 +528,10 @@ const services = [
 				
 				dateTimeContainer.appendChild(newRow);
 				
+				// 對新生成的日期輸入框進行日曆彈出綁定
+				const newDateInput = newRow.querySelector('input[name="row-date"]') as HTMLInputElement;
+				if (newDateInput) bindDatePickerHelper(newDateInput);
+				
 				// 綁定刪除事件
 				newRow.querySelector('.remove-date-btn')?.addEventListener('click', () => {
 					newRow.remove();
@@ -528,6 +550,23 @@ const services = [
 
 			form.addEventListener('submit', async (e) => {
 				e.preventDefault();
+
+				// 驗證三種聯絡管道 (LINE / IG / 手機) 至少填寫一項
+				const lineVal = (document.getElementById('form-line') as HTMLInputElement).value.trim();
+				const igVal = (document.getElementById('form-ig') as HTMLInputElement).value.trim();
+				const phoneVal = (document.getElementById('form-phone') as HTMLInputElement).value.trim();
+				
+				if (!lineVal && !igVal && !phoneVal) {
+					alert('請至少填寫一種聯絡方式（LINE ID、Instagram 或手機號碼），方便我們後續與您聯繫！');
+					return;
+				}
+
+				// 打包有填寫的聯絡管道資訊
+				const contactParts: string[] = [];
+				if (lineVal) contactParts.push(`LINE: ${lineVal}`);
+				if (igVal) contactParts.push(`IG: ${igVal}`);
+				if (phoneVal) contactParts.push(`Phone: ${phoneVal}`);
+				const finalContact = contactParts.join(', ');
 				
 				// 收集所有日期與時段列
 				const rows = form.querySelectorAll('.date-time-row');
@@ -565,7 +604,7 @@ const services = [
 				// 整理表單數據
 				const formData = {
 					name: (document.getElementById('form-name') as HTMLInputElement).value,
-					contact: (document.getElementById('form-contact') as HTMLInputElement).value,
+					contact: finalContact,
 					email: (document.getElementById('form-email') as HTMLInputElement).value,
 					service: (document.getElementById('form-service') as HTMLSelectElement).value,
 					date: bookingDates.join(' | '),
