@@ -362,9 +362,9 @@ const profileImg = aboutData.profileSrc || "https://images.unsplash.com/photo-15
 					
 					const dayNum = document.createElement('span');
 					if (isToday) {
-						dayNum.className = 'text-[11px] md:text-[12px] text-amber-300 font-bold';
+						dayNum.className = 'block text-center md:text-left text-[11px] md:text-[12px] text-amber-300 font-bold';
 					} else {
-						dayNum.className = 'text-[11px] md:text-[12px] text-zinc-300 font-medium';
+						dayNum.className = 'block text-center md:text-left text-[11px] md:text-[12px] text-zinc-300 font-medium';
 					}
 					dayNum.textContent = day;
 					cell.appendChild(dayNum);
@@ -398,13 +398,13 @@ const profileImg = aboutData.profileSrc || "https://images.unsplash.com/photo-15
 						// 預設新竹：極低調的灰底灰字，融入底色 (根據主題決定初始 class)
 						const isLight = document.documentElement.getAttribute('data-theme') === 'light';
 						if (isLight) {
-							locBadge.className = 'absolute top-1 md:top-2 right-1 md:right-2 text-[8px] md:text-[10px] text-zinc-500 bg-white border border-zinc-200 px-0.5 md:px-1 py-0.5 rounded font-light tracking-widest pointer-events-none';
+							locBadge.className = 'block md:absolute md:top-2 md:right-2 text-[8px] md:text-[10px] text-zinc-500 bg-white border border-zinc-200 px-1 py-0.5 rounded font-light tracking-widest pointer-events-none mt-1 md:mt-0 text-center w-fit mx-auto';
 						} else {
-							locBadge.className = 'absolute top-1 md:top-2 right-1 md:right-2 text-[8px] md:text-[10px] text-zinc-500 bg-zinc-900/60 border border-zinc-900/20 px-0.5 md:px-1 py-0.5 rounded font-light tracking-widest pointer-events-none';
+							locBadge.className = 'block md:absolute md:top-2 md:right-2 text-[8px] md:text-[10px] text-zinc-500 bg-zinc-900/60 border border-zinc-900/20 px-1 py-0.5 rounded font-light tracking-widest pointer-events-none mt-1 md:mt-0 text-center w-fit mx-auto';
 						}
 					} else {
 						// 外縣市：醒目的天空藍底藍字
-						locBadge.className = 'absolute top-1 md:top-2 right-1 md:right-2 text-[8px] md:text-[10px] text-sky-300 bg-sky-500/20 border border-sky-500/30 px-0.5 md:px-1 py-0.5 rounded font-medium tracking-widest pointer-events-none';
+						locBadge.className = 'block md:absolute md:top-2 md:right-2 text-[8px] md:text-[10px] text-sky-300 bg-sky-500/20 border border-sky-500/30 px-1 py-0.5 rounded font-medium tracking-widest pointer-events-none mt-1 md:mt-0 text-center w-fit mx-auto';
 					}
 					locBadge.textContent = displayLocation;
 					cell.appendChild(locBadge);
