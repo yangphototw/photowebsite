@@ -156,6 +156,14 @@ const services = [
 					<span class="text-zinc-300">Location / 所在縣市</span>
 				</div>
 			</div>
+
+			<!-- 貼心提醒 (高情商說詞) -->
+			<div class="mt-8 pt-6 border-t border-zinc-950/40 text-center">
+				<p class="text-[9.5px] md:text-[10px] text-zinc-500 tracking-widest leading-relaxed font-light">
+					💬 貼心提醒：平日（週一至週五）行程具備高度彈性，如有拍攝需求，歡迎直接送出預約表單諮詢協調。<br class="hidden sm:inline" />
+					<span class="text-zinc-650 uppercase text-[8.5px] tracking-[0.15em] mt-1 block">Notice: Weekday scheduling is highly flexible. Please feel free to send an inquiry to coordinate your session.</span>
+				</p>
+			</div>
 		</div>
 	</div>
 
@@ -390,7 +398,7 @@ const services = [
 					const dateStr = `${currentYear}-${formattedMonth}-${formattedDay}`;
 					
 					const loc = (bookingData[dateStr] && bookingData[dateStr].location) || "";
-					const hasForeignLoc = loc && loc !== "新竹";
+					const hasForeignLoc = loc && loc !== "新竹" && loc !== "";
 
 					if (hasForeignLoc) {
 						if (currentLoc === loc) {
@@ -515,10 +523,8 @@ const services = [
 					const dayOfWeek = dateObj.getDay();
 					const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
 					
-					// 主要假日接案：平日預設客滿/不開放 (true)，假日預設有空 (false)
-					const defaultStatus = isWeekend
-						? { morning: false, afternoon: false, evening: false, location: "" }
-						: { morning: true, afternoon: true, evening: true, location: "" };
+					// 預設全月所有時段均可預約
+					const defaultStatus = { morning: false, afternoon: false, evening: false, location: "" };
 					
 					// 合併 JSON 檔案中的自訂覆蓋設定
 					const status = {
@@ -526,22 +532,24 @@ const services = [
 						...(bookingData[dateStr] || {})
 					};
 					
-					// 預設 Location 為新竹
-					const displayLocation = status.location || "新竹";
-					const isDefaultLoc = displayLocation === "新竹";
+					// 預設 Location 為空 (無指定行程則不顯示地點)
+					const displayLocation = status.location || "";
 					
-					// 桌機版地點標籤 (手機端隱藏，桌機端右上角顯現，防範行動版擁擠)
-					const locBadge = document.createElement('span');
-					if (isDefaultLoc) {
-						locBadge.className = 'hidden md:block md:absolute md:top-2 md:right-2 text-[10px] text-zinc-500 border px-1 py-0.5 rounded font-light tracking-widest pointer-events-none whitespace-nowrap loc-badge-hsinchu';
-					} else {
-						locBadge.className = 'hidden md:block md:absolute md:top-2 md:right-2 text-[10px] text-sky-300 bg-sky-500/20 border border-sky-500/30 px-1 py-0.5 rounded font-medium tracking-widest pointer-events-none whitespace-nowrap';
+					if (displayLocation) {
+						// 桌機版地點標籤 (手機端隱藏，桌機端右上角顯現，防範行動版擁擠)
+						const locBadge = document.createElement('span');
+						const isDefaultLoc = displayLocation === "新竹";
+						if (isDefaultLoc) {
+							locBadge.className = 'hidden md:block md:absolute md:top-2 md:right-2 text-[10px] text-zinc-500 border px-1 py-0.5 rounded font-light tracking-widest pointer-events-none whitespace-nowrap loc-badge-hsinchu';
+						} else {
+							locBadge.className = 'hidden md:block md:absolute md:top-2 md:right-2 text-[10px] text-sky-300 bg-sky-500/20 border border-sky-500/30 px-1 py-0.5 rounded font-medium tracking-widest pointer-events-none whitespace-nowrap';
+						}
+						locBadge.textContent = displayLocation;
+						cell.appendChild(locBadge);
 					}
-					locBadge.textContent = displayLocation;
-					cell.appendChild(locBadge);
 					
 					// 判定是否有備註註記 (Note)
-					let hoverTitle = `當日地點: ${displayLocation}`;
+					let hoverTitle = displayLocation ? `當日地點: ${displayLocation}` : '';
 					if (status.note) {
 						hoverTitle += ` | 備註: ${status.note}`;
 						
