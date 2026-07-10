@@ -85,7 +85,7 @@ const services = [
 							))}
 						</ul>
 					</div>
-					<a href="/about" class="mt-auto block text-center py-3 md:py-4 border border-zinc-800 text-zinc-500 text-[9px] md:text-[10px] tracking-[0.3em] uppercase hover:bg-white hover:text-black hover:border-white transition-all duration-500 rounded-full">
+					<a href="#booking-section" data-service={s.title.split(' / ')[1]} class="inquiry-btn mt-auto block text-center py-3 md:py-4 border border-zinc-800 text-zinc-500 text-[9px] md:text-[10px] tracking-[0.3em] uppercase hover:bg-white hover:text-black hover:border-white transition-all duration-500 rounded-full">
 						Inquiry / 預約諮詢
 					</a>
 				</div>
@@ -111,8 +111,8 @@ const services = [
         </div>
     </section>
 
-	<!-- 預約月曆區塊 -->
-	<div class="border-t border-zinc-900/60 pt-16 pb-32 animate-fade-in">
+	<!-- 預約月曆與表單區區塊 -->
+	<div id="booking-section" class="border-t border-zinc-900/60 pt-16 pb-32 animate-fade-in">
 		<h2 class="text-[10px] text-zinc-500 tracking-[0.4em] uppercase mb-12 text-center">— Booking / 預約狀況 —</h2>
 		
 		<div class="booking-calendar-wrapper max-w-4xl mx-auto rounded-2xl border border-zinc-800 bg-zinc-900/40 backdrop-blur-md p-6 md:p-8 shadow-[0_0_50px_rgba(0,0,0,0.6)]">
@@ -442,6 +442,26 @@ const services = [
 			const dateTimeContainer = document.getElementById('date-time-container');
 			
 			if (!form || !submitBtn) return;
+			
+			// 預約諮詢按鈕與方案連動＋平滑滾動到月曆區
+			const inquiryBtns = document.querySelectorAll('.inquiry-btn');
+			const serviceSelect = document.getElementById('form-service') as HTMLSelectElement;
+			inquiryBtns.forEach(btn => {
+				btn.addEventListener('click', (e) => {
+					e.preventDefault();
+					const targetService = btn.getAttribute('data-service');
+					if (serviceSelect && targetService) {
+						serviceSelect.value = targetService;
+						serviceSelect.classList.remove('text-zinc-400');
+						serviceSelect.classList.add('text-white');
+					}
+					
+					const bookingSection = document.getElementById('booking-section');
+					if (bookingSection) {
+						bookingSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+					}
+				});
+			});
 
 			// 新增備選日期時段
 			addDateBtn?.addEventListener('click', () => {
