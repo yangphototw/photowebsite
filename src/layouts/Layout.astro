@@ -81,24 +81,50 @@ const navItems = [
 				transform: translateY(0);
 				opacity: 1;
 			}
+
+			/* 滾動時 Header 的平滑毛玻璃與高度收縮過渡效果 */
+			header {
+				transition: background-color 0.6s cubic-bezier(0.16, 1, 0.3, 1), 
+							backdrop-filter 0.6s cubic-bezier(0.16, 1, 0.3, 1), 
+							border-color 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+							padding 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+			}
+			header.active-scroll {
+				background-color: rgba(0, 0, 0, 0.75) !important;
+				backdrop-filter: blur(16px);
+				-webkit-backdrop-filter: blur(16px);
+				border-bottom: 1px solid rgba(63, 63, 70, 0.2); /* border-zinc-700/20 */
+				padding-top: 1.25rem !important;
+				padding-bottom: 1.25rem !important;
+			}
+
+			/* 導覽字體：移除硬描邊，改用極致柔和、無鋸齒的羽化發散投影 (Ambient Shadow) */
+			.nav-link {
+				text-shadow: 
+					0 2px 8px rgba(0, 0, 0, 0.95),
+					0 4px 16px rgba(0, 0, 0, 0.8);
+			}
 		</style>
 	</head>
 	<body class="bg-black text-[#9CA3AF] font-sans font-[200] min-h-screen flex flex-col selection:bg-zinc-800 selection:text-white antialiased relative">
 		
-		<header class="absolute top-0 left-0 w-full py-8 md:py-12 px-8 md:px-16 z-50 pointer-events-none">
+		<header class="fixed top-0 left-0 w-full py-8 md:py-10 px-8 md:px-16 z-50 pointer-events-none border-b border-transparent">
 			<div class="max-w-7xl mx-auto w-full">
 				<nav class="flex justify-center pointer-events-auto">
-					<ul class="hidden md:flex flex-wrap justify-center gap-x-8 gap-y-4 text-[9px] md:text-[10px] tracking-[0.2em] font-light uppercase">
+					<!-- 桌機版選單：移除大黑底，回歸極簡文字加黑框描邊 -->
+					<ul class="hidden md:flex flex-wrap justify-center items-center gap-x-8 gap-y-4 text-[9px] md:text-[10px] tracking-[0.2em] font-medium uppercase">
 						{navItems.map((item) => (
 							<li>
-								<a href={item.href} class={`hover:text-white transition-colors duration-500 py-1 border-b border-transparent hover:border-white/30 ${pathname === item.href ? 'text-white !border-white/50' : ''}`}>
+								<a href={item.href} class={`nav-link text-zinc-300 hover:text-amber-400 transition-colors duration-500 py-1 border-b border-transparent hover:border-amber-400/30 ${pathname === item.href ? 'text-amber-400 !border-amber-400/50 font-bold' : ''}`}>
 									{item.name}
 								</a>
 							</li>
 						))}
 					</ul>
-					<button id="menu-toggle" class="md:hidden text-white text-[10px] tracking-[0.4em] uppercase font-light flex items-center gap-4 py-2">
-						<span class="w-8 h-px bg-white/30"></span>MENU / 選單<span class="w-8 h-px bg-white/30"></span>
+					
+					<!-- 手機版選單按鈕：同樣移除實心黑底，改為帶極細黑描邊的選單字體 -->
+					<button id="menu-toggle" class="nav-link md:hidden text-zinc-200 text-[10px] tracking-[0.4em] uppercase font-medium flex items-center gap-4 py-2 hover:text-amber-400 transition-colors duration-300 cursor-pointer">
+						<span class="w-8 h-px bg-white/30 shadow-[0_1px_2px_rgba(0,0,0,0.8)]"></span>MENU / 選單<span class="w-8 h-px bg-white/30 shadow-[0_1px_2px_rgba(0,0,0,0.8)]"></span>
 					</button>
 				</nav>
 			</div>
@@ -133,8 +159,24 @@ const navItems = [
 		</div>
 
 		<script>
+			// 滾動收縮與毛玻璃導覽列事件處理（全域單一監聽器，防範 SPA 切換頁面記憶體洩漏）
+			let currentHeader: HTMLElement | null = null;
+			const handleScroll = () => {
+				if (!currentHeader) return;
+				if (window.scrollY > 20) {
+					currentHeader.classList.add('active-scroll');
+				} else {
+					currentHeader.classList.remove('active-scroll');
+				}
+			};
+			window.addEventListener('scroll', handleScroll);
+
 			// 1. 全域選單及載入動畫 (每次換頁均需重新對當前 DOM 進行初始化)
 			const init = () => {
+				// 更新當前頁面的 header 引用並進行初始檢測
+				currentHeader = document.querySelector('header');
+				handleScroll();
+
 				//選單
 				const toggle = document.getElementById('menu-toggle');
 				const close = document.getElementById('menu-close');
