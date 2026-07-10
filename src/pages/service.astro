@@ -528,6 +528,22 @@ const services = [
 					
 					// 預設 Location 為新竹
 					const displayLocation = status.location || "新竹";
+					const isDefaultLoc = displayLocation === "新竹";
+					
+					// 桌機版地點標籤 (手機端隱藏，桌機端右上角顯現，防範行動版擁擠)
+					const locBadge = document.createElement('span');
+					if (isDefaultLoc) {
+						const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+						if (isLight) {
+							locBadge.className = 'hidden md:absolute md:top-2 md:right-2 text-[10px] text-zinc-500 bg-white border border-zinc-200 px-1 py-0.5 rounded font-light tracking-widest pointer-events-none whitespace-nowrap';
+						} else {
+							locBadge.className = 'hidden md:absolute md:top-2 md:right-2 text-[10px] text-zinc-500 bg-zinc-900/60 border border-zinc-900/20 px-1 py-0.5 rounded font-light tracking-widest pointer-events-none whitespace-nowrap';
+						}
+					} else {
+						locBadge.className = 'hidden md:absolute md:top-2 md:right-2 text-[10px] text-sky-300 bg-sky-500/20 border border-sky-500/30 px-1 py-0.5 rounded font-medium tracking-widest pointer-events-none whitespace-nowrap';
+					}
+					locBadge.textContent = displayLocation;
+					cell.appendChild(locBadge);
 					
 					// 判定是否有備註註記 (Note)
 					let hoverTitle = `當日地點: ${displayLocation}`;
