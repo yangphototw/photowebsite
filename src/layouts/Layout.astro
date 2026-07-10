@@ -322,6 +322,17 @@ const navItems = [
 				backdrop-filter: blur(8px) !important;
 				-webkit-backdrop-filter: blur(8px) !important;
 			}
+
+			/* 預設新竹標籤的主題色彩自適應 (防範切換主題不換色 Bug) */
+			.loc-badge-hsinchu {
+				background-color: rgba(24, 24, 27, 0.6) !important; /* 暗色模式深灰底 */
+				border-color: rgba(63, 63, 70, 0.3) !important;
+			}
+			html[data-theme="light"] .loc-badge-hsinchu {
+				background-color: #ffffff !important; /* 亮色模式純白底 */
+				border-color: rgba(228, 228, 231, 0.8) !important; /* border-zinc-200 */
+				color: #71717a !important; /* text-zinc-500 */
+			}
 		</style>
 	</head>
 	<body class="bg-black text-[#9CA3AF] font-sans font-[200] min-h-screen flex flex-col selection:bg-zinc-800 selection:text-white antialiased relative">
