@@ -415,6 +415,9 @@ const navItems = [
 				toggle?.addEventListener('click', openMenu);
 				close?.addEventListener('click', closeMenu);
 				document.querySelectorAll('#mobile-menu-overlay a').forEach(link => link.addEventListener('click', closeMenu));
+				overlay?.addEventListener('click', (e) => {
+					if (e.target === overlay) closeMenu();
+				});
 
 				// 圖片加載優化
 				const images = document.querySelectorAll('img');
