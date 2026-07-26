@@ -3,12 +3,23 @@ import { ClientRouter } from 'astro:transitions';
 
 interface Props {
 	title?: string;
+	description?: string;
+	image?: string;
 	fullWidth?: boolean;
 	minimal?: boolean;
 }
 
-const { title = "Yang Photography", fullWidth = false, minimal = false } = Astro.props;
+const { 
+	title = "Yang Photography | 獨立攝影與視覺敘事", 
+	description = "Yang Photography - 駐點台灣的獨立攝影師。提供婚禮記錄、登記寫真、個人人像、旅拍隨筆、商品攝影與活動紀錄。捕捉自然光影，紀錄真實而純粹的瞬間。",
+	image = "https://yangphoto.vercel.app/images/albums/00_Home/Carousel/DSC06557.webp",
+	fullWidth = false, 
+	minimal = false 
+} = Astro.props;
+
 const pathname = new URL(Astro.url).pathname;
+const siteUrl = Astro.site ? Astro.site.origin : 'https://yangphoto.vercel.app';
+const canonicalURL = new URL(pathname, siteUrl).href;
 
 // 導覽定義
 const navItems = [
@@ -28,15 +39,51 @@ const navItems = [
 <html lang="zh-TW" class="scroll-smooth">
 	<head>
 		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		
+		<!-- SEO 核心標籤 -->
+		<title>{title}</title>
+		<meta name="description" content={description} />
+		<link rel="canonical" href={canonicalURL} />
+
+		<!-- Open Graph / 社群分享標籤 (LINE, FB, IG) -->
+		<meta property="og:type" content="website" />
+		<meta property="og:url" content={canonicalURL} />
+		<meta property="og:title" content={title} />
+		<meta property="og:description" content={description} />
+		<meta property="og:image" content={image} />
+		<meta property="og:site_name" content="Yang Photography" />
+
+		<!-- Twitter Card -->
+		<meta name="twitter:card" content="summary_large_image" />
+		<meta name="twitter:url" content={canonicalURL} />
+		<meta name="twitter:title" content={title} />
+		<meta name="twitter:description" content={description} />
+		<meta name="twitter:image" content={image} />
+
+		<!-- Schema.org JSON-LD 結構化資料 -->
+		<script type="application/ld+json" is:inline set:html={JSON.stringify({
+			"@context": "https://schema.org",
+			"@type": "Photographer",
+			"name": "Yang Photography",
+			"url": siteUrl,
+			"image": image,
+			"description": description,
+			"address": {
+				"@type": "PostalAddress",
+				"addressCountry": "TW"
+			},
+			"sameAs": [
+				"https://www.instagram.com/yang._.photo/"
+			]
+		})} />
+
 		<!-- 載入核心字體 -->
 		<link rel="preconnect" href="https://fonts.googleapis.com">
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 		<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Noto+Sans+TC:wght@100..900&display=swap" rel="stylesheet">
 		
-		<title>{title}</title>
 		<ClientRouter />
 		<script is:inline>
 			// 防止主題閃爍：立即套用 LocalStorage 中設定的主題
@@ -405,13 +452,47 @@ const navItems = [
 			</footer>
 		)}
 
-		<!-- 全域隱形燈箱 -->
-		<div id="lightbox" class="fixed inset-0 bg-[#000000] z-[100] hidden opacity-0 transition-opacity duration-500 flex items-center justify-center p-4 md:p-12">
+		<!-- 展覽級升級版全域燈箱 (含頂部計數器、導覽與滑動) -->
+		<div id="lightbox" class="fixed inset-0 bg-black/95 z-[100] hidden opacity-0 transition-opacity duration-500 flex flex-col items-center justify-between p-4 md:p-8 select-none">
 			<div id="lightbox-backdrop" class="absolute inset-0 cursor-zoom-out"></div>
-			<img id="lightbox-img" src="" class="relative z-10 max-w-full max-h-full object-contain shadow-2xl scale-95 transition-transform duration-500" />
-			<button id="lightbox-close" class="absolute top-8 right-8 z-20 text-zinc-600 hover:text-white text-3xl font-light transition-colors duration-300">
-				&times;
-			</button>
+			
+			<!-- 頂部列 (計數器 + 關閉) -->
+			<div class="relative z-20 w-full max-w-7xl flex items-center justify-between px-2 md:px-4 pointer-events-auto">
+				<div class="flex items-center gap-3">
+					<span id="lightbox-counter" class="text-[10px] md:text-xs font-mono tracking-widest text-amber-400 bg-amber-500/10 border border-amber-500/30 px-3 py-1 rounded-full">
+						1 / 1
+					</span>
+					<span id="lightbox-caption" class="text-[10px] md:text-xs tracking-widest text-zinc-400 font-light truncate max-w-[180px] md:max-w-md">
+						Yang Photography
+					</span>
+				</div>
+				<button id="lightbox-close" class="text-zinc-400 hover:text-white text-3xl font-extralight transition-colors duration-300 p-2 cursor-pointer" title="關閉 (Esc)">
+					&times;
+				</button>
+			</div>
+
+			<!-- 中央圖片與左右按鈕 -->
+			<div class="relative z-10 flex-grow w-full max-w-7xl flex items-center justify-between my-2 overflow-hidden pointer-events-none">
+				<!-- 上一張 -->
+				<button id="lightbox-prev" class="pointer-events-auto text-zinc-500 hover:text-white text-3xl md:text-5xl p-4 transition-colors duration-300 cursor-pointer hidden sm:flex items-center justify-center" title="上一張 (←)">
+					‹
+				</button>
+
+				<!-- 主大圖 -->
+				<div class="flex-grow flex items-center justify-center h-full w-full pointer-events-auto">
+					<img id="lightbox-img" src="" alt="Gallery Image" class="max-w-full max-h-[80vh] object-contain shadow-[0_0_50px_rgba(0,0,0,0.8)] scale-95 transition-all duration-300" />
+				</div>
+
+				<!-- 下一張 -->
+				<button id="lightbox-next" class="pointer-events-auto text-zinc-500 hover:text-white text-3xl md:text-5xl p-4 transition-colors duration-300 cursor-pointer hidden sm:flex items-center justify-center" title="下一張 (→)">
+					›
+				</button>
+			</div>
+
+			<!-- 底部提示 -->
+			<div class="relative z-20 text-[9px] md:text-[10px] text-zinc-600 tracking-[0.2em] uppercase font-light pointer-events-none">
+				Use ← → keys or swipe to navigate
+			</div>
 		</div>
 
 		<script>
@@ -433,18 +514,33 @@ const navItems = [
 				currentHeader = document.querySelector('header');
 				handleScroll();
 
-				//選單
+				// 選單
 				const toggle = document.getElementById('menu-toggle');
 				const close = document.getElementById('menu-close');
 				const overlay = document.getElementById('mobile-menu-overlay');
-				const openMenu = () => { overlay.classList.add('active'); document.body.style.overflow = 'hidden'; };
-				const closeMenu = () => { overlay.classList.remove('active'); document.body.style.overflow = ''; };
-				toggle?.addEventListener('click', openMenu);
-				close?.addEventListener('click', closeMenu);
-				document.querySelectorAll('#mobile-menu-overlay a').forEach(link => link.addEventListener('click', closeMenu));
-				overlay?.addEventListener('click', (e) => {
-					if (e.target === overlay) closeMenu();
+				const openMenu = () => { overlay?.classList.add('active'); document.body.style.overflow = 'hidden'; };
+				const closeMenu = () => { overlay?.classList.remove('active'); document.body.style.overflow = ''; };
+				
+				if (toggle && !toggle.dataset.bound) {
+					toggle.dataset.bound = 'true';
+					toggle.addEventListener('click', openMenu);
+				}
+				if (close && !close.dataset.bound) {
+					close.dataset.bound = 'true';
+					close.addEventListener('click', closeMenu);
+				}
+				document.querySelectorAll('#mobile-menu-overlay a').forEach(link => {
+					if (!(link as HTMLElement).dataset.bound) {
+						(link as HTMLElement).dataset.bound = 'true';
+						link.addEventListener('click', closeMenu);
+					}
 				});
+				if (overlay && !overlay.dataset.bound) {
+					overlay.dataset.bound = 'true';
+					overlay.addEventListener('click', (e) => {
+						if (e.target === overlay) closeMenu();
+					});
+				}
 
 				// 圖片加載優化
 				const images = document.querySelectorAll('img');
@@ -455,7 +551,6 @@ const navItems = [
 						
 						const handleLoad = () => {
 							img.classList.add('loaded');
-							// 動態：動畫結束後移除 class，交還控制權給 Tailwind
 							setTimeout(() => {
 								img.classList.remove('img-reveal', 'loaded');
 							}, 1500); 
@@ -466,7 +561,7 @@ const navItems = [
 					}
 				});
 
-				// 主題切換初始化
+				// 主題切換初始化 (修正重複綁定 Event Listener Bug)
 				const themeToggle = document.getElementById('theme-toggle');
 				const themeToggleMobile = document.getElementById('theme-toggle-mobile');
 				const themeIcon = document.getElementById('theme-icon');
@@ -493,12 +588,18 @@ const navItems = [
 					updateToggleUI(nextTheme);
 				};
 
-				themeToggle?.addEventListener('click', toggleTheme);
-				themeToggleMobile?.addEventListener('click', toggleTheme);
+				if (themeToggle && !themeToggle.dataset.bound) {
+					themeToggle.dataset.bound = 'true';
+					themeToggle.addEventListener('click', toggleTheme);
+				}
+				if (themeToggleMobile && !themeToggleMobile.dataset.bound) {
+					themeToggleMobile.dataset.bound = 'true';
+					themeToggleMobile.addEventListener('click', toggleTheme);
+				}
 			};
 			document.addEventListener('astro:page-load', init);
 
-			// 3. Astro SPA 換頁後的主題重新同步與按鈕狀態更新
+			// 2. Astro SPA 換頁後的主題重新同步與按鈕狀態更新
 			document.addEventListener('astro:after-swap', () => {
 				const theme = localStorage.getItem('theme') || 'dark';
 				document.documentElement.setAttribute('data-theme', theme);
@@ -513,51 +614,138 @@ const navItems = [
 				}
 			});
 
-			// 2. 全域 Lightbox 控制邏輯 (利用事件代理 Event Delegation，僅在模組載入時執行一次，防止記憶體洩漏)
-			const openLightbox = (src: string, rawSrc?: string) => {
-				const lightbox = document.getElementById('lightbox');
-				const lightboxImg = document.getElementById('lightbox-img') as HTMLImageElement;
-				if (!lightbox || !lightboxImg) return;
+			// 3. 全域展覽級 Lightbox 控制邏輯 (含多圖相簿、鍵盤切換與觸控劃動)
+			let currentGallery: Array<{ src: string; rawSrc?: string; alt?: string }> = [];
+			let currentIndex = 0;
 
-				lightboxImg.src = rawSrc || src;
+			const updateLightboxImage = () => {
+				const lightboxImg = document.getElementById('lightbox-img') as HTMLImageElement;
+				const counter = document.getElementById('lightbox-counter');
+				const caption = document.getElementById('lightbox-caption');
+				if (!lightboxImg || currentGallery.length === 0) return;
+
+				const item = currentGallery[currentIndex];
+				lightboxImg.classList.add('scale-95', 'opacity-0');
+				
+				setTimeout(() => {
+					lightboxImg.src = item.rawSrc || item.src;
+					if (counter) counter.textContent = `${currentIndex + 1} / ${currentGallery.length}`;
+					if (caption) caption.textContent = item.alt || 'Yang Photography';
+					
+					lightboxImg.onload = () => {
+						lightboxImg.classList.remove('scale-95', 'opacity-0');
+					};
+					if (lightboxImg.complete) {
+						lightboxImg.classList.remove('scale-95', 'opacity-0');
+					}
+				}, 150);
+			};
+
+			const openLightbox = (index: number, gallery: Array<{ src: string; rawSrc?: string; alt?: string }>) => {
+				const lightbox = document.getElementById('lightbox');
+				if (!lightbox || gallery.length === 0) return;
+
+				currentGallery = gallery;
+				currentIndex = index;
+
 				lightbox.classList.remove('hidden');
 				document.body.style.overflow = 'hidden';
+				updateLightboxImage();
+
 				requestAnimationFrame(() => {
 					lightbox.classList.add('opacity-100');
-					lightboxImg.classList.remove('scale-95');
 				});
 			};
 
 			const closeLightbox = () => {
 				const lightbox = document.getElementById('lightbox');
 				const lightboxImg = document.getElementById('lightbox-img') as HTMLImageElement;
-				if (!lightbox || !lightboxImg) return;
+				if (!lightbox) return;
 				
 				lightbox.classList.remove('opacity-100');
-				lightboxImg.classList.add('scale-95');
+				if (lightboxImg) lightboxImg.classList.add('scale-95');
+				
 				setTimeout(() => {
 					lightbox.classList.add('hidden');
 					document.body.style.overflow = '';
-				}, 500);
+				}, 400);
 			};
 
-			// 全域點擊監聽，利用 Event Delegation 捕捉所有圖片點擊事件
+			const showPrev = () => {
+				if (currentGallery.length <= 1) return;
+				currentIndex = (currentIndex - 1 + currentGallery.length) % currentGallery.length;
+				updateLightboxImage();
+			};
+
+			const showNext = () => {
+				if (currentGallery.length <= 1) return;
+				currentIndex = (currentIndex + 1) % currentGallery.length;
+				updateLightboxImage();
+			};
+
+			// 全域點擊監聽 (Event Delegation)
 			document.addEventListener('click', (e) => {
 				const target = e.target as HTMLElement;
-				if (target && target.classList.contains('lightbox-trigger')) {
-					const img = target as HTMLImageElement;
-					const rawSrc = img.getAttribute('data-raw');
-					openLightbox(img.src, rawSrc || undefined);
+				
+				// 觸發開啟燈箱
+				const trigger = target.closest('.lightbox-trigger') as HTMLImageElement;
+				if (trigger) {
+					const allTriggers = Array.from(document.querySelectorAll('.lightbox-trigger')) as HTMLImageElement[];
+					const gallery = allTriggers.map(img => ({
+						src: img.src,
+						rawSrc: img.getAttribute('data-raw') || undefined,
+						alt: img.alt || img.title || 'Yang Photography'
+					}));
+					const index = allTriggers.indexOf(trigger);
+					openLightbox(index >= 0 ? index : 0, gallery);
+					return;
 				}
-				if (target && (target.id === 'lightbox-close' || target.id === 'lightbox-backdrop')) {
+
+				// 燈箱內部控制項
+				if (target.id === 'lightbox-close' || target.id === 'lightbox-backdrop') {
 					closeLightbox();
+				} else if (target.id === 'lightbox-prev' || target.closest('#lightbox-prev')) {
+					showPrev();
+				} else if (target.id === 'lightbox-next' || target.closest('#lightbox-next')) {
+					showNext();
 				}
 			});
 
-			// 全域按鍵監聽，支援 Escape 關閉
+			// 全域鍵盤操控 (Esc 關閉, ← 上一張, → 下一張)
 			window.addEventListener('keydown', (e) => {
+				const lightbox = document.getElementById('lightbox');
+				if (!lightbox || lightbox.classList.contains('hidden')) return;
+
 				if (e.key === 'Escape') closeLightbox();
+				else if (e.key === 'ArrowLeft') showPrev();
+				else if (e.key === 'ArrowRight') showNext();
 			});
+
+			// 手機端 Touch Swipe 劃動切換
+			let touchStartX = 0;
+			let touchStartY = 0;
+			
+			window.addEventListener('touchstart', (e) => {
+				const lightbox = document.getElementById('lightbox');
+				if (!lightbox || lightbox.classList.contains('hidden')) return;
+				touchStartX = e.touches[0].clientX;
+				touchStartY = e.touches[0].clientY;
+			}, { passive: true });
+
+			window.addEventListener('touchend', (e) => {
+				const lightbox = document.getElementById('lightbox');
+				if (!lightbox || lightbox.classList.contains('hidden')) return;
+				
+				const touchEndX = e.changedTouches[0].clientX;
+				const touchEndY = e.changedTouches[0].clientY;
+				const deltaX = touchEndX - touchStartX;
+				const deltaY = touchEndY - touchStartY;
+
+				if (Math.abs(deltaX) > 40 && Math.abs(deltaX) > Math.abs(deltaY)) {
+					if (deltaX > 0) showPrev();
+					else showNext();
+				}
+			}, { passive: true });
 		</script>
 	</body>
 </html>
