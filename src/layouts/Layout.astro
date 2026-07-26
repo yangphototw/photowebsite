@@ -614,9 +614,17 @@ const navItems = [
 				}
 			});
 
-			// 3. 全域展覽級 Lightbox 控制邏輯 (含多圖相簿、鍵盤切換與觸控劃動)
+			// 3. 全域展覽級 Lightbox 控制邏輯 (含圖片預載 Preloading、多圖相簿、鍵盤切換與觸控劃動)
 			let currentGallery: Array<{ src: string; rawSrc?: string; alt?: string }> = [];
 			let currentIndex = 0;
+			const preloadedCache = new Set<string>();
+
+			const preloadImage = (url?: string) => {
+				if (!url || preloadedCache.has(url)) return;
+				preloadedCache.add(url);
+				const img = new Image();
+				img.src = url;
+			};
 
 			const updateLightboxImage = () => {
 				const lightboxImg = document.getElementById('lightbox-img') as HTMLImageElement;
@@ -625,20 +633,32 @@ const navItems = [
 				if (!lightboxImg || currentGallery.length === 0) return;
 
 				const item = currentGallery[currentIndex];
+				const targetSrc = item.rawSrc || item.src;
+
+				if (counter) counter.textContent = `${currentIndex + 1} / ${currentGallery.length}`;
+				if (caption) caption.textContent = item.alt || 'Yang Photography';
+
+				// 🚀 核心極致優化 1：靜默預載相鄰的「下一張」與「上一張」圖片進瀏覽器快取 (Memory Cache)
+				const nextIndex = (currentIndex + 1) % currentGallery.length;
+				const prevIndex = (currentIndex - 1 + currentGallery.length) % currentGallery.length;
+				preloadImage(currentGallery[nextIndex].rawSrc || currentGallery[nextIndex].src);
+				preloadImage(currentGallery[prevIndex].rawSrc || currentGallery[prevIndex].src);
+
+				// 🚀 核心極致優化 2：移除固定的 150ms 延遲，實現 0 毫秒極速切換
+				const applyLoaded = () => {
+					lightboxImg.classList.remove('scale-95', 'opacity-0');
+				};
+
 				lightboxImg.classList.add('scale-95', 'opacity-0');
 				
-				setTimeout(() => {
-					lightboxImg.src = item.rawSrc || item.src;
-					if (counter) counter.textContent = `${currentIndex + 1} / ${currentGallery.length}`;
-					if (caption) caption.textContent = item.alt || 'Yang Photography';
-					
-					lightboxImg.onload = () => {
-						lightboxImg.classList.remove('scale-95', 'opacity-0');
-					};
-					if (lightboxImg.complete) {
-						lightboxImg.classList.remove('scale-95', 'opacity-0');
-					}
-				}, 150);
+				// 切換 src
+				lightboxImg.src = targetSrc;
+
+				if (lightboxImg.complete) {
+					requestAnimationFrame(applyLoaded);
+				} else {
+					lightboxImg.onload = applyLoaded;
+				}
 			};
 
 			const openLightbox = (index: number, gallery: Array<{ src: string; rawSrc?: string; alt?: string }>) => {
