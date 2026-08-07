@@ -1,6 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import bookingData from '../data/booking.json';
+const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
 ---
 
 <Layout title="Booking & Availability / 行事曆預約狀況與表單 | Yang Photography" description="線上查詢 Yang Photography 當月拍攝檔期與行程。平日與週末提供彈性預約，可直接線上送出拍攝諮詢表單。">
@@ -77,11 +78,19 @@ import bookingData from '../data/booking.json';
 				<p>填寫後請靜待 Yang 與您聯絡，有任何問題都歡迎透過 <a href="https://www.instagram.com/yang._.photo/" target="_blank" class="text-amber-300 hover:text-amber-200 transition-colors underline font-medium">IG 聯繫</a></p>
 			</div>
 			
+			{turnstileSiteKey && <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>}
 			<form id="booking-form" class="space-y-6">
 				<div class="hidden" aria-hidden="true">
 					<label for="website">Website</label>
 					<input id="website" name="website" type="text" tabindex="-1" autocomplete="off" />
 				</div>
+				{turnstileSiteKey && (
+					<div class="flex flex-col gap-2">
+						<div id="turnstile-widget" data-sitekey={turnstileSiteKey}></div>
+						<input id="turnstile-token" type="hidden" />
+						<p class="text-[10px] tracking-wide text-zinc-500">This form is protected by Cloudflare Turnstile.</p>
+					</div>
+				)}
 				<!-- 姓名 -->
 				<div class="flex flex-col gap-2">
 					<label class="text-[10px] text-zinc-400 tracking-widest uppercase font-bold" for="form-name">Name / 稱呼 <span class="text-amber-500">*</span></label>
@@ -467,7 +476,31 @@ import bookingData from '../data/booking.json';
 			const closeSuccessBtn = document.getElementById('close-success-btn');
 			const container = document.getElementById('booking-dates-container');
 			const addBtn = document.getElementById('add-date-row-btn');
+			const turnstileWidget = document.getElementById('turnstile-widget') as HTMLElement | null;
+			const turnstileToken = document.getElementById('turnstile-token') as HTMLInputElement | null;
+			let turnstileWidgetId: string | undefined;
 			if (!form || !submitBtn || !container || !addBtn) return;
+
+			if (turnstileWidget && turnstileToken) {
+				let attempts = 0;
+				const renderTurnstile = () => {
+					const turnstile = (window as any).turnstile;
+					if (!turnstile) {
+						if (attempts++ < 100) window.setTimeout(renderTurnstile, 50);
+						else turnstileWidget.textContent = 'Verification could not be loaded. Please refresh and try again.';
+						return;
+					}
+					if (turnstileWidget.dataset.rendered) return;
+					turnstileWidgetId = turnstile.render(turnstileWidget, {
+						sitekey: turnstileWidget.dataset.sitekey,
+						callback: (token: string) => { turnstileToken.value = token; },
+						'expired-callback': () => { turnstileToken.value = ''; },
+						'error-callback': () => { turnstileToken.value = ''; },
+					});
+					turnstileWidget.dataset.rendered = 'true';
+				};
+				renderTurnstile();
+			}
 
 			let dateRowCount = 1;
 
@@ -627,6 +660,15 @@ import bookingData from '../data/booking.json';
 					return;
 				}
 
+				if (turnstileToken && !turnstileToken.value) {
+					if (statusMsg) {
+						statusMsg.className = 'text-[10px] mt-4 tracking-widest uppercase text-red-500 font-bold';
+						statusMsg.textContent = 'Please complete the security check before sending.';
+					}
+					submitBtn.removeAttribute('disabled');
+					return;
+				}
+
 				// 統一交由 Vercel API 驗證資料、阻擋垃圾訊息並寄送通知信。
 				const formData = {
 					name,
@@ -636,6 +678,7 @@ import bookingData from '../data/booking.json';
 					date: preferredDates.map(({ date }) => date).join(' | '),
 					time: preferredDates.map(({ date, slots }) => `${date} (${slots.join(', ')})`).join(' | '),
 					message,
+					turnstileToken: turnstileToken?.value || '',
 					website: (form.querySelector('[name="website"]') as HTMLInputElement)?.value || ''
 				};
 
@@ -661,6 +704,8 @@ import bookingData from '../data/booking.json';
 					firstRow.querySelectorAll('input[type="checkbox"]').forEach(cb => {
 						(cb as HTMLInputElement).checked = false;
 					});
+					turnstileToken && (turnstileToken.value = '');
+					if (turnstileWidgetId) (window as any).turnstile?.reset(turnstileWidgetId);
 
 					if (statusMsg) {
 						statusMsg.classList.add('hidden');
