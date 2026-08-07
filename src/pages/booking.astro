@@ -114,7 +114,9 @@ import bookingData from '../data/booking.json';
 							<option value="情侶人像" class="bg-zinc-950">Couple / 情侶人像</option>
 							<option value="婚禮記錄" class="bg-zinc-950">Wedding / 婚禮記錄</option>
 							<option value="旅拍隨筆" class="bg-zinc-950">Travel / 旅拍隨筆</option>
+							<option value="登記寫真" class="bg-zinc-950">Registration / 登記寫真</option>
 							<option value="商品攝影" class="bg-zinc-950">Product / 商品攝影</option>
+							<option value="商業攝影" class="bg-zinc-950">Commercial / 商業攝影</option>
 							<option value="活動記錄" class="bg-zinc-950">Event / 活動記錄</option>
 							<option value="客製化方案" class="bg-zinc-950">Customized / 客製化方案</option>
 						</select>
@@ -454,6 +456,11 @@ import bookingData from '../data/booking.json';
 		// 3. 預約表單處理功能
 		const initBookingForm = () => {
 			const form = document.getElementById('booking-form') as HTMLFormElement;
+			const serviceSelect = document.getElementById('form-service') as HTMLSelectElement;
+			const requestedService = new URLSearchParams(window.location.search).get('service');
+			if (requestedService && Array.from(serviceSelect.options).some((option) => option.value === requestedService)) {
+				serviceSelect.value = requestedService;
+			}
 			const submitBtn = document.getElementById('form-submit-btn');
 			const statusMsg = document.getElementById('form-status-msg');
 			const successModal = document.getElementById('success-modal');
