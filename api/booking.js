@@ -36,7 +36,7 @@ export default async function handler(req, res) {
 
   try {
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 8000);
+    const timeout = setTimeout(() => controller.abort(), 12000);
     try {
       const response = await fetch(GOOGLE_SHEETS_URL, {
         method: 'POST',
