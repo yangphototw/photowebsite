@@ -84,13 +84,8 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
 					<label for="website">Website</label>
 					<input id="website" name="website" type="text" tabindex="-1" autocomplete="off" />
 				</div>
-				{turnstileSiteKey && (
-					<div class="flex flex-col gap-2">
-						<div id="turnstile-widget" data-sitekey={turnstileSiteKey}></div>
-						<input id="turnstile-token" type="hidden" />
-						<p class="text-[10px] tracking-wide text-zinc-500">This form is protected by Cloudflare Turnstile.</p>
-					</div>
-				)}
+				{turnstileSiteKey && <div id="turnstile-widget" data-sitekey={turnstileSiteKey}></div>}
+				{turnstileSiteKey && <input id="turnstile-token" type="hidden" />}
 				<!-- 姓名 -->
 				<div class="flex flex-col gap-2">
 					<label class="text-[10px] text-zinc-400 tracking-widest uppercase font-bold" for="form-name">Name / 稱呼 <span class="text-amber-500">*</span></label>
@@ -493,6 +488,9 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
 					if (turnstileWidget.dataset.rendered) return;
 					turnstileWidgetId = turnstile.render(turnstileWidget, {
 						sitekey: turnstileWidget.dataset.sitekey,
+						appearance: 'interaction-only',
+						theme: document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark',
+						action: 'booking',
 						callback: (token: string) => { turnstileToken.value = token; },
 						'expired-callback': () => { turnstileToken.value = ''; },
 						'error-callback': () => { turnstileToken.value = ''; },
