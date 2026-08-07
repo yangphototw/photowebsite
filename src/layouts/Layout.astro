@@ -411,6 +411,26 @@ const navItems = [
 				transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 			}
 
+			/* Clear keyboard navigation and readable category labels on touch devices. */
+			a:focus-visible,
+			button:focus-visible,
+			input:focus-visible,
+			select:focus-visible,
+			textarea:focus-visible {
+				outline: 2px solid #fbbf24;
+				outline-offset: 4px;
+			}
+
+			@media (hover: none) {
+				.tilt-card > .absolute {
+					opacity: 1 !important;
+				}
+				.tilt-card > .absolute > div,
+				.tilt-card > .absolute h3 {
+					transform: translateY(0) !important;
+				}
+			}
+
 			@media (prefers-reduced-motion: reduce) {
 				*, *::before, *::after {
 					animation-duration: 0.01ms !important;
