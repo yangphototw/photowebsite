@@ -34,7 +34,7 @@ const email = emailMatch ? emailMatch[0] : "";
 const profileImg = aboutData.profileSrc || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1000&auto=format&fit=crop";
 ---
 
-<Layout title="About | 關於我">
+<Layout title="About Me / 關於我 | Yang Photography" description="關於 Yang Photography 獨立攝影師 - 專注於自然光影與真實情感紀錄。駐點台灣，提供全台婚禮記錄、人像寫真與商業攝影服務。">
 	<div class="flex flex-col lg:flex-row gap-16 py-12 lg:py-24 animate-fade-in">
 		<!-- 左側：個人照 -->
 		<div class="lg:w-5/12">
@@ -138,6 +138,10 @@ const profileImg = aboutData.profileSrc || "https://images.unsplash.com/photo-15
 			</div>
 			
 			<form id="booking-form" class="space-y-6">
+				<div class="hidden" aria-hidden="true">
+					<label for="website">Website</label>
+					<input id="website" name="website" type="text" tabindex="-1" autocomplete="off" />
+				</div>
 				<!-- 姓名 -->
 				<div class="flex flex-col gap-2">
 					<label class="text-[10px] text-zinc-400 tracking-widest uppercase font-bold" for="form-name">Name / 稱呼 <span class="text-amber-500">*</span></label>
@@ -743,7 +747,8 @@ const profileImg = aboutData.profileSrc || "https://images.unsplash.com/photo-15
 					service: (document.getElementById('form-service') as HTMLSelectElement).value,
 					date: bookingDates.join(' | '),
 					time: bookingTimes.join(' | '),
-					message: (document.getElementById('form-message') as HTMLTextAreaElement).value
+					message: (document.getElementById('form-message') as HTMLTextAreaElement).value,
+					website: (form.querySelector('[name="website"]') as HTMLInputElement)?.value || ''
 				};
 				
 				// 狀態列改為「傳送中...」
@@ -755,51 +760,16 @@ const profileImg = aboutData.profileSrc || "https://images.unsplash.com/photo-15
 				submitBtn.setAttribute('disabled', 'true');
 				
 				// ==========================================
-				// 🛠️ 資料庫串接 DEMO 設定區 🛠️
-				// ==========================================
-				// 預設為 "demo" 模式 (直接模擬傳送成功)。若要使用試算表，請改為 "sheets"；使用 Supabase 請改為 "supabase"
-				const activeDatabase: "demo" | "sheets" | "supabase" = "sheets"; 
-				
-				const GOOGLE_SHEETS_URL = "https://script.google.com/macros/s/AKfycbwr64qsLJgqajMP_xwu5Z17uJmZAp21guLW-I_0dTH_3LKb9IGbIuiZ2X2w4Or7TLM4CA/exec";
-				const SUPABASE_URL = "您的_SUPABASE_PROJECT_URL";
-				const SUPABASE_ANON_KEY = "您的_SUPABASE_PUBLIC_ANON_KEY";
-				
 				try {
-					let success = false;
-					
-					if (activeDatabase === "demo") {
-						// 【模擬 Demo】延遲 1.5 秒模擬寫入資料庫
-						await new Promise(resolve => setTimeout(resolve, 1500));
-						console.log("【Demo 模式】預約資料寫入成功：", formData);
-						success = true;
-						
-					} else if (activeDatabase === "sheets") {
-						// 【方案一：Google 試算表 (GAS)】
-						await fetch(GOOGLE_SHEETS_URL, {
+					const response = await fetch('/api/booking', {
 							method: 'POST',
-							mode: 'no-cors',
 							headers: { 'Content-Type': 'application/json' },
 							body: JSON.stringify(formData)
 						});
-						success = true;
-						
-					} else if (activeDatabase === "supabase") {
-						// 【方案二：Supabase REST API】
-						const response = await fetch(`${SUPABASE_URL}/rest/v1/bookings`, {
-							method: 'POST',
-							headers: {
-								'Content-Type': 'application/json',
-								'apikey': SUPABASE_ANON_KEY,
-								'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-								'Prefer': 'return=minimal'
-							},
-							body: JSON.stringify(formData)
-						});
-						if (response.ok) success = true;
-						else throw new Error("Supabase 寫入失敗");
-					}
-					
-					if (success) {
+					const result = await response.json();
+					if (!response.ok) throw new Error(result.message || '預約傳送失敗');
+
+					{
 						// 表單重設
 						form.reset();
 						

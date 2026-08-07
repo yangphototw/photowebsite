@@ -14,6 +14,12 @@ if sys.platform == "win32":
 ALBUMS_DIR = Path("../Albums")
 TARGET_BASE_DIR = Path("public/images/albums")
 DATA_DIR = Path("src/data")
+FORCE_REPROCESS = os.environ.get("FORCE_REPROCESS") == "1"
+HERO_MAX_EDGE = 2560
+IMAGE_MAX_EDGE = 1600
+THUMB_MAX_EDGE = 800
+IMAGE_QUALITY = 86
+THUMB_QUALITY = 72
 
 def slugify(text):
     # 轉小寫並移除非法字元
@@ -50,7 +56,7 @@ def process_single_folder(folder_path, output_subpath, is_hero=False):
             
             # 增量快取檢查：確認 WebP 檔案是否已存在且新於原始檔案
             skip_process = False
-            if final_output_path.exists():
+            if final_output_path.exists() and not FORCE_REPROCESS:
                 thumb_ok = True if is_hero else (final_thumb_path and final_thumb_path.exists())
                 if thumb_ok:
                     mtime_ok = final_output_path.stat().st_mtime > img_path.stat().st_mtime
@@ -81,7 +87,7 @@ def process_single_folder(folder_path, output_subpath, is_hero=False):
                 
                 # 1. 產生原圖 (High-Res)
                 img_raw = img.copy()
-                max_size = 4096 if is_hero else 2048
+                max_size = HERO_MAX_EDGE if is_hero else IMAGE_MAX_EDGE
                 if max(width, height) > max_size:
                     ratio = max_size / max(width, height)
                     img_raw = img_raw.resize((int(width * ratio), int(height * ratio)), Image.Resampling.LANCZOS)
@@ -92,13 +98,13 @@ def process_single_folder(folder_path, output_subpath, is_hero=False):
                 final_width, final_height = img_raw.size
                 
                 # 原圖品質 100% 儲存 (使用者要求首頁大圖不壓縮，維持 100 品質)
-                img_raw.save(final_output_path, "WEBP", quality=100, method=6)
+                img_raw.save(final_output_path, "WEBP", quality=IMAGE_QUALITY, method=6)
                 img_raw.close()
                 
                 # 2. 產生縮圖 (Thumbnail)
                 if not is_hero and final_thumb_path:
                     img_thumb = img.copy()
-                    thumb_max_size = 1000
+                    thumb_max_size = THUMB_MAX_EDGE
                     if max(width, height) > thumb_max_size:
                         ratio = thumb_max_size / max(width, height)
                         img_thumb = img_thumb.resize((int(width * ratio), int(height * ratio)), Image.Resampling.LANCZOS)
@@ -107,7 +113,7 @@ def process_single_folder(folder_path, output_subpath, is_hero=False):
                         img_thumb = img_thumb.convert("RGB")
                         
                     # 縮圖品質 80% 儲存，大幅縮小檔案大小
-                    img_thumb.save(final_thumb_path, "WEBP", quality=80, method=6)
+                    img_thumb.save(final_thumb_path, "WEBP", quality=THUMB_QUALITY, method=6)
                     img_thumb.close()
 
                 web_path = f"/images/albums/{output_subpath}/{output_filename}"

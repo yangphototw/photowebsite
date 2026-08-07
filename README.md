@@ -1,47 +1,48 @@
-# 📷 Photography Portfolio
+# Yang Photography Portfolio
 
-本專案是一個使用 Astro 框架開發的攝影作品集網站。
+攝影師作品集、服務方案與預約網站。使用 Astro、Tailwind CSS 與 Vercel 部署。
 
-## 🌐 網站連結 (Websites)
+## Local development
 
-* **正式網站 (Live Site)**: [https://yangphoto.vercel.app/](https://yangphoto.vercel.app/)
-* **本地開發網址 (Local Dev)**: [http://localhost:4321](http://localhost:4321) (請先執行 `npm run dev`)
-* **GitHub 儲存庫 (Repository)**: [https://github.com/yangphototw/photowebsite](https://github.com/yangphototw/photowebsite)
-
----
-
-## 🚀 Project Structure
-
-Inside of your Astro project, you'll see the following folders and files:
-
-```text
-/
-├── public/
-├── src/
-│   └── pages/
-│       └── index.astro
-└── package.json
+```bash
+npm install
+npm run dev
+npm run build
 ```
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
+Portfolio pages are generated as static HTML and cached by Vercel. `api/booking.js` is a Vercel serverless function for booking requests.
 
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
+## Booking email setup
 
-Any static assets, like images, can be placed in the `public/` directory.
+Copy `.env.example` to `.env` for local testing. In Vercel, add the same variables under **Project Settings → Environment Variables**:
 
-## 🧞 Commands
+```text
+RESEND_API_KEY
+BOOKING_FROM_EMAIL
+BOOKING_RECIPIENT_EMAIL
+```
 
-All commands are run from the root of the project, from a terminal:
+The sender address must be verified in Resend. Never commit `.env` files or API keys.
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
+## Photo publishing workflow
 
-## 👀 Want to learn more?
+1. Place source images in `../Albums`.
+2. Run `python photo_process.py` from this directory.
+3. Review the generated `public/images/albums` assets and `src/data/*.json`.
+4. Build and deploy.
 
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+`photo_process.py` creates WebP output sized for the website:
+
+- Hero images: up to 2560px
+- Portfolio images: up to 1600px
+- Thumbnails: up to 800px
+
+To deliberately regenerate every image after changing processing settings, run:
+
+```powershell
+$env:FORCE_REPROCESS='1'; python photo_process.py
+```
+
+## SEO
+
+`@astrojs/sitemap` generates the sitemap at build time and `public/robots.txt` advertises it to search engines.

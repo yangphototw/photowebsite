@@ -3,6 +3,8 @@ import Layout from '../../../layouts/Layout.astro';
 import fs from 'node:fs';
 import path from 'node:path';
 
+export const prerender = true;
+
 // 讀取相簿資料
 const albumsPath = path.resolve('src/data/albums.json');
 const allAlbums = JSON.parse(fs.readFileSync(albumsPath, 'utf-8'));

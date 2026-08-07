@@ -381,6 +381,44 @@ const navItems = [
 				border-color: rgba(228, 228, 231, 0.8) !important; /* border-zinc-200 */
 				color: #71717a !important; /* text-zinc-500 */
 			}
+
+			/* Uiverse.io 靈感：高奢極簡流光按鈕與脈衝質感 */
+			.uiverse-glow-btn {
+				position: relative;
+				transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+			}
+			.uiverse-glow-btn::after {
+				content: '';
+				position: absolute;
+				inset: -2px;
+				border-radius: 9999px;
+				background: linear-gradient(135deg, rgba(245, 158, 11, 0.6), transparent 50%, rgba(245, 158, 11, 0.4));
+				opacity: 0;
+				z-index: -1;
+				transition: opacity 0.5s ease, filter 0.5s ease;
+				filter: blur(8px);
+			}
+			.uiverse-glow-btn:hover::after {
+				opacity: 1;
+				filter: blur(14px);
+			}
+
+			/* 高奢精品靈感：3D Tilt 純幾何視差 (零色彩污染，100% 保留攝影作品真實膚色與白平衡) */
+			.tilt-card {
+				transform-style: preserve-3d;
+				perspective: 1000px;
+				will-change: transform;
+				transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+			}
+
+			@media (prefers-reduced-motion: reduce) {
+				*, *::before, *::after {
+					animation-duration: 0.01ms !important;
+					animation-iteration-count: 1 !important;
+					scroll-behavior: auto !important;
+					transition-duration: 0.01ms !important;
+				}
+			}
 		</style>
 	</head>
 	<body class="bg-black text-[#9CA3AF] font-sans font-[200] min-h-screen flex flex-col selection:bg-zinc-800 selection:text-white antialiased relative">
@@ -596,8 +634,39 @@ const navItems = [
 					themeToggleMobile.dataset.bound = 'true';
 					themeToggleMobile.addEventListener('click', toggleTheme);
 				}
+
+				// 3D Tilt 視差微互動與動態反光
+				init3DTilt();
 			};
 			document.addEventListener('astro:page-load', init);
+
+			const init3DTilt = () => {
+				if (window.matchMedia('(pointer: coarse)').matches) return;
+
+				const cards = document.querySelectorAll('.tilt-card');
+				cards.forEach(card => {
+					const el = card as HTMLElement;
+					if (el.dataset.tiltBound) return;
+					el.dataset.tiltBound = 'true';
+
+					el.addEventListener('mousemove', (e: MouseEvent) => {
+						const rect = el.getBoundingClientRect();
+						const x = e.clientX - rect.left;
+						const y = e.clientY - rect.top;
+						const centerX = rect.width / 2;
+						const centerY = rect.height / 2;
+
+						const rotateX = ((y - centerY) / centerY) * -6;
+						const rotateY = ((x - centerX) / centerX) * 6;
+
+						el.style.transform = `perspective(1000px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg) scale3d(1.02, 1.02, 1.02)`;
+					});
+
+					el.addEventListener('mouseleave', () => {
+						el.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)';
+					});
+				});
+			};
 
 			// 2. Astro SPA 換頁後的主題重新同步與按鈕狀態更新
 			document.addEventListener('astro:after-swap', () => {

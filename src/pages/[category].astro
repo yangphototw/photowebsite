@@ -2,6 +2,9 @@
 import Layout from '../layouts/Layout.astro';
 import allAlbums from '../data/albums.json';
 
+// 保持作品頁為 CDN 可快取的靜態 HTML；只有預約 API 需要 serverless 執行。
+export const prerender = true;
+
 // 動態路由設定，讓 Astro 在建置時自動為每個類別生成對應網頁
 export async function getStaticPaths() {
 	// 定義預設的六大類別，確保即使無相片也一定會生成路由頁面
@@ -69,9 +72,14 @@ const categoryChNames: Record<string, string> = {
 	event: '活動紀錄'
 };
 const chName = categoryChNames[category || ''] || categoryName;
+const coverImage = (targetAlbums.length > 0 && targetAlbums[0].cover) 
+    ? (targetAlbums[0].cover.startsWith('http') ? targetAlbums[0].cover : `https://yangphoto.vercel.app${targetAlbums[0].cover}`)
+    : "https://yangphoto.vercel.app/images/albums/00_Home/Carousel/DSC06557.webp";
+
+const categoryDescription = `Yang Photography ${categoryName} (${chName}) 攝影作品集。以極簡美學與自然光影，紀錄真實而純粹的質感瞬間。`;
 ---
 
-<Layout title={`${categoryName} | YANG PHOTOGRAPHY`}>
+<Layout title={`${categoryName} / ${chName} 作品集 | Yang Photography`} description={categoryDescription} image={coverImage}>
 	<!-- 極簡標題標識 -->
 	<section class="py-8 md:py-12 animate-fade-in text-center flex flex-col items-center">
 		<div class="flex items-center gap-3 text-zinc-500 font-light tracking-[0.4em] text-[10px] uppercase">
@@ -94,12 +102,11 @@ const chName = categoryChNames[category || ''] || categoryName;
                             data-raw={img.src}
                             width={img.width}
                             height={img.height}
-                            style={`aspect-ratio: ${img.width} / ${img.height}`}
+                            style={`aspect-ratio: ${img.width} / ${img.height}; will-change: transform, opacity;`}
                             alt={`${categoryName} Work`}
                             loading="lazy"
                             decoding="async"
                             class="w-full h-auto object-cover opacity-70 group-hover:opacity-100 group-hover:scale-[1.02] transition-[transform,opacity] duration-700 ease-out lightbox-trigger"
-                            style="will-change: transform, opacity;"
                         />
                     </div>
                 ))}
@@ -117,6 +124,8 @@ const chName = categoryChNames[category || ''] || categoryName;
                                 <img 
                                 	src={getThumbSrc(album.cover)} 
                                 	alt={album.project} 
+									loading="lazy"
+									decoding="async"
                                 	class="w-full h-full object-cover opacity-70 group-hover:opacity-100 group-hover:scale-[1.02] transition-all duration-700 ease-out" 
                                 />
                                 <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 flex flex-col justify-end p-8">
@@ -150,12 +159,11 @@ const chName = categoryChNames[category || ''] || categoryName;
                                     data-raw={img.src}
                                     width={img.width}
                                     height={img.height}
-                                    style={`aspect-ratio: ${img.width} / ${img.height}`}
+                            style={`aspect-ratio: ${img.width} / ${img.height}; will-change: transform, opacity;`}
                                     alt={`${categoryName} Work`}
                                     loading="lazy"
                                     decoding="async"
                                     class="w-full h-auto object-cover opacity-70 group-hover:opacity-100 group-hover:scale-[1.02] transition-[transform,opacity] duration-700 ease-out lightbox-trigger"
-                                    style="will-change: transform, opacity;"
                                 />
                             </div>
                         ))}
@@ -166,8 +174,11 @@ const chName = categoryChNames[category || ''] || categoryName;
             <!-- Fallback: 完全無作品 -->
             {projectAlbums.length === 0 && directImages.length === 0 && (
                 <section class="py-24 text-center animate-fade-in">
-                    <p class="text-zinc-600 tracking-widest text-xs uppercase">Capturing the pulse of life.</p>
-                    <p class="text-zinc-800 mt-4 italic text-sm">No stories yet / 暫無作品</p>
+                    <p class="text-zinc-500 tracking-widest text-xs uppercase">New work is being prepared.</p>
+                    <p class="text-zinc-600 mt-4 text-sm">最新作品整理中；歡迎直接洽詢拍攝需求。</p>
+                    <a href="/booking" class="inline-flex mt-8 px-6 py-3 rounded-full border border-amber-500/30 text-[10px] tracking-[0.2em] text-amber-300 hover:bg-amber-500/10 transition-colors">
+                        BOOK A SESSION / 預約諮詢
+                    </a>
                 </section>
             )}
         </div>

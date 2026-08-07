@@ -3,7 +3,7 @@ import Layout from '../layouts/Layout.astro';
 import bookingData from '../data/booking.json';
 ---
 
-<Layout title="Booking / 預約狀況與表單">
+<Layout title="Booking & Availability / 行事曆預約狀況與表單 | Yang Photography" description="線上查詢 Yang Photography 當月拍攝檔期與行程。平日與週末提供彈性預約，可直接線上送出拍攝諮詢表單。">
 	<!-- 獨立預約頁頂部 Hero 區塊 -->
 	<section class="pt-8 pb-12 text-center animate-fade-in">
 		<h1 class="brand-font text-white text-3xl md:text-5xl tracking-[0.25em] uppercase font-light mb-4">
@@ -78,6 +78,10 @@ import bookingData from '../data/booking.json';
 			</div>
 			
 			<form id="booking-form" class="space-y-6">
+				<div class="hidden" aria-hidden="true">
+					<label for="website">Website</label>
+					<input id="website" name="website" type="text" tabindex="-1" autocomplete="off" />
+				</div>
 				<!-- 姓名 -->
 				<div class="flex flex-col gap-2">
 					<label class="text-[10px] text-zinc-400 tracking-widest uppercase font-bold" for="form-name">Name / 稱呼 <span class="text-amber-500">*</span></label>
@@ -616,20 +620,26 @@ import bookingData from '../data/booking.json';
 					return;
 				}
 
-				// 轉交至 API 路由進行 LINE / Email 串接
+				// 統一交由 Vercel API 驗證資料、阻擋垃圾訊息並寄送通知信。
+				const formData = {
+					name,
+					contact: [line && `LINE: ${line}`, ig && `IG: ${ig}`, phone && `Phone: ${phone}`].filter(Boolean).join(' | '),
+					email,
+					service,
+					date: preferredDates.map(({ date }) => date).join(' | '),
+					time: preferredDates.map(({ date, slots }) => `${date} (${slots.join(', ')})`).join(' | '),
+					message,
+					website: (form.querySelector('[name="website"]') as HTMLInputElement)?.value || ''
+				};
+
 				try {
 					const response = await fetch('/api/booking', {
 						method: 'POST',
 						headers: { 'Content-Type': 'application/json' },
-						body: JSON.stringify({
-							name, line, ig, phone, email, service, message, preferredDates
-						})
+						body: JSON.stringify(formData)
 					});
-
 					const result = await response.json();
-					if (!response.ok) {
-						throw new Error(result.message || '預約儲存失敗');
-					}
+					if (!response.ok) throw new Error(result.message || '預約傳送失敗');
 
 					// 提交成功，清空表單
 					form.reset();
