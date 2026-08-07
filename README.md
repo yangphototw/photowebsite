@@ -12,17 +12,9 @@ npm run build
 
 Portfolio pages are generated as static HTML and cached by Vercel. `api/booking.js` is a Vercel serverless function for booking requests.
 
-## Booking email setup
+## Booking storage
 
-Copy `.env.example` to `.env` for local testing. In Vercel, add the same variables under **Project Settings → Environment Variables**:
-
-```text
-RESEND_API_KEY
-BOOKING_FROM_EMAIL
-BOOKING_RECIPIENT_EMAIL
-```
-
-The sender address must be verified in Resend. Never commit `.env` files or API keys.
+Booking requests are validated by `api/booking.js` and then written to the existing Google Apps Script / Google Sheet workflow. No email-service key is required.
 
 ## Photo publishing workflow
 

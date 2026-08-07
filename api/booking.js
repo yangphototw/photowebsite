@@ -1,8 +1,6 @@
-const asText = (value, limit) => typeof value === 'string' ? value.trim().slice(0, limit) : '';
+const GOOGLE_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbwr64qsLJgqajMP_xwu5Z17uJmZAp21guLW-I_0dTH_3LKb9IGbIuiZ2X2w4Or7TLM4CA/exec';
 
-const escapeHtml = (value) => value.replace(/[&<>'"]/g, (char) => ({
-  '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
-}[char] || char));
+const asText = (value, limit) => typeof value === 'string' ? value.trim().slice(0, limit) : '';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -36,30 +34,18 @@ export default async function handler(req, res) {
     return res.status(400).json({ message: 'Please provide a valid email address.' });
   }
 
-  const { RESEND_API_KEY: apiKey, BOOKING_FROM_EMAIL: from, BOOKING_RECIPIENT_EMAIL: recipient } = process.env;
-  if (!apiKey || !from || !recipient) {
-    return res.status(503).json({ message: 'Booking service is not configured yet.' });
+  try {
+    const response = await fetch(GOOGLE_SHEETS_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(booking),
+      redirect: 'follow',
+    });
+    if (!response.ok) throw new Error(`Google Apps Script responded ${response.status}`);
+  } catch (error) {
+    console.error('Google Sheets booking write failed:', error);
+    return res.status(502).json({ message: 'Unable to save your enquiry right now.' });
   }
 
-  const details = [
-    ['Name', booking.name], ['Contact', booking.contact], ['Email', booking.email || '—'],
-    ['Service', booking.service], ['Preferred date', booking.date],
-    ['Preferred time', booking.time], ['Message', booking.message || '—'],
-  ].map(([label, value]) => `<tr><th align="left" style="padding:8px;border:1px solid #ddd">${label}</th><td style="padding:8px;border:1px solid #ddd">${escapeHtml(value)}</td></tr>`).join('');
-
-  const response = await fetch('https://api.resend.com/emails', {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      from, to: [recipient], reply_to: booking.email || undefined,
-      subject: `[Yang Photography] ${booking.service} — ${booking.name}`,
-      html: `<h2>New booking enquiry</h2><table style="border-collapse:collapse">${details}</table>`,
-    }),
-  });
-
-  if (!response.ok) {
-    console.error('Resend booking email failed:', response.status);
-    return res.status(502).json({ message: 'Unable to send your enquiry right now.' });
-  }
   return res.status(200).json({ ok: true });
 }
