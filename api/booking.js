@@ -35,15 +35,22 @@ export default async function handler(req, res) {
   }
 
   try {
-    const response = await fetch(GOOGLE_SHEETS_URL, {
-      method: 'POST',
-      // Apps Script reliably decodes its request body as UTF-8 plain text.
-      // This also mirrors the original browser no-cors submission format.
-      headers: { 'Content-Type': 'text/plain; charset=utf-8' },
-      body: JSON.stringify(booking),
-      redirect: 'follow',
-    });
-    if (!response.ok) throw new Error(`Google Apps Script responded ${response.status}`);
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 8000);
+    try {
+      const response = await fetch(GOOGLE_SHEETS_URL, {
+        method: 'POST',
+        // Apps Script reliably decodes its request body as UTF-8 plain text.
+        // This also mirrors the original browser no-cors submission format.
+        headers: { 'Content-Type': 'text/plain; charset=utf-8' },
+        body: JSON.stringify(booking),
+        redirect: 'follow',
+        signal: controller.signal,
+      });
+      if (!response.ok) throw new Error(`Google Apps Script responded ${response.status}`);
+    } finally {
+      clearTimeout(timeout);
+    }
   } catch (error) {
     console.error('Google Sheets booking write failed:', error);
     return res.status(502).json({ message: 'Unable to save your enquiry right now.' });

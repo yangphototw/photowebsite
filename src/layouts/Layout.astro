@@ -17,9 +17,43 @@ const {
 	minimal = false 
 } = Astro.props;
 
-const pathname = new URL(Astro.url).pathname;
+const pathname = new URL(Astro.url).pathname.replace(/\/$/, '') || '/';
 const siteUrl = Astro.site ? Astro.site.origin : 'https://yangphoto.vercel.app';
 const canonicalURL = new URL(pathname, siteUrl).href;
+const pageMetadata: Record<string, { title: string; description: string }> = {
+	'/': {
+		title: 'Yang Photography | Taiwan Wedding, Portrait & Commercial Photographer',
+		description: 'Yang Photography captures natural light, honest moments, weddings, portraits, events and commercial stories across Taiwan.',
+	},
+	'/wedding': { title: '婚禮紀錄｜Yang Photography', description: '以自然、細膩的視角記錄婚禮儀式、宴會與每一個重要瞬間。' },
+	'/registration': { title: '登記寫真｜Yang Photography', description: '記錄結婚登記這天的儀式感、合影與最親近的人。' },
+	'/portrait': { title: '個人與情侶寫真｜Yang Photography', description: '自然不過度擺拍的人像與情侶寫真，留下舒服而真實的片刻。' },
+	'/travel': { title: '旅拍隨筆｜Yang Photography', description: '用自然光與真實互動記錄旅行中的人與風景。' },
+	'/product': { title: '商品與商業攝影｜Yang Photography', description: '為商品、品牌與專案打造清楚、有質感且可被使用的視覺素材。' },
+	'/event': { title: '活動紀錄｜Yang Photography', description: '記錄活動現場、品牌聚會與講座的真實節奏與氛圍。' },
+	'/service': { title: '攝影服務與方案｜Yang Photography', description: '瀏覽婚禮、人像、情侶、登記、活動與商業攝影方案，開始預約詢問。' },
+	'/booking': { title: '預約攝影服務｜Yang Photography', description: '選擇拍攝方案與方便時段，送出 Yang Photography 的預約詢問。' },
+	'/about': { title: '關於 Yang｜Yang Photography', description: '認識以自然光與真實互動記錄故事的攝影師 Yang。' },
+	'/links': { title: 'Yang Photography | Links', description: 'Yang Photography 的作品、服務方案、預約與 Instagram 連結。' },
+};
+Object.assign(pageMetadata, {
+	'/wedding': { title: 'Taiwan Wedding Photography | Yang Photography', description: 'Natural, thoughtful wedding photography for ceremonies, receptions and the moments in between.' },
+	'/registration': { title: 'Registration Photography | Yang Photography', description: 'Thoughtful photography for your registration day, family portraits and intimate celebrations.' },
+	'/portrait': { title: 'Portrait & Couple Photography | Yang Photography', description: 'Natural portrait and couple photography that feels relaxed, personal and true to you.' },
+	'/travel': { title: 'Travel Photography | Yang Photography', description: 'Natural-light travel photography that preserves people, places and unplanned moments.' },
+	'/product': { title: 'Product & Commercial Photography | Yang Photography', description: 'Clear, refined visual assets for products, brands and commercial projects.' },
+	'/event': { title: 'Event Photography | Yang Photography', description: 'Documentary event photography for brand gatherings, talks and live experiences.' },
+	'/service': { title: 'Photography Services | Yang Photography', description: 'Explore wedding, portrait, couple, registration, event and commercial photography services.' },
+	'/booking': { title: 'Book a Photography Session | Yang Photography', description: 'Choose a photography service and preferred times to begin your booking enquiry.' },
+	'/about': { title: 'About Yang | Yang Photography', description: 'Meet Yang, a photographer who documents stories through natural light and genuine interaction.' },
+	'/links': { title: 'Yang Photography | Links', description: 'Find Yang Photography portfolio, services, booking and Instagram links.' },
+});
+const portfolioMetadata = pathname.startsWith('/portfolio/')
+	? { title: 'Photography Portfolio | Yang Photography', description: 'Explore Yang Photography wedding, portrait, event and commercial photography portfolio.' }
+	: undefined;
+const resolvedMetadata = pageMetadata[pathname] || portfolioMetadata;
+const seoTitle = resolvedMetadata?.title || title;
+const seoDescription = resolvedMetadata?.description || description;
 
 // 導覽定義
 const navItems = [
@@ -43,23 +77,23 @@ const navItems = [
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		
 		<!-- SEO 核心標籤 -->
-		<title>{title}</title>
-		<meta name="description" content={description} />
+		<title>{seoTitle}</title>
+		<meta name="description" content={seoDescription} />
 		<link rel="canonical" href={canonicalURL} />
 
 		<!-- Open Graph / 社群分享標籤 (LINE, FB, IG) -->
 		<meta property="og:type" content="website" />
 		<meta property="og:url" content={canonicalURL} />
-		<meta property="og:title" content={title} />
-		<meta property="og:description" content={description} />
+		<meta property="og:title" content={seoTitle} />
+		<meta property="og:description" content={seoDescription} />
 		<meta property="og:image" content={image} />
 		<meta property="og:site_name" content="Yang Photography" />
 
 		<!-- Twitter Card -->
 		<meta name="twitter:card" content="summary_large_image" />
 		<meta name="twitter:url" content={canonicalURL} />
-		<meta name="twitter:title" content={title} />
-		<meta name="twitter:description" content={description} />
+		<meta name="twitter:title" content={seoTitle} />
+		<meta name="twitter:description" content={seoDescription} />
 		<meta name="twitter:image" content={image} />
 
 		<!-- Schema.org JSON-LD 結構化資料 -->
@@ -69,7 +103,7 @@ const navItems = [
 			"name": "Yang Photography",
 			"url": siteUrl,
 			"image": image,
-			"description": description,
+			"description": seoDescription,
 			"address": {
 				"@type": "PostalAddress",
 				"addressCountry": "TW"
