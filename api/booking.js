@@ -37,7 +37,9 @@ export default async function handler(req, res) {
   try {
     const response = await fetch(GOOGLE_SHEETS_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      // Apps Script reliably decodes its request body as UTF-8 plain text.
+      // This also mirrors the original browser no-cors submission format.
+      headers: { 'Content-Type': 'text/plain; charset=utf-8' },
       body: JSON.stringify(booking),
       redirect: 'follow',
     });
