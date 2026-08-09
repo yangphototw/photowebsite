@@ -19,13 +19,15 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
 	<!-- 預約月曆區塊 -->
 	<div id="booking-section" class="pb-16 animate-fade-in">
 		<h2 class="text-[10px] text-zinc-500 tracking-[0.4em] uppercase mb-12 text-center">— Booking / 預約狀況 —</h2>
+		<p class="md:hidden -mt-8 mb-3 text-center text-[9px] tracking-widest text-zinc-500">← 左右滑動查看完整月曆 →</p>
 		
-		<div class="booking-calendar-wrapper max-w-4xl mx-auto rounded-2xl border border-zinc-800 bg-zinc-900/40 backdrop-blur-md p-6 md:p-8 shadow-[0_0_50px_rgba(0,0,0,0.6)]">
+		<div class="booking-calendar-scroll -mx-2 overflow-x-auto px-2 pb-3">
+		<div class="booking-calendar-wrapper min-w-[640px] max-w-4xl mx-auto rounded-2xl border border-zinc-800 bg-zinc-900/40 backdrop-blur-md p-6 md:p-8 shadow-[0_0_50px_rgba(0,0,0,0.6)]">
 			<!-- 月曆頂部導覽 -->
 			<div class="flex items-center justify-between mb-8 px-2">
-				<button id="prev-month" class="text-zinc-500 hover:text-white text-[10px] tracking-widest uppercase transition-colors duration-300 cursor-pointer">← Prev / 上月</button>
+				<button id="prev-month" aria-label="Previous month" class="min-h-11 shrink-0 px-2 flex items-center text-zinc-500 hover:text-white text-[10px] tracking-widest uppercase transition-colors duration-300 cursor-pointer">← Prev / 上月</button>
 				<h3 id="calendar-title" class="brand-font text-white text-sm md:text-base tracking-[0.2em] uppercase font-light">July 2026</h3>
-				<button id="next-month" class="text-zinc-500 hover:text-white text-[10px] tracking-widest uppercase transition-colors duration-300 cursor-pointer">Next / 下月 →</button>
+				<button id="next-month" aria-label="Next month" class="min-h-11 shrink-0 px-2 flex items-center text-zinc-500 hover:text-white text-[10px] tracking-widest uppercase transition-colors duration-300 cursor-pointer">Next / 下月 →</button>
 			</div>
 			
 			<!-- 外縣市行程公告欄 (方案 B：自動整併連續日期地點) -->
@@ -67,6 +69,7 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
 				</p>
 			</div>
 		</div>
+		</div>
 	</div>
 
 	<!-- 預約表單區塊 -->
@@ -96,9 +99,9 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
 				<div class="flex flex-col gap-2">
 					<label class="text-[10px] text-zinc-400 tracking-widest uppercase font-bold">Contact / 聯絡管道 (LINE / IG / 手機請至少填寫一項) <span class="text-amber-500">*</span></label>
 					<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-						<input type="text" id="form-line" placeholder="LINE ID (選填)" class="bg-zinc-950/60 border border-zinc-800 rounded-lg px-4 py-3 text-xs text-white focus:outline-none focus:border-amber-500/50 transition-colors duration-300 placeholder:text-zinc-700" />
-						<input type="text" id="form-ig" placeholder="Instagram 帳號 (選填)" class="bg-zinc-950/60 border border-zinc-800 rounded-lg px-4 py-3 text-xs text-white focus:outline-none focus:border-amber-500/50 transition-colors duration-300 placeholder:text-zinc-700" />
-						<input type="text" id="form-phone" placeholder="手機號碼 (選填)" class="bg-zinc-950/60 border border-zinc-800 rounded-lg px-4 py-3 text-xs text-white focus:outline-none focus:border-amber-500/50 transition-colors duration-300 placeholder:text-zinc-700" />
+						<input type="text" id="form-line" aria-label="LINE ID" placeholder="LINE ID (選填)" class="bg-zinc-950/60 border border-zinc-800 rounded-lg px-4 py-3 text-xs text-white focus:outline-none focus:border-amber-500/50 transition-colors duration-300 placeholder:text-zinc-700" />
+						<input type="text" id="form-ig" aria-label="Instagram account" placeholder="Instagram 帳號 (選填)" class="bg-zinc-950/60 border border-zinc-800 rounded-lg px-4 py-3 text-xs text-white focus:outline-none focus:border-amber-500/50 transition-colors duration-300 placeholder:text-zinc-700" />
+						<input type="text" id="form-phone" aria-label="Phone number" placeholder="手機號碼 (選填)" class="bg-zinc-950/60 border border-zinc-800 rounded-lg px-4 py-3 text-xs text-white focus:outline-none focus:border-amber-500/50 transition-colors duration-300 placeholder:text-zinc-700" />
 					</div>
 				</div>
 				
@@ -129,10 +132,10 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
 				
 				<!-- 拍攝日期 (動態追加) -->
 				<div class="flex flex-col gap-3">
-					<label class="text-[10px] text-zinc-400 tracking-widest uppercase font-bold flex items-center justify-between">
+					<div class="text-[10px] text-zinc-400 tracking-widest uppercase font-bold flex items-center justify-between">
 						<span>Preferred Dates / 理想拍攝日期 (可填寫多個候選時段) <span class="text-amber-500">*</span></span>
 						<button type="button" id="add-date-row-btn" class="px-3 py-1 bg-amber-500/10 border border-amber-500/30 text-amber-300 hover:bg-amber-500/20 text-[9px] uppercase tracking-wider transition-colors duration-300 rounded cursor-pointer">+ Add Date</button>
-					</label>
+					</div>
 					
 					<div id="booking-dates-container" class="space-y-3">
 						<!-- 首個日期選擇列 -->
@@ -140,7 +143,7 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
 							<!-- 點選日期 -->
 							<div class="flex flex-col gap-2">
 								<span class="text-[8px] text-zinc-600 tracking-widest uppercase font-bold">Select Date / 選擇日期</span>
-								<input type="date" required class="date-picker-input bg-white border border-zinc-200 rounded px-3 py-2 text-xs text-zinc-900 focus:outline-none focus:border-amber-500/60 focus:ring-2 focus:ring-amber-500/10 transition-colors cursor-pointer w-full" />
+								<input type="date" required aria-label="Preferred date" class="date-picker-input bg-white border border-zinc-200 rounded px-3 py-2 text-xs text-zinc-900 focus:outline-none focus:border-amber-500/60 focus:ring-2 focus:ring-amber-500/10 transition-colors cursor-pointer w-full" />
 							</div>
 							<!-- 時段多選 -->
 							<div class="flex flex-col gap-2">
@@ -535,7 +538,7 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
 					<!-- 點選日期 -->
 					<div class="flex flex-col gap-2">
 						<span class="text-[8px] text-zinc-600 tracking-widest uppercase font-bold">Select Date / 選擇日期</span>
-						<input type="date" required class="date-picker-input bg-white border border-zinc-200 rounded px-3 py-2 text-xs text-zinc-900 focus:outline-none focus:border-amber-500/60 focus:ring-2 focus:ring-amber-500/10 transition-colors cursor-pointer w-full" />
+						<input type="date" required aria-label="Preferred date" class="date-picker-input bg-white border border-zinc-200 rounded px-3 py-2 text-xs text-zinc-900 focus:outline-none focus:border-amber-500/60 focus:ring-2 focus:ring-amber-500/10 transition-colors cursor-pointer w-full" />
 					</div>
 					<!-- 時段多選 -->
 					<div class="flex flex-col gap-2">
