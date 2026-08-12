@@ -120,7 +120,6 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
 							<option value="個人人像" class="bg-zinc-950">Portrait / 個人人像</option>
 							<option value="情侶人像" class="bg-zinc-950">Couple / 情侶人像</option>
 							<option value="婚禮記錄" class="bg-zinc-950">Wedding / 婚禮記錄</option>
-							<option value="旅拍隨筆" class="bg-zinc-950">Travel / 旅拍隨筆</option>
 							<option value="登記寫真" class="bg-zinc-950">Registration / 登記寫真</option>
 							<option value="商品攝影" class="bg-zinc-950">Product / 商品攝影</option>
 							<option value="商業攝影" class="bg-zinc-950">Commercial / 商業攝影</option>
@@ -243,9 +242,11 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
 
 			const bookingData = JSON.parse(calendarDays.dataset.booking || '{}');
 			
-			let currentDate = new Date();
-			let currentYear = currentDate.getFullYear();
-			let currentMonth = currentDate.getMonth();
+			const today = new Date();
+			today.setHours(0, 0, 0, 0);
+			const todayInputValue = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+			let currentYear = today.getFullYear();
+			let currentMonth = today.getMonth();
 
 			// 方案 B：動態計算並整併當月外縣市連續行程公告
 			const updateAnnouncements = () => {
@@ -259,7 +260,11 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
 
 				const totalDays = new Date(currentYear, currentMonth + 1, 0).getDate();
 
-				for (let day = 1; day <= totalDays; day++) {
+				const firstVisibleDay = currentYear === today.getFullYear() && currentMonth === today.getMonth()
+					? today.getDate()
+					: 1;
+
+				for (let day = firstVisibleDay; day <= totalDays; day++) {
 					const formattedMonth = String(currentMonth + 1).padStart(2, '0');
 					const formattedDay = String(day).padStart(2, '0');
 					const dateStr = `${currentYear}-${formattedMonth}-${formattedDay}`;
@@ -337,6 +342,14 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
 				}
 			};
 
+			const updateMonthNavigation = () => {
+				const isCurrentMonth = currentYear === today.getFullYear() && currentMonth === today.getMonth();
+				prevBtn?.toggleAttribute('disabled', isCurrentMonth);
+				prevBtn?.setAttribute('aria-disabled', String(isCurrentMonth));
+				prevBtn?.classList.toggle('opacity-30', isCurrentMonth);
+				prevBtn?.classList.toggle('cursor-not-allowed', isCurrentMonth);
+			};
+
 			const render = () => {
 				calendarDays.innerHTML = '';
 				
@@ -359,12 +372,15 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
 				// 渲染日期格子
 				for (let day = 1; day <= totalDays; day++) {
 					const cell = document.createElement('div');
+					const dateObj = new Date(currentYear, currentMonth, day);
+					const isPast = dateObj < today;
 					
 					// 比對當天日期，判定是否為「今天」
-					const today = new Date();
 					const isToday = day === today.getDate() && currentMonth === today.getMonth() && currentYear === today.getFullYear();
 					
-					if (isToday) {
+					if (isPast) {
+						cell.className = 'min-h-[90px] md:min-h-[120px] bg-zinc-950/30 border border-zinc-900/50 rounded-xl flex flex-col p-1.5 md:p-3 opacity-40';
+					} else if (isToday) {
 						// 今天高亮：金色底色、2px 金色邊框
 						cell.className = 'min-h-[90px] md:min-h-[120px] bg-amber-500/10 border-2 border-amber-500/80 rounded-xl flex flex-col p-1.5 md:p-3 hover:border-amber-400 transition-colors duration-300 relative group';
 					} else {
@@ -373,20 +389,30 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
 					}
 					
 					const dayNum = document.createElement('span');
-					if (isToday) {
+					if (isPast) {
+						dayNum.className = 'block text-center md:text-left text-[11px] md:text-[12px] text-zinc-600 font-medium line-through';
+					} else if (isToday) {
 						dayNum.className = 'block text-center md:text-left text-[11px] md:text-[12px] text-amber-300 font-bold';
 					} else {
 						dayNum.className = 'block text-center md:text-left text-[11px] md:text-[12px] text-zinc-300 font-medium';
 					}
 					dayNum.textContent = day;
 					cell.appendChild(dayNum);
+					if (isPast) {
+						const pastLabel = document.createElement('span');
+						pastLabel.className = 'mt-2 text-center text-[7px] md:text-[10px] text-zinc-600 tracking-wide';
+						pastLabel.textContent = '已過期';
+						cell.title = '日期已過期';
+						cell.appendChild(pastLabel);
+						calendarDays.appendChild(cell);
+						continue;
+					}
 
 					const formattedMonth = String(currentMonth + 1).padStart(2, '0');
 					const formattedDay = String(day).padStart(2, '0');
 					const dateStr = `${currentYear}-${formattedMonth}-${formattedDay}`;
 					
 					// 判定是否為週末 (週日 0, 週六 6)
-					const dateObj = new Date(currentYear, currentMonth, day);
 					const dayOfWeek = dateObj.getDay();
 					const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
 					
@@ -461,9 +487,11 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
 
 				// 方案 B：更新外縣市公告欄
 				updateAnnouncements();
+				updateMonthNavigation();
 			};
 
 			prevBtn?.addEventListener('click', () => {
+				if (currentYear === today.getFullYear() && currentMonth === today.getMonth()) return;
 				currentMonth--;
 				if (currentMonth < 0) {
 					currentMonth = 11;
@@ -498,6 +526,9 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
 			const closeSuccessBtn = document.getElementById('close-success-btn');
 			const container = document.getElementById('booking-dates-container');
 			const addBtn = document.getElementById('add-date-row-btn');
+			const minBookingDate = new Date();
+			minBookingDate.setHours(0, 0, 0, 0);
+			const minBookingDateValue = `${minBookingDate.getFullYear()}-${String(minBookingDate.getMonth() + 1).padStart(2, '0')}-${String(minBookingDate.getDate()).padStart(2, '0')}`;
 			const turnstileWidget = document.getElementById('turnstile-widget') as HTMLElement | null;
 			const turnstileToken = document.getElementById('turnstile-token') as HTMLInputElement | null;
 			let turnstileWidgetId: string | undefined;
@@ -533,6 +564,7 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
 			const bindDatePickerEvents = (row: HTMLElement) => {
 				const picker = row.querySelector('.date-picker-input') as HTMLInputElement;
 				if (!picker) return;
+				picker.min = minBookingDateValue;
 
 				const triggerPicker = () => {
 					if (typeof picker.showPicker === 'function') {

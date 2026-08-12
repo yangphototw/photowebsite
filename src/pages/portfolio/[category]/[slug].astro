@@ -31,9 +31,15 @@ const getThumbSrc = (src: string) => {
 	parts.splice(parts.length - 1, 0, 'thumbs');
 	return parts.join('/');
 };
+
+const coverImage = album.cover.startsWith('http')
+	? album.cover
+	: `https://yangphoto.vercel.app${album.cover}`;
+const projectTitle = `${album.project} ${album.category} Photography | Yang Photography`;
+const projectDescription = `Explore ${album.project}, a ${album.category.toLowerCase()} photography project by Yang Photography in Taiwan.`;
 ---
 
-<Layout title={`${album.project} | ${album.category}`}>
+<Layout title={projectTitle} description={projectDescription} image={coverImage}>
 	<!-- Project Header: 返回按鈕靠左，內容主體置中 -->
 	<header class="py-12 md:py-20 animate-fade-in relative flex flex-col items-center">
 		

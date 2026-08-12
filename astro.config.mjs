@@ -10,5 +10,7 @@ export default defineConfig({
     plugins: [tailwindcss()]
   },
   output: 'static',
-  integrations: [sitemap()]
+	integrations: [sitemap({
+		filter: (page) => new URL(page).pathname !== '/travel/',
+	})]
 });

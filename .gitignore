@@ -27,3 +27,21 @@ pnpm-debug.log*
 tmp/
 contact_sheets/
 temp_vision/
+__pycache__/
+*.py[cod]
+
+# Local staging area for photos waiting to be published.
+# Keep the instructions in Git, but never commit the copied image files.
+/Website_Queue/**
+!/Website_Queue/
+!/Website_Queue/README.md
+!/Website_Queue/**/
+!/Website_Queue/**/README.md
+
+# Local experiments: keep code and notes, ignore generated output and large test media.
+/workspace/runs/**
+!/workspace/runs/
+!/workspace/runs/README.md
+/workspace/fixtures/**
+!/workspace/fixtures/
+!/workspace/fixtures/README.md

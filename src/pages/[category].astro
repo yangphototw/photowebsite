@@ -76,7 +76,7 @@ const bookingServiceByCategory: Record<string, string> = {
 	wedding: '婚禮記錄',
 	registration: '登記寫真',
 	portrait: '個人人像',
-	travel: '旅拍隨筆',
+	travel: '客製化方案',
 	product: '商品攝影',
 	event: '活動記錄',
 };
@@ -92,9 +92,9 @@ const categoryDescription = `Yang Photography ${categoryName} (${chName}) 攝影
 <Layout title={`${categoryName} / ${chName} 作品集 | Yang Photography`} description={categoryDescription} image={coverImage}>
 	<!-- 極簡標題標識 -->
 	<section class="py-8 md:py-12 animate-fade-in text-center flex flex-col items-center">
-		<div class="flex items-center gap-3 text-zinc-500 font-light tracking-[0.4em] text-[10px] uppercase">
+		<h1 class="flex items-center gap-3 text-zinc-500 font-light tracking-[0.4em] text-[10px] uppercase">
 			<span>{categoryName} / {chName}</span>
-		</div>
+		</h1>
         <div class="h-px w-12 bg-zinc-800 mt-4"></div>
 	</section>
 
@@ -196,7 +196,7 @@ const categoryDescription = `Yang Photography ${categoryName} (${chName}) 攝影
 
 	<section class="pb-24 -mt-12 text-center animate-fade-in">
 		<div class="max-w-2xl mx-auto rounded-2xl border border-amber-500/25 bg-amber-500/[0.04] px-7 py-10 md:px-12">
-			<p class="text-[10px] tracking-[0.32em] uppercase text-amber-300/80">Your session starts here</p>
+			<p class="session-kicker text-[10px] tracking-[0.32em] uppercase text-amber-300/80">Your session starts here</p>
 			<h2 class="mt-4 font-serif text-3xl text-white">Like what you see?</h2>
 			<p class="mt-3 text-sm leading-7 text-zinc-400">想拍出屬於你的 {chName} 作品嗎？選幾個方便的時段，讓我們一起確認細節。</p>
 			<a href={`/booking?service=${encodeURIComponent(bookingService)}`} class="uiverse-glow-btn inline-flex items-center gap-2 mt-7 rounded-full border border-amber-500/50 bg-amber-500/10 px-6 py-3 text-xs font-bold tracking-widest text-amber-200 transition-all duration-300 hover:border-amber-500/70 hover:bg-amber-500/20">
@@ -212,6 +212,9 @@ const categoryDescription = `Yang Photography ${categoryName} (${chName}) 攝影
 		}
 		.animate-fade-in {
 			animation: fadeIn 1.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+		}
+		html[data-theme="light"] .session-kicker {
+			color: #92400e !important;
 		}
 	</style>
 </Layout>

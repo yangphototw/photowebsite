@@ -9,13 +9,16 @@ interface Props {
 	minimal?: boolean;
 }
 
-const { 
-	title = "Yang Photography | 獨立攝影與視覺敘事", 
-	description = "Yang Photography - 駐點台灣的獨立攝影師。提供婚禮記錄、登記寫真、個人人像、旅拍隨筆、商品攝影與活動紀錄。捕捉自然光影，紀錄真實而純粹的瞬間。",
+const {
+	title,
+	description,
 	image = "https://yangphoto.vercel.app/images/albums/00_Home/Carousel/DSC06557.webp",
 	fullWidth = false, 
 	minimal = false 
 } = Astro.props;
+
+const defaultTitle = "Yang Photography | 獨立攝影與視覺敘事";
+const defaultDescription = "Yang Photography - 駐點台灣的獨立攝影師。提供婚禮記錄、登記寫真、個人人像、旅拍隨筆、商品攝影與活動紀錄。捕捉自然光影，紀錄真實而純粹的瞬間。";
 
 const pathname = new URL(Astro.url).pathname.replace(/\/$/, '') || '/';
 const siteUrl = Astro.site ? Astro.site.origin : 'https://yangphoto.vercel.app';
@@ -48,12 +51,9 @@ Object.assign(pageMetadata, {
 	'/about': { title: 'About Yang | Yang Photography', description: 'Meet Yang, a photographer who documents stories through natural light and genuine interaction.' },
 	'/links': { title: 'Yang Photography | Links', description: 'Find Yang Photography portfolio, services, booking and Instagram links.' },
 });
-const portfolioMetadata = pathname.startsWith('/portfolio/')
-	? { title: 'Photography Portfolio | Yang Photography', description: 'Explore Yang Photography wedding, portrait, event and commercial photography portfolio.' }
-	: undefined;
-const resolvedMetadata = pageMetadata[pathname] || portfolioMetadata;
-const seoTitle = resolvedMetadata?.title || title;
-const seoDescription = resolvedMetadata?.description || description;
+const resolvedMetadata = pageMetadata[pathname];
+const seoTitle = resolvedMetadata?.title || title || defaultTitle;
+const seoDescription = resolvedMetadata?.description || description || defaultDescription;
 
 // 導覽定義
 const navItems = [
@@ -61,7 +61,6 @@ const navItems = [
 	{ name: 'Wedding / 婚禮', href: '/wedding' },
 	{ name: 'Registration / 登記', href: '/registration' },
 	{ name: 'Portrait / 人像', href: '/portrait' },
-	{ name: 'Travel / 旅遊', href: '/travel' },
 	{ name: 'Product / 商品', href: '/product' },
 	{ name: 'Event / 活動紀錄', href: '/event' },
 	{ name: 'Service / 服務', href: '/service' },
@@ -498,7 +497,7 @@ const navItems = [
 						</button>
 
 						<!-- 手機版選單按鈕：同樣移除實心黑底，改為帶極細黑描邊的選單字體 -->
-						<button id="menu-toggle" aria-label="Open navigation menu" class="nav-link md:hidden min-h-11 text-zinc-200 text-[11px] tracking-[0.4em] uppercase font-medium flex items-center gap-4 py-2 hover:text-amber-400 transition-colors duration-300 cursor-pointer">
+						<button id="menu-toggle" aria-label="Open navigation menu" aria-controls="mobile-menu-overlay" aria-expanded="false" class="nav-link md:hidden min-h-11 text-zinc-200 text-[11px] tracking-[0.4em] uppercase font-medium flex items-center gap-4 py-2 hover:text-amber-400 transition-colors duration-300 cursor-pointer">
 							<span class="w-8 h-px bg-white/30 shadow-[0_1px_2px_rgba(0,0,0,0.8)]"></span>MENU / 選單<span class="w-8 h-px bg-white/30 shadow-[0_1px_2px_rgba(0,0,0,0.8)]"></span>
 						</button>
 					</nav>
@@ -516,7 +515,7 @@ const navItems = [
 		)}
 
 		{ !minimal && (
-			<div id="mobile-menu-overlay" class="fixed inset-0 bg-black z-[100] opacity-0 pointer-events-none transition-opacity duration-700 flex flex-col items-center justify-center p-8 overflow-y-auto">
+			<div id="mobile-menu-overlay" role="dialog" aria-modal="true" aria-label="Navigation menu" aria-hidden="true" class="fixed inset-0 bg-black z-[100] opacity-0 pointer-events-none transition-opacity duration-700 flex flex-col items-center justify-center p-8 overflow-y-auto">
 				<button id="menu-close" aria-label="Close navigation menu" class="absolute top-7 right-7 w-11 h-11 flex items-center justify-center text-zinc-500 hover:text-white text-3xl font-thin">&times;</button>
 				<ul class="flex flex-col items-center gap-8 text-center">
 					{navItems.map((item, index) => (
@@ -545,7 +544,7 @@ const navItems = [
 		)}
 
 		<!-- 展覽級升級版全域燈箱 (含頂部計數器、導覽與滑動) -->
-		<div id="lightbox" class="fixed inset-0 bg-black/95 z-[100] hidden opacity-0 transition-opacity duration-500 flex flex-col items-center justify-between p-4 md:p-8 select-none">
+		<div id="lightbox" role="dialog" aria-modal="true" aria-label="Image viewer" class="fixed inset-0 bg-black/95 z-[100] hidden opacity-0 transition-opacity duration-500 flex flex-col items-center justify-between p-4 md:p-8 select-none">
 			<div id="lightbox-backdrop" class="absolute inset-0 cursor-zoom-out"></div>
 			
 			<!-- 頂部列 (計數器 + 關閉) -->
@@ -572,7 +571,7 @@ const navItems = [
 
 				<!-- 主大圖 -->
 				<div class="flex-grow flex items-center justify-center h-full w-full pointer-events-auto">
-					<img id="lightbox-img" src="" alt="Gallery Image" class="max-w-full max-h-[80vh] object-contain shadow-[0_0_50px_rgba(0,0,0,0.8)] scale-95 transition-all duration-300" />
+					<img id="lightbox-img" alt="" class="max-w-full max-h-[80vh] object-contain shadow-[0_0_50px_rgba(0,0,0,0.8)] scale-95 transition-all duration-300" />
 				</div>
 
 				<!-- 下一張 -->
@@ -610,8 +609,23 @@ const navItems = [
 				const toggle = document.getElementById('menu-toggle');
 				const close = document.getElementById('menu-close');
 				const overlay = document.getElementById('mobile-menu-overlay');
-				const openMenu = () => { overlay?.classList.add('active'); document.body.style.overflow = 'hidden'; };
-				const closeMenu = () => { overlay?.classList.remove('active'); document.body.style.overflow = ''; };
+				const openMenu = () => {
+					overlay?.classList.add('active');
+					overlay?.setAttribute('aria-hidden', 'false');
+					toggle?.setAttribute('aria-expanded', 'true');
+					toggle?.setAttribute('aria-label', 'Close navigation menu');
+					document.body.style.overflow = 'hidden';
+					requestAnimationFrame(() => close?.focus());
+				};
+				const closeMenu = () => {
+					const restoreToggleFocus = Boolean(overlay?.contains(document.activeElement));
+					overlay?.classList.remove('active');
+					overlay?.setAttribute('aria-hidden', 'true');
+					toggle?.setAttribute('aria-expanded', 'false');
+					toggle?.setAttribute('aria-label', 'Open navigation menu');
+					document.body.style.overflow = '';
+					if (restoreToggleFocus) toggle?.focus();
+				};
 				
 				if (toggle && !toggle.dataset.bound) {
 					toggle.dataset.bound = 'true';
@@ -631,6 +645,9 @@ const navItems = [
 					overlay.dataset.bound = 'true';
 					overlay.addEventListener('click', (e) => {
 						if (e.target === overlay) closeMenu();
+					});
+					overlay.addEventListener('keydown', (e) => {
+						if (e.key === 'Escape') closeMenu();
 					});
 				}
 
@@ -760,6 +777,7 @@ const navItems = [
 
 				if (counter) counter.textContent = `${currentIndex + 1} / ${currentGallery.length}`;
 				if (caption) caption.textContent = item.alt || 'Yang Photography';
+				lightboxImg.alt = item.alt || '';
 
 				// 🚀 核心極致優化 1：靜默預載相鄰的「下一張」與「上一張」圖片進瀏覽器快取 (Memory Cache)
 				const nextIndex = (currentIndex + 1) % currentGallery.length;
