@@ -62,7 +62,7 @@ const projectDescription = `Explore ${album.project}, a ${album.category.toLower
 	<div class="columns-2 sm:columns-3 gap-6 space-y-6 pb-32 animate-fade-in">
 		{album.images.map((img) => (
 			<div 
-				class="break-inside-avoid overflow-hidden rounded-2xl bg-zinc-900 cursor-zoom-in group relative border border-zinc-800/30"
+				class="photo-reveal break-inside-avoid overflow-hidden rounded-2xl bg-zinc-900 cursor-zoom-in group relative border border-zinc-800/30"
 				style="contain: content; will-change: transform;"
 			>
 				<img
@@ -91,6 +91,4 @@ const projectDescription = `Explore ${album.project}, a ${album.category.toLower
 			animation: fadeIn 1.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 		}
 	</style>
-
-
 </Layout>

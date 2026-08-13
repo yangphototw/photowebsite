@@ -137,9 +137,9 @@ galleryImages = galleryImages.slice(0, HOME_GALLERY_LIMIT);
 
 		<!-- 下半部：六大主題卡片 (優化為滿版影像 + 金框 + 懸停文字彈出) -->
 		<div class="relative z-30 w-full px-8 md:px-16 max-w-7xl mx-auto animate-fade-in-up delay-200">
-			<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+			<div class="grid grid-cols-1 md:grid-cols-6 gap-6">
 				<!-- Wedding -->
-				<a href="/wedding" class="tilt-card group relative block overflow-hidden rounded-2xl aspect-[4/5] bg-zinc-900 border border-amber-500/30 hover:border-amber-500/60 hover:shadow-[0_0_40px_rgba(245,158,11,0.15)] transition-all duration-700">
+				<a href="/wedding" class="tilt-card photo-reveal md:col-span-2 group relative block overflow-hidden rounded-2xl aspect-[4/5] bg-zinc-900 border border-amber-500/30 hover:border-amber-500/60 hover:shadow-[0_0_40px_rgba(245,158,11,0.15)] transition-all duration-700">
 					<img src={cardWedding} loading="lazy" decoding="async" class="w-full h-full object-cover opacity-70 group-hover:opacity-100 group-hover:scale-[1.02] transition-all duration-700 ease-out" alt="Weddings" />
 					<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex flex-col justify-end p-8 opacity-0 group-hover:opacity-100 transition-opacity duration-700">
 						<div class="flex justify-between items-center transform translate-y-2 group-hover:translate-y-0 transition-transform duration-700">
@@ -150,7 +150,7 @@ galleryImages = galleryImages.slice(0, HOME_GALLERY_LIMIT);
 				</a>
 
 				<!-- Registration -->
-				<a href="/registration" class="tilt-card group relative block overflow-hidden rounded-2xl aspect-[4/5] bg-zinc-900 border border-amber-500/30 hover:border-amber-500/60 hover:shadow-[0_0_40px_rgba(245,158,11,0.15)] transition-all duration-700">
+				<a href="/registration" class="tilt-card photo-reveal md:col-span-2 group relative block overflow-hidden rounded-2xl aspect-[4/5] bg-zinc-900 border border-amber-500/30 hover:border-amber-500/60 hover:shadow-[0_0_40px_rgba(245,158,11,0.15)] transition-all duration-700">
 					<img src={cardRegistration} loading="lazy" decoding="async" class="w-full h-full object-cover opacity-70 group-hover:opacity-100 group-hover:scale-[1.02] transition-all duration-700 ease-out" alt="Registration" />
 					<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex flex-col justify-end p-8 opacity-0 group-hover:opacity-100 transition-opacity duration-700">
 						<div class="flex justify-between items-center transform translate-y-2 group-hover:translate-y-0 transition-transform duration-700">
@@ -161,7 +161,7 @@ galleryImages = galleryImages.slice(0, HOME_GALLERY_LIMIT);
 				</a>
 
 				<!-- Portrait -->
-				<a href="/portrait" class="tilt-card group relative block overflow-hidden rounded-2xl aspect-[4/5] bg-zinc-900 border border-amber-500/30 hover:border-amber-500/60 hover:shadow-[0_0_40px_rgba(245,158,11,0.15)] transition-all duration-700">
+				<a href="/portrait" class="tilt-card photo-reveal md:col-span-2 group relative block overflow-hidden rounded-2xl aspect-[4/5] bg-zinc-900 border border-amber-500/30 hover:border-amber-500/60 hover:shadow-[0_0_40px_rgba(245,158,11,0.15)] transition-all duration-700">
 					<img src={cardPortrait} loading="lazy" decoding="async" class="w-full h-full object-cover opacity-70 group-hover:opacity-100 group-hover:scale-[1.02] transition-all duration-700 ease-out" alt="Portraits" />
 					<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex flex-col justify-end p-8 opacity-0 group-hover:opacity-100 transition-opacity duration-700">
 						<div class="flex justify-between items-center transform translate-y-2 group-hover:translate-y-0 transition-transform duration-700">
@@ -172,7 +172,7 @@ galleryImages = galleryImages.slice(0, HOME_GALLERY_LIMIT);
 				</a>
 
 				<!-- Event -->
-				<a href="/event" class="tilt-card group relative block overflow-hidden rounded-2xl aspect-[4/5] bg-zinc-900 border border-amber-500/30 hover:border-amber-500/60 hover:shadow-[0_0_40px_rgba(245,158,11,0.15)] transition-all duration-700">
+				<a href="/event" class="tilt-card photo-reveal md:col-span-2 md:col-start-2 group relative block overflow-hidden rounded-2xl aspect-[4/5] bg-zinc-900 border border-amber-500/30 hover:border-amber-500/60 hover:shadow-[0_0_40px_rgba(245,158,11,0.15)] transition-all duration-700">
 					<img src={cardEvent} loading="lazy" decoding="async" class="w-full h-full object-cover opacity-70 group-hover:opacity-100 group-hover:scale-[1.02] transition-all duration-700 ease-out" alt="Events" />
 					<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex flex-col justify-end p-8 opacity-0 group-hover:opacity-100 transition-opacity duration-700">
 						<div class="flex justify-between items-center transform translate-y-2 group-hover:translate-y-0 transition-transform duration-700">
@@ -183,7 +183,7 @@ galleryImages = galleryImages.slice(0, HOME_GALLERY_LIMIT);
 				</a>
 
 				<!-- Product -->
-				<a href="/product" class="tilt-card group relative block overflow-hidden rounded-2xl aspect-[4/5] bg-zinc-900 border border-amber-500/30 hover:border-amber-500/60 hover:shadow-[0_0_40px_rgba(245,158,11,0.15)] transition-all duration-700">
+				<a href="/product" class="tilt-card photo-reveal md:col-span-2 group relative block overflow-hidden rounded-2xl aspect-[4/5] bg-zinc-900 border border-amber-500/30 hover:border-amber-500/60 hover:shadow-[0_0_40px_rgba(245,158,11,0.15)] transition-all duration-700">
 					<img src={cardProduct} loading="lazy" decoding="async" class="w-full h-full object-cover opacity-70 group-hover:opacity-100 group-hover:scale-[1.02] transition-all duration-700 ease-out" alt="Products" />
 					<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex flex-col justify-end p-8 opacity-0 group-hover:opacity-100 transition-opacity duration-700">
 						<div class="flex justify-between items-center transform translate-y-2 group-hover:translate-y-0 transition-transform duration-700">
@@ -244,7 +244,7 @@ galleryImages = galleryImages.slice(0, HOME_GALLERY_LIMIT);
 			<div class="columns-2 md:columns-2 lg:columns-3 gap-6 space-y-6">
 				{galleryImages.map((img) => (
 					<div 
-						class="break-inside-avoid overflow-hidden rounded-2xl bg-zinc-900 cursor-zoom-in group relative border border-zinc-800/50"
+						class="photo-reveal break-inside-avoid overflow-hidden rounded-2xl bg-zinc-900 cursor-zoom-in group relative border border-zinc-800/50"
 						style="contain: content; will-change: transform;"
 					>
 						<img
@@ -262,7 +262,6 @@ galleryImages = galleryImages.slice(0, HOME_GALLERY_LIMIT);
 			</div>
 		</section>
 	</div>
-
 
 	<script>
 		let carouselInterval: any;
@@ -296,6 +295,15 @@ galleryImages = galleryImages.slice(0, HOME_GALLERY_LIMIT);
 			}
 		};
 
-		document.addEventListener('astro:page-load', initFeatures);
+		const startHomeAnimations = () => {
+			initFeatures();
+		};
+
+		if (document.readyState === 'loading') {
+			document.addEventListener('DOMContentLoaded', startHomeAnimations, { once: true });
+		} else {
+			startHomeAnimations();
+		}
+		document.addEventListener('astro:page-load', startHomeAnimations);
 	</script>
 </Layout>

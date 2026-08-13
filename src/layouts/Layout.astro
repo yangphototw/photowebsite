@@ -183,6 +183,41 @@ const navItems = [
 				opacity: unset; /* 動畫完成後釋放 opacity 控制權 */
 			}
 
+			@media (prefers-reduced-motion: no-preference) {
+				.photo-reveal.motion-ready {
+					opacity: 0;
+					transform: translate3d(0, 42px, 0) rotateX(6deg) scale(0.96);
+					filter: blur(12px) saturate(0.75);
+					clip-path: inset(0 0 12% 0 round 1rem);
+					transition: opacity 1s ease var(--photo-reveal-delay), transform 1.35s cubic-bezier(0.16, 1, 0.3, 1) var(--photo-reveal-delay), filter 1.15s ease var(--photo-reveal-delay), clip-path 1.35s cubic-bezier(0.16, 1, 0.3, 1) var(--photo-reveal-delay);
+				}
+
+				.photo-reveal.motion-ready::after {
+					content: '';
+					position: absolute;
+					inset: 0;
+					z-index: 20;
+					pointer-events: none;
+					background: linear-gradient(115deg, transparent 28%, rgba(251, 191, 36, 0.34) 45%, rgba(255, 255, 255, 0.2) 50%, transparent 66%);
+					transform: translateX(-130%);
+				}
+
+				.photo-reveal.motion-ready.is-revealed {
+					opacity: 1;
+					transform: translate3d(0, 0, 0) rotateX(0) scale(1);
+					filter: none;
+					clip-path: inset(0 0 0 0 round 1rem);
+				}
+
+				.photo-reveal.motion-ready.is-revealed::after {
+					animation: photoRevealSheen 1.4s cubic-bezier(0.16, 1, 0.3, 1) var(--photo-reveal-delay) both;
+				}
+
+				@keyframes photoRevealSheen {
+					to { transform: translateX(130%); }
+				}
+			}
+
 			#mobile-menu-overlay.active {
 				opacity: 1;
 				pointer-events: auto;
@@ -708,6 +743,7 @@ const navItems = [
 
 				// 3D Tilt 視差微互動與動態反光
 				init3DTilt();
+				initPhotoReveal();
 			};
 			document.addEventListener('astro:page-load', init);
 
@@ -737,6 +773,41 @@ const navItems = [
 						el.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)';
 					});
 				});
+			};
+
+			const initPhotoReveal = () => {
+				if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+				const cards = Array.from(document.querySelectorAll('.photo-reveal')) as HTMLElement[];
+				const pendingCards = cards.filter((card) => !card.dataset.photoRevealBound);
+				if (!pendingCards.length) return;
+
+				let revealQueued = false;
+				const revealVisibleCards = () => {
+					revealQueued = false;
+					pendingCards.forEach((card) => {
+						if (card.classList.contains('is-revealed')) return;
+						const rect = card.getBoundingClientRect();
+						if (rect.top < window.innerHeight && rect.bottom > 0) card.classList.add('is-revealed');
+					});
+					if (pendingCards.every((card) => card.classList.contains('is-revealed'))) {
+						window.removeEventListener('scroll', queueReveal);
+					}
+				};
+				const queueReveal = () => {
+					if (revealQueued) return;
+					revealQueued = true;
+					requestAnimationFrame(revealVisibleCards);
+				};
+
+				pendingCards.forEach((card, index) => {
+					card.dataset.photoRevealBound = 'true';
+					card.style.setProperty('--photo-reveal-delay', `${(index % 3) * 160}ms`);
+					card.classList.add('motion-ready');
+				});
+				window.addEventListener('scroll', queueReveal, { passive: true });
+				document.addEventListener('astro:before-swap', () => window.removeEventListener('scroll', queueReveal), { once: true });
+				queueReveal();
 			};
 
 			// 2. Astro SPA 換頁後的主題重新同步與按鈕狀態更新

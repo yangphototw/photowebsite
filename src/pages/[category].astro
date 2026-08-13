@@ -104,7 +104,7 @@ const categoryDescription = `Yang Photography ${categoryName} (${chName}) 攝影
             <div class="columns-2 sm:columns-3 gap-6 space-y-6">
                 {directImages.map((img: any) => (
                     <div 
-                        class="break-inside-avoid overflow-hidden rounded-2xl bg-zinc-900 cursor-zoom-in group relative border border-zinc-800/50"
+						class="photo-reveal break-inside-avoid overflow-hidden rounded-2xl bg-zinc-900 cursor-zoom-in group relative border border-zinc-800/50"
                         style="contain: content; will-change: transform;"
                     >
                         <img
@@ -130,7 +130,7 @@ const categoryDescription = `Yang Photography ${categoryName} (${chName}) 攝影
                 <div class={`grid ${gridColsClass} gap-6 animate-fade-in`}>
                     {projectAlbums.map(album => (
                         <div class="relative group">
-                            <a href={`/portfolio/${album.categorySlug}/${album.projectSlug}`} class="group relative block overflow-hidden rounded-2xl aspect-[4/5] bg-zinc-900 border border-amber-500/30 hover:border-amber-500/60 hover:shadow-[0_0_40px_rgba(245,158,11,0.15)] transition-all duration-700">
+							<a href={`/portfolio/${album.categorySlug}/${album.projectSlug}`} class="photo-reveal group relative block overflow-hidden rounded-2xl aspect-[4/5] bg-zinc-900 border border-amber-500/30 hover:border-amber-500/60 hover:shadow-[0_0_40px_rgba(245,158,11,0.15)] transition-all duration-700">
                                 <img 
                                 	src={getThumbSrc(album.cover)} 
                                 	alt={album.project} 
@@ -161,7 +161,7 @@ const categoryDescription = `Yang Photography ${categoryName} (${chName}) 攝影
                     <div class="columns-2 sm:columns-3 gap-6 space-y-6">
                         {directImages.map((img: any) => (
                             <div 
-                                class="break-inside-avoid overflow-hidden rounded-2xl bg-zinc-900 cursor-zoom-in group relative border border-zinc-800/30"
+								class="photo-reveal break-inside-avoid overflow-hidden rounded-2xl bg-zinc-900 cursor-zoom-in group relative border border-zinc-800/30"
                                 style="contain: content; will-change: transform;"
                             >
                                 <img
